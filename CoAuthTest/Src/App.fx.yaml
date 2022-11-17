@@ -1,0 +1,7 @@
+App As appinfo:
+    BackEnabled: =false
+    OnStart: |-
+        =Set(varGlobalMessageLen, /*Len("Testing a very long string, because we need to know if there needs to be a character limit or if we can dynamically adjust it.")*/Len(First(Filter(tblAppGlobalMessage,Active=true)).Title)+150);
+        Set(varGlobalUser,LookUp(tblUsers, Email = User().Email));
+        Reset('dbug-btnGlobalUser')
+

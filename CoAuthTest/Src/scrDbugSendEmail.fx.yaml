@@ -1,0 +1,10 @@
+scrDbugSendEmail As screen:
+
+    Button1 As button:
+        OnSelect: |-
+            ='SmartApp-ManualIssueEmail'.Run("Activity#")
+        Text: ="Button"
+        X: =40
+        Y: =40
+        ZIndex: =1
+

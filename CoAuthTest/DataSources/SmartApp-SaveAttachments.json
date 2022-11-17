@@ -1,0 +1,9 @@
+[
+  {
+    "AddinConnectorId": "605d7f81-e2d3-4397-992d-7178b8959b78",
+    "AddinId": "6d1f157d-95bf-406d-b65d-cfd3240f724e",
+    "Name": "SmartApp-SaveAttachments",
+    "ServiceKind": "AddinWadl",
+    "Type": "ServiceInfo"
+  }
+]

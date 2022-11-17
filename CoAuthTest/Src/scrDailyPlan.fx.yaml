@@ -1,0 +1,434 @@
+scrDailyPlan As screen:
+    OnVisible: |-
+        =Set(varGlobalTime,Text(Now(),ShortDateTime));
+        Set(varSelectedDailyPlanProjectID,Blank());
+        Set(varSelectedDailyPlanProjectName,Blank());
+        Set(varSelectedDailyPlanProjectInternalID,Blank());
+        Set(varReportFilterProjectInternalID,Blank());
+        Reset(chkDailyPlanFinalizedFilter);
+
+    "galDailyPlanProjects As gallery.'BrowseLayout_Horizontal_TwoTextOneImageVariant_ver4.0'":
+        Height: =475
+        Items: |-
+            =If(
+                varGlobalUser.Role = "Admin",
+                If(
+                    varFinalizedProjectFilter,
+                    tblProjects,
+                    Filter(tblProjects, Finalized = false)
+                ),
+                If(
+                    varFinalizedProjectFilter,
+                    Filter(tblProjects,'Superintendent: Email'.Value = varGlobalUser.Email),
+                    Filter(tblProjects, Finalized = false,'Superintendent: Email'.Value = varGlobalUser.Email)
+                )
+            )
+        OnSelect: |
+            =Set(varSelectedDailyPlanProjectID,ThisItem.ID);
+            Set(varSelectedDailyPlanProjectName,ThisItem.ProjectName);
+            Set(varSelectedDailyPlanProjectInternalID,ThisItem.ProjectInternalID);
+            Set(varReportFilterProjectInternalID,ThisItem.ProjectInternalID)
+        TemplateFill: =If(ThisItem.Finalized, RGBA(244, 244, 244, 1), RGBA(255, 255, 255, 1))
+        TemplatePadding: =0
+        TemplateSize: =Min(440, Self.Height - 60)
+        Width: =768
+        Y: =325
+        ZIndex: =1
+
+        lblBackgroundSelected As label:
+            Fill: =If(And(ThisItem.IsSelected,varReportFilterProjectInternalID<>Blank()),RGBA(200,200,200,1), RGBA(0, 0, 0, 0))
+            Height: =475
+            OnSelect: =Select(Parent)
+            Text: =ThisItem.ICON_LOGO
+            Width: =414
+            ZIndex: =1
+
+        imgDailyPlanProjectImage As image:
+            BorderThickness: =2
+            Height: =296
+            Image: =ThisItem.ICON_LOGO
+            OnSelect: =Select(Parent)
+            RadiusBottomLeft: =5
+            RadiusBottomRight: =5
+            RadiusTopLeft: =5
+            RadiusTopRight: =5
+            Width: =Parent.TemplateWidth - 32
+            X: =(Parent.TemplateWidth / 2) - (Self.Width / 2)
+            Y: =16
+            ZIndex: =2
+
+        lblDailyPlanProjectNumber As label:
+            Align: =Align.Center
+            Height: =Self.Size * 1.8
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingTop: =0
+            Text: =ThisItem.ProjectInternalID //ThisItem.ProjectNum_Name
+            VerticalAlign: =VerticalAlign.Top
+            Width: =Parent.TemplateWidth - 64
+            X: =32
+            Y: =imgDailyPlanProjectImage.Y + imgDailyPlanProjectImage.Height + 10
+            ZIndex: =3
+
+        lblDailyPlanProjectName As label:
+            Align: =Align.Center
+            Height: =Self.Size * 1.8
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Text: =ThisItem.ProjectName
+            VerticalAlign: =VerticalAlign.Top
+            Width: =lblDailyPlanProjectNumber.Width
+            X: =lblDailyPlanProjectNumber.X
+            Y: =lblDailyPlanProjectNumber.Y + lblDailyPlanProjectNumber.Height + 8
+            ZIndex: =4
+
+        imgDailyPlanProjectImagePLACEHOLDER As image:
+            Height: =296
+            Image: =BuildingIcon
+            OnSelect: =Select(Parent)
+            PaddingBottom: =2
+            PaddingLeft: =2
+            PaddingRight: =2
+            PaddingTop: =2
+            Width: =340
+            X: =16
+            Y: =16
+            ZIndex: =5
+
+        lblDailyPlanFinalized As label:
+            Align: =Align.Center
+            Height: =Self.Size * 1.8
+            Italic: =true
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =15
+            Text: ="Finalized"
+            VerticalAlign: =VerticalAlign.Top
+            Visible: =If(ThisItem.Finalized, true, false)
+            Width: =lblDailyPlanProjectNumber.Width
+            X: =lblDailyPlanProjectNumber.X
+            Y: =lblDailyPlanProjectName.Y + lblDailyPlanProjectName.Height + 8
+            ZIndex: =6
+
+    lblDailyPlanMessage As label:
+        Align: =Align.Center
+        Height: =154.42
+        PaddingBottom: =3.75
+        PaddingLeft: =3.75
+        Size: =32
+        Text: =Concatenate(First(Split(varGlobalUser.Title," ")).Result," - Which project are you working on today?(Select Project)")
+        Width: =Parent.Width
+        Y: =187.73
+        ZIndex: =2
+
+    lblDailyPlanTitle As label:
+        Align: =Align.Center
+        FontWeight: =FontWeight.Bold
+        Height: =60
+        Size: =24
+        Text: ="Check-In"
+        Width: =331
+        X: =216
+        Y: =100
+        ZIndex: =3
+
+    icoDailyPlanBack As icon.BackArrow:
+        Height: =47.98
+        Icon: =Icon.BackArrow
+        OnSelect: |-
+            =UpdateContext({EditProjects:false});Navigate(scrHome,ScreenTransition.UnCoverRight)
+        PaddingBottom: =0.00
+        PaddingLeft: =0.00
+        Tooltip: ="Back to Home"
+        X: =20
+        Y: =100.33
+        ZIndex: =4
+
+    grpDailyPlanPopup As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =13
+
+        recDailyPlanPopupFade As rectangle:
+            Fill: =RGBA(166, 166, 166, 0.4)
+            Height: =942
+            Visible: =varDailyPlanPopup
+            Width: =768
+            Y: =81
+            ZIndex: =11
+
+        recDailyPlanPopupBackground As rectangle:
+            BorderColor: =RGBA(128, 128, 128, 1)
+            BorderThickness: =2
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =424
+            Visible: =varDailyPlanPopup
+            Width: =674
+            X: =45
+            Y: =187
+            ZIndex: =12
+
+        btnDailyPlanPopupOk As button:
+            Fill: =RGBA(168, 0, 0, 1)
+            Height: =49.48
+            HoverFill: =ColorFade(RGBA(168, 0, 0 , 1), -20%)
+            OnSelect: |-
+                =UpdateContext({varDailyPlanPopup:false}); Navigate(scrDailyPlanActivities)
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =14.99
+            Text: ="Ok"
+            Visible: =varDailyPlanPopup
+            Width: =264
+            X: =84
+            Y: =527
+            ZIndex: =13
+
+        btnDailyPlanPopupCancel As button:
+            Fill: =RGBA(168, 0, 0, 1)
+            Height: =49.48
+            HoverFill: =ColorFade(RGBA(168, 0, 0, 1), -20%)
+            OnSelect: |-
+                =Set(varSelectedDailyPlanProjectID,Blank());
+                Set(varSelectedDailyPlanProjectName,Blank());
+                Set(varSelectedDailyPlanProjectInternalID,Blank());
+                Set(varReportFilterProjectInternalID,Blank());
+                UpdateContext({varDailyPlanPopup:false})
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =14.99
+            Text: ="Cancel"
+            Visible: =varDailyPlanPopup
+            Width: =264
+            X: =419
+            Y: =527
+            ZIndex: =14
+
+        lblDailyPlanPopupMessage As label:
+            Align: =Align.Center
+            Height: =276
+            Size: =28
+            Text: |-
+                ="Thanks " & 
+                First(Split(varGlobalUser.Title," ")).Result & 
+                " -" &
+                Char(13) &
+                "You have selected the " & 
+                Char(13) &
+                varSelectedDailyPlanProjectName &
+                " project." & 
+                Char(13) & 
+                "Click 'Ok' to view today's scheduled activities."
+            Visible: =varDailyPlanPopup
+            Width: =674
+            X: =45
+            Y: =200
+            ZIndex: =15
+
+    chkDailyPlanFinalizedFilter As checkbox:
+        CheckboxBorderColor: =RGBA(56, 96, 178, 1)
+        FocusedBorderThickness: =0
+        Height: =75
+        OnCheck: =Set(varFinalizedProjectFilter, true)
+        OnUncheck: =Set(varFinalizedProjectFilter, false)
+        Size: =16
+        Text: ="Finalized"
+        Visible: =false
+        Width: =225
+        Y: =800
+        ZIndex: =16
+
+    Button2 As button:
+        DisplayMode: =If(IsBlank(varReportFilterProjectInternalID),DisplayMode.Disabled,DisplayMode.Edit)
+        OnSelect: |
+            =Set(varProjectFilterURL,"https://app.powerbi.com/reportEmbed?reportId=33e16d8b-d718-4d07-a748-a2a458f3c90c&autoAuth=true&ctid=40f59bdb-db20-494a-9b20-7fea60116f52&config=eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly93YWJpLXVzLW5vcnRoLWNlbnRyYWwtcmVkaXJlY3QuYW5hbHlzaXMud2luZG93cy5uZXQvIn0%3D?filterPaneEnabled=false&navContentPaneEnabled=false&$filter=tblProjects/ProjectInternalID%20eq%20%27"&varReportFilterProjectInternalID&"%27");Navigate(scrReports,ScreenTransition.Fade)
+        Text: ="Reports"
+        X: =92
+        Y: =835
+        ZIndex: =17
+
+    Button2_1 As button:
+        DisplayMode: =If(IsBlank(varReportFilterProjectInternalID),DisplayMode.Disabled,DisplayMode.Edit)
+        OnSelect: |-
+            =ClearCollect(
+                colFilteredDailyActivities,
+                Filter(
+                    tblDailyActivities,
+                    ProjectInternalID = varSelectedDailyPlanProjectInternalID
+                )
+            );
+            ClearCollect(
+                colCheckInActivities,
+                AddColumns(
+                    Filter(
+                        tblActivities,
+                        ProjectInternalID = varSelectedDailyPlanProjectInternalID,
+                        Today() >= DateValue(Text(PlanStartDate)) //&& Today() <= DateValue(Text(PlanEndDate))
+                    ),
+                    "RemainingDuration",
+                    ThisRecord.ActivityDuration - DateDiff(Today(), ThisRecord.PlanEndDate),
+                    "EstHoursToDate",
+                    (TotalManHours/ActivityDuration) * If(
+                        (ThisRecord.ActivityDuration < ThisRecord.ActivityDuration - DateDiff(Today(), ThisRecord.PlanEndDate)),
+                        ThisRecord.ActivityDuration,
+                        (ThisRecord.ActivityDuration - DateDiff(Today(), ThisRecord.PlanEndDate))
+                    ),
+                    "EstQTYToDate",
+                    (TotalMetricsQTY/ActivityDuration) * If(
+                        (ThisRecord.ActivityDuration < ThisRecord.ActivityDuration - DateDiff(Today(), ThisRecord.PlanEndDate)),
+                        ThisRecord.ActivityDuration,
+                        (ThisRecord.ActivityDuration - DateDiff(Today(), ThisRecord.PlanEndDate)-1)
+                    )
+                )
+            );
+            ClearCollect(
+                colCheckInSearchActivities,
+                AddColumns(
+                    Filter(
+                        tblActivities,
+                        ProjectInternalID = varSelectedDailyPlanProjectInternalID
+                    ),
+                    "RemainingDuration",
+                    ThisRecord.ActivityDuration - DateDiff(Today(), ThisRecord.PlanEndDate),
+                    "EstHoursToDate",
+                    (TotalManHours/ActivityDuration) * If(
+                        (ThisRecord.ActivityDuration < ThisRecord.ActivityDuration - DateDiff(Today(), ThisRecord.PlanEndDate)),
+                        ThisRecord.ActivityDuration,
+                        (ThisRecord.ActivityDuration - DateDiff(Today(), ThisRecord.PlanEndDate))
+                    ),
+                    "EstQTYToDate",
+                    (TotalMetricsQTY/ActivityDuration) * If(
+                        (ThisRecord.ActivityDuration < ThisRecord.ActivityDuration - DateDiff(Today(), ThisRecord.PlanEndDate)),
+                        ThisRecord.ActivityDuration,
+                        (ThisRecord.ActivityDuration - DateDiff(Today(), ThisRecord.PlanEndDate)-1)
+                    )
+                )
+            );
+            //Bypass popup for now
+            //UpdateContext({varDailyPlanPopup:true})
+            
+            Navigate(scrDailyPlanActivities)
+        Text: ="Check In"
+        X: =301
+        Y: =835
+        ZIndex: =18
+
+    btnDailyPlanAttachments As button:
+        DisplayMode: =If(IsBlank(varReportFilterProjectInternalID),DisplayMode.Disabled,DisplayMode.Edit)
+        OnSelect: =Navigate(scrAfternoonCheckinWrapUp)
+        PaddingBottom: =0
+        PaddingLeft: =0
+        PaddingRight: =0
+        PaddingTop: =0
+        Size: =13
+        Text: ="Daily Attachments"
+        X: =507
+        Y: =835
+        ZIndex: =19
+
+    btnAppExit_DailyPlanProjects As button:
+        Fill: =RGBA(168, 0, 0, 1)
+        Height: =25
+        HoverFill: =ColorFade(Self.Fill, -20%)
+        OnSelect: =Exit()
+        Size: =11
+        Text: ="Exit"
+        Width: =75
+        X: =585
+        Y: =31
+        ZIndex: =20
+
+    grpDailyPlanBanner As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =20
+
+        recDailyPlanBackground As rectangle:
+            Fill: =RGBA(204, 204, 204, 1)
+            Height: =85.33
+            Width: =768
+            Y: =0.00
+            ZIndex: =5
+
+        lblDailyPlanTodaysDate As label:
+            Align: =Align.Right
+            Height: =28.44
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =15
+            Text: =varGlobalTime //Text(Now(),ShortDateTime)
+            Width: =Parent.Width/2
+            X: =(recDailyPlanBackground.X+recDailyPlanBackground.Width)-lblDailyPlanTodaysDate.Width
+            Y: =0.00
+            ZIndex: =6
+
+        lblDailyPlanWelcome As label:
+            Align: =Align.Right
+            Height: =28.44
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =15
+            Text: =Concatenate("Welcome  ",varGlobalUser.Title)
+            Width: =Parent.Width/2
+            X: =(recDailyPlanBackground.X+recDailyPlanBackground.Width)-lblDailyPlanWelcome.Width
+            Y: =56.89
+            ZIndex: =7
+
+        lblDailyPlanTemp As label:
+            Align: =Align.Right
+            Height: =28.44
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =15
+            Text: =Weather.responses.weather.current.temp & Weather.units.temperature
+            Width: =Parent.Width/2
+            X: =(recDailyPlanActivitiesBackground.X+recDailyPlanActivitiesBackground.Width)-lblDailyPlanTemp.Width-imgDailyPlanWeather.Width
+            Y: =27
+            ZIndex: =8
+
+        imgDailyPlanWeather As image:
+            Height: =28
+            Image: |-
+                =varWeatherIcon 
+                /*If(
+                    "Sun" in Weather.responses.weather.current.cap,
+                    "data:image/svg+xml;utf8, %3Csvg%20%20viewBox%3D%270%200%202048%202048%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%3E%3Cpath%20d%3D%27M960%20512q93%200%20174%2035t143%2096%2096%20142%2035%20175q0%2093-35%20174t-96%20143-142%2096-175%2035q-93%200-174-35t-143-96-96-142-35-175q0-93%2035-174t96-143%20142-96%20175-35zm0%20768q66%200%20124-25t101-68%2069-102%2026-125q0-66-25-124t-69-101-102-69-124-26q-66%200-124%2025t-102%2069-69%20102-25%20124q0%2066%2025%20124t68%20102%20102%2069%20125%2025zm64-896H896V0h128v384zM896%201536h128v384H896v-384zm1024-640v128h-384V896h384zM384%201024H0V896h384v128zm123-426L236%20326l90-90%20272%20271-91%2091zm906%20724l271%20272-90%2090-272-271%2091-91zm0-724l-91-91%20272-271%2090%2090-271%20272zm-906%20724l91%2091-272%20271-90-90%20271-272z%27%20fill%3D%27%23FFFFFF%27%3E%3C%2Fpath%3E%3C%2Fsvg%3E",
+                    "Clear" in Weather.responses.weather.current.cap,
+                    "data:image/svg+xml;utf8, %3Csvg%20%20viewBox%3D%270%200%202048%202048%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%3E%3Cpath%20d%3D%27M1761%201036q64%2018%20116%2053t91%2084%2059%20109%2021%20126q0%2080-30%20149t-82%20122-123%2083-149%2030H576q-93%200-174-35t-143-96-96-142-35-175q0-66%2019-128t54-117%2084-96%20111-69q-12-49-12-102%200-93%2035-174t96-143%20142-96%20175-35q64%200%20125%2018t113%2051%2095%2081%2070%20106q90%203%20173%2033t152%2082%20122%20124%2079%20157zM832%20512q-66%200-124%2025t-102%2069-69%20102-25%20124q0%2017%201%2033t7%2034q28-3%2056-3%2038%200%2075%206t72%2019q29-51%2069-94t89-78%20102-59%20112-37q-44-66-114-103t-149-38zm832%201152q53%200%2099-20t82-55%2055-81%2020-100q0-55-20-102t-57-81-84-53-102-20q-12-82-51-152t-97-122-134-81-159-29q-77%200-146%2025t-127%2069-98%20106-61%20135q-44-38-97-58t-111-21q-66%200-124%2025t-102%2068-69%20102-25%20125q0%2066%2025%20124t68%20102%20102%2069%20125%2025h1088zM256%20896H0V768h256v128zm123-426L198%20289l91-91%20181%20181-91%2091zm517-214H768V0h128v256zm389%20214l-91-91%20181-181%2091%2091-181%20181z%27%20fill%3D%27%23FFFFFF%27%3E%3C%2Fpath%3E%3C%2Fsvg%3E",
+                    "Cloud" in Weather.responses.weather.current.cap,
+                    "data:image/svg+xml;utf8, %3Csvg%20%20viewBox%3D%270%200%202048%202048%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%3E%3Cpath%20d%3D%27M1761%201036q64%2018%20116%2053t91%2084%2059%20109%2021%20126q0%2080-30%20149t-82%20122-123%2083-149%2030H576q-93%200-174-35t-143-96-96-142-35-175q0-75%2024-144-71-54-111-134T0%20896q0-79%2030-149t82-122%20122-83%20150-30h21q10%200%2022%202%2027-60%2069-107t95-81%20114-52%20127-18q84%200%20159%2029t135%2081%2099%20123%2051%20154q84%208%20160%2040t140%2085%20111%20120%2074%20148zM384%20640q-53%200-99%2020t-82%2055-55%2081-20%20100q0%2054%2021%20102t62%2086q63-89%20159-138t206-50q38%200%2075%206t72%2019q32-57%2078-104t101-83%20117-59%20127-31q-11-56-39-104t-71-82-94-54-110-20q-62%200-117%2022t-98%2062-70%2093-32%20116q-30-17-63-27t-68-10zm1280%201024q53%200%2099-20t82-55%2055-81%2020-100q0-55-20-102t-57-81-84-54-102-19q-12-82-51-152t-97-122-134-81-159-29q-77%200-146%2025t-127%2069-98%20106-61%20135q-44-38-97-58t-111-21q-66%200-124%2025t-102%2068-69%20102-25%20125q0%2066%2025%20124t68%20102%20102%2069%20125%2025h1088z%27%20fill%3D%27%23FFFFFF%27%3E%3C%2Fpath%3E%3C%2Fsvg%3E",
+                    "Rain" in Weather.responses.weather.current.cap,
+                    "data:image/svg+xml;utf8, %3Csvg%20%20viewBox%3D%270%200%202048%202048%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%3E%3Cpath%20d%3D%27M850%201827q14%2030%2014%2061%200%2033-12%2062t-35%2051-51%2034-62%2013q-33%200-62-12t-51-35-34-51-13-62q0-31%2014-61l146-291%20146%20291zm768%200q14%2030%2014%2061%200%2033-12%2062t-35%2051-51%2034-62%2013q-33%200-62-12t-51-35-34-51-13-62q0-31%2014-61l146-291%20146%20291zm-384-256q14%2030%2014%2061%200%2033-12%2062t-35%2051-51%2034-62%2013q-33%200-62-12t-51-35-34-51-13-62q0-31%2014-61l146-291%20146%20291zm527-535q63%2017%20115%2052t91%2085%2060%20109%2021%20126q0%2066-22%20126t-61%20110-93%2085-118%2051l-60-120q48-6%2089-27t72-56%2047-77%2018-92q0-55-20-102t-57-81-84-53-102-20q-12-82-51-152t-97-122-134-81-159-29q-77%200-146%2025t-127%2069-98%20106-61%20135q-44-38-97-58t-111-21q-66%200-124%2025t-102%2068-69%20102-25%20125q0%2053%2017%20102t47%2089%2073%2070%2094%2045l-57%20114q-67-23-122-65t-96-97-62-120-22-138q0-93%2035-174t96-142%20142-96%20175-36q74%200%20147%2025%2039-65%2092-117t117-88%20136-56%20148-20q93%200%20178%2029t158%2081%20126%20125%2083%20161z%27%20fill%3D%27%23FFFFFF%27%3E%3C%2Fpath%3E%3C%2Fsvg%3E",
+                    "Thunder" in Weather.responses.weather.current.cap,
+                    "data:image/svg+xml;utf8, %3Csvg%20%20viewBox%3D%270%200%202048%202048%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%3E%3Cpath%20d%3D%27M1761%201036q63%2017%20115%2052t91%2085%2060%20109%2021%20126q0%2080-30%20149t-82%20122-123%2083-149%2030h-384l128-128h256q53%200%2099-20t82-55%2055-81%2020-100q0-55-20-101t-57-81-83-54-102-20q-12-82-51-152t-98-122-134-81-159-29q-77%200-146%2025t-127%2069-98%20106-61%20135q-44-38-97-58t-111-21q-66%200-124%2025t-102%2068-69%20102-25%20125q0%2066%2025%20124t68%20102%20102%2069%20125%2025h256l-64%20128H576q-93%200-174-35t-142-96-96-142-36-175q0-75%2024-144-71-54-111-134T0%20896q0-79%2030-149t82-122%20122-83%20150-30h21q10%200%2022%202%2027-60%2069-107t95-81%20114-52%20127-18q84%200%20159%2029t135%2081%2099%20123%2051%20154q84%209%20160%2041t139%2084%20112%20120%2074%20148zM723%20921q34-57%2079-104t100-83%20116-59%20128-31q-11-56-40-104t-70-82-94-54-110-20q-62%200-117%2022t-98%2062-70%2093-32%20116q-30-17-63-27t-68-10q-53%200-99%2020t-82%2055-55%2081-20%20100q0%2054%2021%20103t63%2085q63-89%20159-138t205-50q74%200%20147%2025zm109%201127l256-512H864l192-384h224l-128%20256h320l-640%20640z%27%20fill%3D%27%23FFFFFF%27%3E%3C%2Fpath%3E%3C%2Fsvg%3E",
+                    "Snow" in Weather.responses.weather.current.cap,
+                    "data:image/svg+xml;utf8, %3Csvg%20%20viewBox%3D%270%200%202048%202048%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%3E%3Cpath%20d%3D%27M1511%201504q26%200%2044%2019t19%2045q0%2036-32%2055l-70%2041%2070%2041q32%2019%2032%2055%200%2027-19%2045t-45%2019q-13%200-26-5t-27-13-26-16-23-15q0%2019%201%2044t-3%2047-18%2038-44%2016q-30%200-44-15t-18-38-4-48%202-44q-11%206-23%2014t-25%2016-27%2013-27%206q-26%200-45-18t-19-46q0-36%2032-55l70-41-70-41q-32-19-32-55%200-26%2018-45t45-19q13%200%2027%205t27%2014%2026%2016%2023%2014q0-19-1-44t2-47%2019-38%2044-16q30%200%2043%2015t18%2038%204%2048-1%2044q10-6%2022-14t26-16%2028-13%2027-6zm-533%20323q14%2030%2014%2061%200%2033-12%2062t-35%2051-51%2034-62%2013q-33%200-62-12t-51-35-34-51-13-62q0-31%2014-61l146-291%20146%20291zm783-791q63%2017%20115%2052t91%2085%2060%20109%2021%20126q0%2061-18%20117t-52%20104-81%2083-105%2056v-139q59-35%2093-93t35-128q0-55-20-101t-57-81-83-54-102-20q-12-82-51-152t-98-122-134-81-159-29q-77%200-146%2025t-127%2069-98%20106-61%20135q-44-38-97-58t-111-21q-66%200-124%2025t-102%2068-69%20102-25%20125q0%2066%2025%20124t68%20102%20102%2069%20125%2025l-61%20122q-83-11-154-50t-122-98-81-135-30-159q0-93%2035-174t96-142%20142-96%20175-36q74%200%20147%2025%2039-65%2092-117t117-88%20136-56%20148-20q93%200%20178%2029t158%2081%20126%20125%2083%20161z%27%20fill%3D%27%23FFFFFF%27%3E%3C%2Fpath%3E%3C%2Fsvg%3E"
+                )*/
+            PaddingRight: =5
+            Width: =28
+            X: =recHomeBanner.Width-Self.Width
+            Y: =28
+            ZIndex: =9
+
+        imgDailyPlanBannerImage As image:
+            Height: =86
+            Image: ='SMART HEader'
+            OnSelect: |-
+                =Navigate(scrHome);
+                Set(varSelectedDailyPlanProjectID,Blank());
+                Set(varSelectedDailyPlanProjectName,Blank());
+                Set(varSelectedDailyPlanProjectInternalID,Blank());
+                UpdateContext({varDailyPlanPopup:false})
+            Width: =574
+            ZIndex: =10
+

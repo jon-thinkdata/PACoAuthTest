@@ -1,0 +1,9 @@
+[
+  {
+    "AddinConnectorId": "f3d202e9-1cb4-422c-af54-801bb27407b2",
+    "AddinId": "6d1f157d-95bf-406d-b65d-cfd3240f724e",
+    "Name": "SmartApp-IssueEmail",
+    "ServiceKind": "AddinWadl",
+    "Type": "ServiceInfo"
+  }
+]

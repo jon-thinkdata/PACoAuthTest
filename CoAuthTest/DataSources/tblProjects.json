@@ -1,0 +1,53 @@
+[
+  {
+    "ApiId": "/providers/microsoft.powerapps/apis/shared_sharepointonline",
+    "CdpRevision": {
+      "BaseUrl": "/",
+      "LastChangedTimeString": "2022-06-02T17:39:24.1330000Z",
+      "RevisionNumber": 1
+    },
+    "ConnectedDataSourceInfoNameMapping": {
+      "{FilenameWithExtension}": "File name with extension",
+      "{FullPath}": "Full Path",
+      "{Identifier}": "Identifier",
+      "{IsFolder}": "IsFolder",
+      "{Link}": "Link to item",
+      "{ModerationComment}": "Comments associated with the content approval of this list item",
+      "{ModerationStatus}": "Content approval status",
+      "{Name}": "Name",
+      "{Path}": "Folder path",
+      "{Thumbnail}": "Thumbnail",
+      "{TriggerWindowEndToken}": "Trigger Window End Token",
+      "{TriggerWindowStartToken}": "Trigger Window Start Token",
+      "{VersionNumber}": "Version number",
+      "Author": "Created By",
+      "Author#Claims": "Created By Claims",
+      "ComplianceAssetId": "Compliance Asset Id",
+      "Created": "Created",
+      "Editor": "Modified By",
+      "Editor#Claims": "Modified By Claims",
+      "Finalized": "Finalized",
+      "ICON_LOGO": "ICON_LOGO",
+      "ID": "ID",
+      "Modified": "Modified",
+      "OData__OldID": "_OldID",
+      "Project_x0020_Start_x0020_Date": "Project Start Date",
+      "ProjectAutoID": "ProjectAutoID",
+      "ProjectInternalID": "ProjectInternalID",
+      "ProjectName": "ProjectName",
+      "ProjectNum_Name": "ProjectNum_Name",
+      "Revised_CompletionDate": "Revised_CompletionDate",
+      "Superintendent": "Superintendent",
+      "Superintendent#Id": "Superintendent Id",
+      "Superintendent_x003a__x0020_Emai": "Superintendent: Email",
+      "Superintendent_x003a__x0020_Emai#Id": "Superintendent: Email Id",
+      "Title": "Title"
+    },
+    "DatasetName": "https://thinkdata.sharepoint.com/sites/SMARTApp",
+    "EncodeDataset": true,
+    "IsSampleData": false,
+    "IsWritable": true,
+    "Name": "tblProjects",
+    "Type": "ConnectedDataSourceInfo"
+  }
+]

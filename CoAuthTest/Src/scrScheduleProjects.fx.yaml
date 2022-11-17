@@ -1,0 +1,180 @@
+scrScheduleProjects As screen:
+    OnVisible: =
+
+    lblMessage As label:
+        Align: =Align.Center
+        Height: =154.42
+        PaddingBottom: =3.75
+        PaddingLeft: =3.75
+        Size: =26.99
+        Text: =Concatenate(User().FullName," - Which project would you like to add activities for?")
+        Width: =Parent.Width
+        Y: =187.73
+        ZIndex: =5
+
+    btnNewProject As button:
+        DisplayMode: =If(EditProjects,Disabled,DisplayMode.Edit)
+        Fill: =RGBA(168, 0, 0, 1)
+        Height: =49.48
+        OnSelect: =Navigate(scrScheduleAddProject,ScreenTransition.Cover)
+        PaddingBottom: =3.75
+        PaddingLeft: =3.75
+        Size: =14.99
+        Text: ="New Project"
+        Width: =264
+        X: =(Parent.Width-btnNewProject.Width)/2
+        Y: =899.56
+        ZIndex: =6
+
+    icoBack As icon.BackArrow:
+        DisplayMode: =If(EditProjects,Disabled,DisplayMode.Edit)
+        Height: =47.98
+        Icon: =Icon.BackArrow
+        OnSelect: |-
+            =UpdateContext({EditProjects:false});Navigate(scrHome,ScreenTransition.UnCoverRight)
+        PaddingBottom: =0.00
+        PaddingLeft: =0.00
+        X: =20
+        Y: =100.33
+        ZIndex: =8
+
+    btnEditProjects As button:
+        Fill: =If(EditProjects,RGBA(50,50,50,1),RGBA(56, 96, 178, 1))
+        Height: =49.48
+        OnSelect: |-
+            =UpdateContext({EditProjects:!EditProjects})
+        PaddingBottom: =3.75
+        PaddingLeft: =3.75
+        Size: =14.99
+        Text: ="Edit Projects"
+        Width: =264
+        X: =(Parent.Width-btnEditProjects.Width)-20
+        Y: =100.33
+        ZIndex: =9
+
+    "galProjects As gallery.'BrowseLayout_Horizontal_TwoTextOneImageVariant_ver4.0'":
+        Fill: =RGBA(255, 255, 255, 1)
+        Height: =432
+        Items: =tblProjects
+        OnSelect: |-
+            =Set(SelectedProjectID,ThisItem.ProjectInternalID);Set(SelectedProjectImgID,ThisItem.ImageID);/*ClearCollect(
+                colAddActivities,
+                {
+                    ProjectID: ThisItem.ProjectID,
+                    ProjectName: ThisItem.ProjectName,
+                    ProjectNum: ThisItem.ProjectNum
+                }
+            );*/
+            If(
+                EditProjects,
+                Navigate(scrScheduleEditProject,ScreenTransition.Cover),
+                Navigate(scrScheduleProjectActivities,ScreenTransition.Cover)
+            )
+        TemplatePadding: =0
+        TemplateSize: =Min(440, Self.Height - 60)
+        Width: =768
+        Y: =326
+        ZIndex: =10
+
+        Image3 As image:
+            BorderThickness: =2
+            Height: =296
+            Image: =LookUp('[dbo].[tblImages]',ThisItem.ImageID = ImageID).Image
+            OnSelect: =Select(Parent)
+            RadiusBottomLeft: =5
+            RadiusBottomRight: =5
+            RadiusTopLeft: =5
+            RadiusTopRight: =5
+            Width: =Parent.TemplateWidth - 32
+            X: =(Parent.TemplateWidth / 2) - (Self.Width / 2)
+            Y: =16
+            ZIndex: =1
+
+        Title1 As label:
+            Align: =Align.Center
+            Height: =Self.Size * 1.8
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Text: =ThisItem.ProjectNum_Name
+            VerticalAlign: =VerticalAlign.Top
+            Width: =Parent.TemplateWidth - 64
+            X: =32
+            Y: =Image3.Y + Image3.Height + 16
+            ZIndex: =2
+
+        Subtitle1 As label:
+            Align: =Align.Center
+            Height: =Self.Size * 1.8
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Text: =ThisItem.ProjectName
+            VerticalAlign: =VerticalAlign.Top
+            Width: =Title1.Width
+            X: =Title1.X
+            Y: =Title1.Y + Title1.Height + 8
+            ZIndex: =3
+
+        Icon4 As icon.Edit:
+            Icon: =Icon.Edit
+            OnSelect: =Select(Parent)
+            Visible: =If(IsBlank(EditProjects),false,EditProjects)
+            X: =292
+            Y: =340
+            ZIndex: =4
+
+    grpBanner_1 As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =10
+
+        recBanner_1 As rectangle:
+            Height: =85.33
+            Width: =768
+            Y: =0.00
+            ZIndex: =1
+
+        imgClientLogo_1 As image:
+            Height: =77.84
+            Image: =ComfortSystemsLogo
+            ImagePosition: =ImagePosition.Fill
+            PaddingBottom: =0.00
+            PaddingLeft: =0.00
+            Width: =imgClientLogo_1.Height*2
+            X: =recBanner_1.X+5
+            Y: =3.75
+            ZIndex: =2
+
+        "'lblToday''sDate_1' As label":
+            Align: =Align.Right
+            Color: =RGBA(255, 255, 255, 1)
+            Height: =28.44
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =13.49
+            Text: =Today()
+            Width: =Parent.Width/2
+            X: =(recBanner_1.X+recBanner_1.Width)-'lblToday''sDate_1'.Width
+            Y: =0.00
+            ZIndex: =3
+
+        lblWelcome_1 As label:
+            Align: =Align.Right
+            Color: =RGBA(255, 255, 255, 1)
+            Height: =28.44
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =13.49
+            Text: =Concatenate("Welcome  ",User().FullName)
+            Width: =Parent.Width/2
+            X: =(recBanner_1.X+recBanner_1.Width)-lblWelcome_1.Width
+            Y: =56.89
+            ZIndex: =4
+

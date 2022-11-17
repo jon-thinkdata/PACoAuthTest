@@ -1,0 +1,2284 @@
+scrDailyPlanQuestions As screen:
+    OnVisible: |-
+        =Set(varGlobalTime,Text(Now(),ShortDateTime));
+        UpdateContext({varResetRadio:true});
+        UpdateContext({varResetRadio:false});
+        UpdateContext({varDailyPlanTradeWorkersInputReset:true});
+        UpdateContext({varDailyPlanTradeWorkersInputReset:false});
+        UpdateContext({varDailyPlanStartPopup:false});
+        UpdateContext({varDailyPlanStartPopupNewGoalVis:false});
+        UpdateContext({varDailyPlanStartPopupChangeConfirm:false});
+        UpdateContext({varDailyPlanSliderVis:false});
+        If(
+            varActivityDailyGoal <= 0,
+            UpdateContext({varDailyPlanMetricMetVis: true}),
+            UpdateContext({varDailyPlanMetricMetVis: false})
+        );
+        UpdateContext(
+            {
+                varActivitySliderMetricValue : 0, 
+                varActivitySliderWorkersValue : 0,
+                varActivitySliderDaysValue : 0
+            }
+        );
+        UpdateContext({varDPQSliderMetricLock:true});
+        Set(varRawJSON, Blank());
+        Set(varBase64Only, Blank());
+        //Clear(colDailyPlanNoAttachments);
+        Reset(attDPQNoAttachments);
+        Reset(sliDPQVisualizerDays);
+        Reset(sliDPQVisualizerMetric);
+        Reset(sliDPQVisualizerWorkers);
+
+    dbug_btnDPQResetRadio As button:
+        OnSelect: |-
+            =UpdateContext({varResetRadio:true});UpdateContext({varResetRadio:false})
+        Text: ="TestReset"
+        Visible: =false
+        X: =608
+        Y: =92
+        ZIndex: =39
+
+    dbug_lblDailyPlanQuestionActivityDates As label:
+        Align: =Align.Center
+        Height: =30
+        PaddingBottom: =3.75
+        PaddingLeft: =3.75
+        Text: =varActivityPlanStartDate & " - " & varActivityPlanEndDate
+        Visible: =false
+        Width: =Parent.Width
+        Y: =185
+        ZIndex: =40
+
+    radDailyPlanQuestionsYesNo As radio:
+        FocusedBorderThickness: =0
+        Height: =75
+        Items: =["Yes","No"]
+        Layout: =Layout.Horizontal
+        OnChange: |-
+            =UpdateContext({varDailyPlanSelectedIssueOtherVis:false});
+            UpdateContext({varDailyPlanSelectedIssueCategory:Blank()});
+            UpdateContext({varDailyPlanSelectedIssue:Blank()});
+            UpdateContext({varDailyPlanSelectedIssueInputReset:true});
+            UpdateContext({varDailyPlanSelectedIssueInputReset:false});
+            UpdateContext({varDailyPlanTradeWorkersInputReset:true});
+            UpdateContext({varDailyPlanTradeWorkersInputReset:false})
+        Reset: =varResetRadio
+        Width: =Parent.Width/2
+        X: =Parent.Width/2
+        Y: =lblDailyPlanQuestion.Y
+        ZIndex: =87
+
+    lblDailyPlanQuestion As label:
+        Align: =Align.Right
+        Height: =60
+        Size: =14
+        Text: ="Are you working on this activity today?"
+        Width: =Parent.Width/2
+        X: =(Parent.Width/2)-Self.Width
+        Y: =lblDPQActivityDesc.Y+lblDPQActivityDesc.Height+20
+        ZIndex: =88
+
+    lblDPQActivityStartEndDates As label:
+        Align: =Align.Center
+        Height: =35
+        PaddingBottom: =3.75
+        PaddingLeft: =3.75
+        PaddingTop: =0
+        Text: =Text(varActivityPlanStartDate,ShortDate) & " - " & Text(varActivityPlanEndDate,ShortDate)
+        Width: =Parent.Width
+        Y: =lblDPQActivityDesc.Y+lblDPQActivityDesc.Height
+        ZIndex: =89
+
+    lblDPQActivityDesc As label:
+        Align: =Align.Center
+        Height: =38
+        PaddingBottom: =3.75
+        PaddingLeft: =3.75
+        Size: =18
+        Text: =varActivityDesc & " - " & varActivityArea & If(IsBlank(varActivityCostCode),""," (" & varActivityCostCode & ")")
+        Width: =Parent.Width
+        Y: =htmlDPQ4PointMetrics.Y+htmlDPQ4PointMetrics.Height
+        ZIndex: =90
+
+    htmlDPQ4PointMetrics As htmlViewer:
+        Height: =90
+        HtmlText: |-
+            ="<div style='text-align: center;'>
+                <label style='font-weight: bold;'>
+                    "& varActivityTotalManHours &"
+                </label>
+                <label>
+                    Total Hours Estimated 
+                </label>
+                <br>
+                <label style='font-weight: bold;'>
+                    "& varActivityEstHoursToDate &"
+                </label>
+                <label>
+                    Original ManPower Plan hours as of Today
+                </label>
+                <br>
+                <label style='font-weight: bold;'>
+                    "& varActivityActualHours &"
+                </label>
+                <label>
+                     Actual Hours Used to Date  
+                </label>
+                <br>
+                <label style='font-weight: bold;'>
+                    "& varActivityRemainingHours &"
+                </label>
+                <label>
+                   Hours Remaining 
+                </label>
+            </div>"
+        PaddingBottom: =0
+        PaddingLeft: =0
+        PaddingRight: =0
+        PaddingTop: =0
+        Width: =375
+        X: =188
+        Y: =150
+        ZIndex: =91
+
+    lblDPQActivityNum As label:
+        Align: =Align.Center
+        Height: =50
+        PaddingBottom: =3.75
+        PaddingLeft: =3.75
+        Size: =22
+        Text: |-
+            ="Activity #: " & varActivityNum
+        Width: =Parent.Width
+        Y: =recDailyPlanQuestionsBackground.Height+5
+        ZIndex: =92
+
+    icoDailyPlanQuestionsBack As icon.BackArrow:
+        Height: =47.98
+        Icon: =Icon.BackArrow
+        OnSelect: |-
+            =UpdateContext({varResetRadio:true});
+            UpdateContext({varResetRadio:false});
+            Clear(colDailyPlanSelectedIssues);
+            UpdateContext({varDailyPlanSelectedIssueOtherVis:false});
+            UpdateContext({varDailyPlanSelectedIssueCategory:Blank()});
+            UpdateContext({varDailyPlanSelectedIssue:Blank()});
+            UpdateContext({varDailyPlanSelectedIssueInputReset:true});
+            UpdateContext({varDailyPlanSelectedIssueInputReset:false});
+            UpdateContext({varDailyPlanTradeWorkersInputReset:true});
+            UpdateContext({varDailyPlanTradeWorkersInputReset:false});
+            Reset(radDPQMetricMetPopupYesNo);
+            Reset(cboxDPQMetricMetPopupIssueSelect);
+            Reset(txtDPQMetricMetPopupInput);
+            Set(varDailyPlanActivitySearch,false);
+            Back()
+        PaddingBottom: =0.00
+        PaddingLeft: =0.00
+        X: =20
+        Y: =100.33
+        ZIndex: =93
+
+    grpDailyPlanQuestionsBanner As group:
+        Height: =5
+        Width: =5
+        X: =60
+        Y: =60
+        ZIndex: =102
+
+        recDailyPlanQuestionsBackground As rectangle:
+            Fill: =RGBA(204, 204, 204, 1)
+            Height: =85.33
+            Width: =768
+            Y: =0.00
+            ZIndex: =94
+
+        lblDailyPlanQuestionsWelcome As label:
+            Align: =Align.Right
+            Height: =28.44
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =13.49
+            Text: =Concatenate("Welcome  ",varGlobalUser.Title)
+            Width: =Parent.Width/2
+            X: =(recDailyPlanQuestionsBackground.X+recDailyPlanQuestionsBackground.Width)-lblDailyPlanQuestionsWelcome.Width
+            Y: =56.89
+            ZIndex: =95
+
+        lblDailyPlanQuestionsTemp As label:
+            Align: =Align.Right
+            Height: =28.44
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =13.49
+            Text: =Weather.responses.weather.current.temp & Weather.units.temperature
+            Width: =Parent.Width/2
+            X: =recDailyPlanQuestionsBackground.Width-Self.Width-imgDailyPlanQuestionsWeather.Width
+            Y: =28
+            ZIndex: =96
+
+        imgDailyPlanQuestionsWeather As image:
+            Height: =28
+            Image: |-
+                =varWeatherIcon 
+                /*If(
+                    "Sun" in Weather.responses.weather.current.cap,
+                    "data:image/svg+xml;utf8, %3Csvg%20%20viewBox%3D%270%200%202048%202048%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%3E%3Cpath%20d%3D%27M960%20512q93%200%20174%2035t143%2096%2096%20142%2035%20175q0%2093-35%20174t-96%20143-142%2096-175%2035q-93%200-174-35t-143-96-96-142-35-175q0-93%2035-174t96-143%20142-96%20175-35zm0%20768q66%200%20124-25t101-68%2069-102%2026-125q0-66-25-124t-69-101-102-69-124-26q-66%200-124%2025t-102%2069-69%20102-25%20124q0%2066%2025%20124t68%20102%20102%2069%20125%2025zm64-896H896V0h128v384zM896%201536h128v384H896v-384zm1024-640v128h-384V896h384zM384%201024H0V896h384v128zm123-426L236%20326l90-90%20272%20271-91%2091zm906%20724l271%20272-90%2090-272-271%2091-91zm0-724l-91-91%20272-271%2090%2090-271%20272zm-906%20724l91%2091-272%20271-90-90%20271-272z%27%20fill%3D%27%23FFFFFF%27%3E%3C%2Fpath%3E%3C%2Fsvg%3E",
+                    "Clear" in Weather.responses.weather.current.cap,
+                    "data:image/svg+xml;utf8, %3Csvg%20%20viewBox%3D%270%200%202048%202048%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%3E%3Cpath%20d%3D%27M1761%201036q64%2018%20116%2053t91%2084%2059%20109%2021%20126q0%2080-30%20149t-82%20122-123%2083-149%2030H576q-93%200-174-35t-143-96-96-142-35-175q0-66%2019-128t54-117%2084-96%20111-69q-12-49-12-102%200-93%2035-174t96-143%20142-96%20175-35q64%200%20125%2018t113%2051%2095%2081%2070%20106q90%203%20173%2033t152%2082%20122%20124%2079%20157zM832%20512q-66%200-124%2025t-102%2069-69%20102-25%20124q0%2017%201%2033t7%2034q28-3%2056-3%2038%200%2075%206t72%2019q29-51%2069-94t89-78%20102-59%20112-37q-44-66-114-103t-149-38zm832%201152q53%200%2099-20t82-55%2055-81%2020-100q0-55-20-102t-57-81-84-53-102-20q-12-82-51-152t-97-122-134-81-159-29q-77%200-146%2025t-127%2069-98%20106-61%20135q-44-38-97-58t-111-21q-66%200-124%2025t-102%2068-69%20102-25%20125q0%2066%2025%20124t68%20102%20102%2069%20125%2025h1088zM256%20896H0V768h256v128zm123-426L198%20289l91-91%20181%20181-91%2091zm517-214H768V0h128v256zm389%20214l-91-91%20181-181%2091%2091-181%20181z%27%20fill%3D%27%23FFFFFF%27%3E%3C%2Fpath%3E%3C%2Fsvg%3E",
+                    "Cloud" in Weather.responses.weather.current.cap,
+                    "data:image/svg+xml;utf8, %3Csvg%20%20viewBox%3D%270%200%202048%202048%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%3E%3Cpath%20d%3D%27M1761%201036q64%2018%20116%2053t91%2084%2059%20109%2021%20126q0%2080-30%20149t-82%20122-123%2083-149%2030H576q-93%200-174-35t-143-96-96-142-35-175q0-75%2024-144-71-54-111-134T0%20896q0-79%2030-149t82-122%20122-83%20150-30h21q10%200%2022%202%2027-60%2069-107t95-81%20114-52%20127-18q84%200%20159%2029t135%2081%2099%20123%2051%20154q84%208%20160%2040t140%2085%20111%20120%2074%20148zM384%20640q-53%200-99%2020t-82%2055-55%2081-20%20100q0%2054%2021%20102t62%2086q63-89%20159-138t206-50q38%200%2075%206t72%2019q32-57%2078-104t101-83%20117-59%20127-31q-11-56-39-104t-71-82-94-54-110-20q-62%200-117%2022t-98%2062-70%2093-32%20116q-30-17-63-27t-68-10zm1280%201024q53%200%2099-20t82-55%2055-81%2020-100q0-55-20-102t-57-81-84-54-102-19q-12-82-51-152t-97-122-134-81-159-29q-77%200-146%2025t-127%2069-98%20106-61%20135q-44-38-97-58t-111-21q-66%200-124%2025t-102%2068-69%20102-25%20125q0%2066%2025%20124t68%20102%20102%2069%20125%2025h1088z%27%20fill%3D%27%23FFFFFF%27%3E%3C%2Fpath%3E%3C%2Fsvg%3E",
+                    "Rain" in Weather.responses.weather.current.cap,
+                    "data:image/svg+xml;utf8, %3Csvg%20%20viewBox%3D%270%200%202048%202048%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%3E%3Cpath%20d%3D%27M850%201827q14%2030%2014%2061%200%2033-12%2062t-35%2051-51%2034-62%2013q-33%200-62-12t-51-35-34-51-13-62q0-31%2014-61l146-291%20146%20291zm768%200q14%2030%2014%2061%200%2033-12%2062t-35%2051-51%2034-62%2013q-33%200-62-12t-51-35-34-51-13-62q0-31%2014-61l146-291%20146%20291zm-384-256q14%2030%2014%2061%200%2033-12%2062t-35%2051-51%2034-62%2013q-33%200-62-12t-51-35-34-51-13-62q0-31%2014-61l146-291%20146%20291zm527-535q63%2017%20115%2052t91%2085%2060%20109%2021%20126q0%2066-22%20126t-61%20110-93%2085-118%2051l-60-120q48-6%2089-27t72-56%2047-77%2018-92q0-55-20-102t-57-81-84-53-102-20q-12-82-51-152t-97-122-134-81-159-29q-77%200-146%2025t-127%2069-98%20106-61%20135q-44-38-97-58t-111-21q-66%200-124%2025t-102%2068-69%20102-25%20125q0%2053%2017%20102t47%2089%2073%2070%2094%2045l-57%20114q-67-23-122-65t-96-97-62-120-22-138q0-93%2035-174t96-142%20142-96%20175-36q74%200%20147%2025%2039-65%2092-117t117-88%20136-56%20148-20q93%200%20178%2029t158%2081%20126%20125%2083%20161z%27%20fill%3D%27%23FFFFFF%27%3E%3C%2Fpath%3E%3C%2Fsvg%3E",
+                    "Thunder" in Weather.responses.weather.current.cap,
+                    "data:image/svg+xml;utf8, %3Csvg%20%20viewBox%3D%270%200%202048%202048%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%3E%3Cpath%20d%3D%27M1761%201036q63%2017%20115%2052t91%2085%2060%20109%2021%20126q0%2080-30%20149t-82%20122-123%2083-149%2030h-384l128-128h256q53%200%2099-20t82-55%2055-81%2020-100q0-55-20-101t-57-81-83-54-102-20q-12-82-51-152t-98-122-134-81-159-29q-77%200-146%2025t-127%2069-98%20106-61%20135q-44-38-97-58t-111-21q-66%200-124%2025t-102%2068-69%20102-25%20125q0%2066%2025%20124t68%20102%20102%2069%20125%2025h256l-64%20128H576q-93%200-174-35t-142-96-96-142-36-175q0-75%2024-144-71-54-111-134T0%20896q0-79%2030-149t82-122%20122-83%20150-30h21q10%200%2022%202%2027-60%2069-107t95-81%20114-52%20127-18q84%200%20159%2029t135%2081%2099%20123%2051%20154q84%209%20160%2041t139%2084%20112%20120%2074%20148zM723%20921q34-57%2079-104t100-83%20116-59%20128-31q-11-56-40-104t-70-82-94-54-110-20q-62%200-117%2022t-98%2062-70%2093-32%20116q-30-17-63-27t-68-10q-53%200-99%2020t-82%2055-55%2081-20%20100q0%2054%2021%20103t63%2085q63-89%20159-138t205-50q74%200%20147%2025zm109%201127l256-512H864l192-384h224l-128%20256h320l-640%20640z%27%20fill%3D%27%23FFFFFF%27%3E%3C%2Fpath%3E%3C%2Fsvg%3E",
+                    "Snow" in Weather.responses.weather.current.cap,
+                    "data:image/svg+xml;utf8, %3Csvg%20%20viewBox%3D%270%200%202048%202048%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%3E%3Cpath%20d%3D%27M1511%201504q26%200%2044%2019t19%2045q0%2036-32%2055l-70%2041%2070%2041q32%2019%2032%2055%200%2027-19%2045t-45%2019q-13%200-26-5t-27-13-26-16-23-15q0%2019%201%2044t-3%2047-18%2038-44%2016q-30%200-44-15t-18-38-4-48%202-44q-11%206-23%2014t-25%2016-27%2013-27%206q-26%200-45-18t-19-46q0-36%2032-55l70-41-70-41q-32-19-32-55%200-26%2018-45t45-19q13%200%2027%205t27%2014%2026%2016%2023%2014q0-19-1-44t2-47%2019-38%2044-16q30%200%2043%2015t18%2038%204%2048-1%2044q10-6%2022-14t26-16%2028-13%2027-6zm-533%20323q14%2030%2014%2061%200%2033-12%2062t-35%2051-51%2034-62%2013q-33%200-62-12t-51-35-34-51-13-62q0-31%2014-61l146-291%20146%20291zm783-791q63%2017%20115%2052t91%2085%2060%20109%2021%20126q0%2061-18%20117t-52%20104-81%2083-105%2056v-139q59-35%2093-93t35-128q0-55-20-101t-57-81-83-54-102-20q-12-82-51-152t-98-122-134-81-159-29q-77%200-146%2025t-127%2069-98%20106-61%20135q-44-38-97-58t-111-21q-66%200-124%2025t-102%2068-69%20102-25%20125q0%2066%2025%20124t68%20102%20102%2069%20125%2025l-61%20122q-83-11-154-50t-122-98-81-135-30-159q0-93%2035-174t96-142%20142-96%20175-36q74%200%20147%2025%2039-65%2092-117t117-88%20136-56%20148-20q93%200%20178%2029t158%2081%20126%20125%2083%20161z%27%20fill%3D%27%23FFFFFF%27%3E%3C%2Fpath%3E%3C%2Fsvg%3E"
+                )*/
+            PaddingRight: =5
+            Width: =28
+            X: =recHomeBanner.Width-Self.Width
+            Y: =28
+            ZIndex: =97
+
+        lblDailyPlanQuestionsTodaysDate As label:
+            Align: =Align.Right
+            Height: =28.44
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =13.49
+            Text: =varGlobalTime //Text(Now(),ShortDateTime)
+            Width: =Parent.Width/2
+            X: =(recDailyPlanQuestionsBackground.X+recDailyPlanQuestionsBackground.Width)-lblDailyPlanQuestionsTodaysDate.Width
+            Y: =0.00
+            ZIndex: =98
+
+        imgDPQBannerImage As image:
+            Height: =86
+            Image: ='SMART HEader'
+            OnSelect: |-
+                =UpdateContext({varResetRadio:true});
+                UpdateContext({varResetRadio:false});
+                UpdateContext({varDailyPlanTradeWorkersInputReset:true});
+                UpdateContext({varDailyPlanTradeWorkersInputReset:false});
+                Reset(radDPQMetricMetPopupYesNo);
+                Reset(cboxDPQMetricMetPopupIssueSelect);
+                Reset(txtDPQMetricMetPopupInput);
+                Navigate(scrHome)
+            Width: =574
+            X: =3
+            ZIndex: =99
+
+    grpDailyPlanQuestionsNo As group:
+        Height: =5
+        Width: =5
+        X: =60
+        Y: =60
+        ZIndex: =102
+
+        imgDPQNoAttachmentLastValue As image:
+            Image: =Last(attDPQNoAttachments.Attachments).Value
+            Y: =685
+            ZIndex: =41
+
+        recDPQNoBackground As rectangle:
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =Parent.Height-(radDailyPlanQuestionsYesNo.Y+radDailyPlanQuestionsYesNo.Height)
+            Visible: =If(IsBlank(radDailyPlanQuestionsYesNo.Selected.Value),false,true)
+            Width: =768
+            Y: =radDailyPlanQuestionsYesNo.Y+radDailyPlanQuestionsYesNo.Height
+            ZIndex: =42
+
+        del_galDPQNoAttachments As gallery.galleryVertical:
+            BorderThickness: =2
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =90
+            Items: =//colDailyPlanNoAttachments
+            Layout: =Layout.Vertical
+            OnSelect: =
+            TemplateSize: =30
+            Visible: =false//If(radDailyPlanQuestionsYesNo.Selected.Value="No",true,false)
+            Width: =440
+            Y: =845
+            ZIndex: =43
+
+            lblDPQNoAttachmentFileName As label:
+                Height: =Parent.TemplateHeight
+                OnSelect: =Select(Parent)
+                Text: =//ThisItem.Name
+                Width: =Parent.TemplateWidth-icoDPQNoAttachmentRemove.Width
+                X: =icoDPQNoAttachmentRemove.Width
+                ZIndex: =1
+
+            icoDPQNoAttachmentRemove As icon.Cancel:
+                Height: =Parent.TemplateHeight
+                Icon: =Icon.Cancel
+                OnSelect: =Remove(colDailyPlanNoAttachments,ThisItem)
+                Width: =Self.Height
+                ZIndex: =2
+
+        btnDPQNoSubmit As button:
+            DisplayMode: =If(IsEmpty(colDailyPlanSelectedIssues),Disabled,Edit)
+            Fill: =RGBA(168, 0, 0, 1)
+            Height: =49.48
+            OnSelect: |-
+                =Set(varDailyPlanUniversalActivityAutoID,If(!varDailyPlanActivitySearch, varActivityScheduleDetails.ActivityAutoID, varActivitySearchDetails.ActivityAutoID));
+                Set(
+                    varDailyPlanSubmissionID,
+                    Patch(
+                        tblDailyActivities,
+                        Defaults(tblDailyActivities),
+                        {
+                            ProjectInternalID: varSelectedDailyPlanProjectInternalID,
+                            ActivityAutoID: varDailyPlanUniversalActivityAutoID,//varActivityScheduleDetails.ActivityAutoID,
+                            ActivityDate: Now(),//Today(),
+                            ActivityNum: varActivityNum,
+                            ActivityDescription: varActivityDesc,
+                            ActivityCostCode: Value(varActivityCostCode),
+                            Trade: varActivityTrade,
+                            TotalMetricsQTY: varActivityTotalMetricsQTY,
+                            Measure: varActivityMeasure,
+                            BaseNumMen: varActivityBaseNumMen,
+                            PlanStartDate: varActivityPlanStartDate,
+                            PlanEndDate: varActivityPlanEndDate,
+                            ProductionPerDay: varActivityProductionPerDay,
+                            ActivityDuration: varActivityDuration,
+                            TotalManHours: varActivityTotalManHours,
+                            Target: varActivityTarget,
+                            Finalized: varActivityFinalized,
+                            Area: varActivityArea,
+                            WorkingToday: false,
+                            Issue: Concat(colDailyPlanSelectedIssues,IssueCategory & " - " & Issue,";"),
+                            IssueNotes: Concat(colDailyPlanSelectedIssues,IssueNotes,";")
+                        }
+                    ).DailyActivityAutoID
+                );
+                Clear(colDailyPlanSubmittedIssuesTemp);
+                ForAll(
+                    colDailyPlanSelectedIssues,
+                    Collect(
+                        colDailyPlanSubmittedIssuesTemp,
+                        Patch(
+                            tblDailyActivitiesIssues,
+                            Defaults(tblDailyActivitiesIssues),
+                            {
+                                DailyActivityAutoID: varDailyPlanSubmissionID,
+                                Category: ThisRecord.IssueCategory,
+                                Title: ThisRecord.Issue,
+                                Notes: ThisRecord.IssueNotes,
+                                IssueType: "Check-In Issue"
+                            }
+                        )
+                    )
+                );
+                Clear(colDailyPlanSubmittedIssues);
+                Collect(
+                    colDailyPlanSubmittedIssues,
+                    AddColumns(
+                        colDailyPlanSubmittedIssuesTemp,
+                        "FileName",
+                        First(Filter(colDailyPlanSelectedIssues As A, Category = A.IssueCategory && Title = A.Issue)).FileName,
+                        "AttachmentBase64",
+                        First(Filter(colDailyPlanSelectedIssues As A, Category = A.IssueCategory && Title = A.Issue)).TrimmedBinaryImageData
+                    )
+                );
+                'SmartApp-IssueEmail'.Run(
+                    varSelectedDailyPlanProjectInternalID,
+                    varActivityNum,//varActivityScheduleDetails.ActivityNum,
+                    Concat(colDailyPlanSelectedIssues,IssueCategory & " - " & Issue & ": " & IssueNotes,"; "),
+                    User().Email
+                );
+                'SmartApp-SaveAttachments'.Run(
+                    JSON(colDailyPlanSubmittedIssues, IncludeBinaryData),
+                    varDailyPlanSubmissionID,
+                    varSelectedDailyPlanProjectInternalID
+                );
+                Clear(colDailyPlanSelectedIssues);
+                Clear(colDailyPlanSubmittedIssuesTemp);
+                Clear(colDailyPlanSubmittedIssues);
+                UpdateContext({varDailyPlanSelectedIssueCategory:Blank()});
+                UpdateContext({varDailyPlanSelectedIssue:Blank()});
+                UpdateContext({varDailyPlanSliderVis:false});
+                UpdateContext({varResetRadio:true});
+                UpdateContext({varResetRadio:false});
+                Set(varRawJSON, Blank());
+                Set(varBase64Only, Blank());
+                Reset(attDPQNoAttachments);
+                ClearCollect(
+                    colFilteredDailyActivities,
+                    Filter(
+                        tblDailyActivities,
+                        ProjectInternalID = varSelectedDailyPlanProjectInternalID
+                    )
+                );
+                Navigate(scrDailyPlanActivities)
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =14.99
+            Text: ="Okay"
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="No",true,false)
+            Width: =264
+            X: =252
+            Y: =950
+            ZIndex: =44
+
+        attDPQNoAttachments As attachments:
+            BorderColor: =Transparent
+            Color: =RGBA(255, 255, 255, 1)
+            Fill: =RGBA(56, 96, 178, 1)
+            Height: =117
+            IsInDataCard: =true
+            Items: =
+            MaxAttachments: =1
+            MaxAttachmentsText: =""
+            NoAttachmentsText: =""
+            OnAddFile: |-
+                =Set(varRawJSON, JSON(imgDPQNoAttachmentLastValue.Image, JSONFormat.IncludeBinaryData));
+                Set(varBase64Only, Mid(varRawJSON, Find(",",varRawJSON)+1,Len(varRawJSON)-Find(",",varRawJSON)-1));
+                /*Collect(
+                    colDailyPlanNoAttachments,
+                    {
+                        Category: "Daily Plan Issue",
+                        //DailyActivityAutoID: 9999, //Make this the real ID from the patch
+                        Name: Last(Self.Attachments.Name).Name,
+                        AttachmentBase64: varBase64Only
+                    }
+                );
+                Set(varRawJSON, Blank());
+                Set(varBase64Only, Blank());
+                Reset(attDPQNoAttachments)*/
+            OnRemoveFile: |-
+                =//Resetting everything for now
+                Set(varRawJSON, Blank());
+                Set(varBase64Only, Blank());
+                //Clear(colDailyPlanNoAttachments);
+                Reset(attDPQNoAttachments)
+            PaddingBottom: =5
+            PaddingLeft: =If(Self.DisplayMode = DisplayMode.Edit, 5, 0)
+            PaddingRight: =5
+            PaddingTop: =19
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="No",true,false)
+            Width: =166
+            X: =544
+            Y: =If(IsEmpty(Self.Attachments.Name), 568, 625)
+            ZIndex: =46
+
+        recDQPNoAttachmentControlHide As rectangle:
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =(attDPQNoAttachments.Height/2)-3
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="No",true,false)
+            Width: =attDPQNoAttachments.Width
+            X: =attDPQNoAttachments.X
+            Y: =If(IsEmpty(attDPQNoAttachments.Attachments.Name),attDPQNoAttachments.Y, (attDPQNoAttachments.Y+attDPQNoAttachments.Height)-Self.Height)
+            ZIndex: =47
+
+        galDPQSelectedIssues As gallery.variableTemplateHeightGallery:
+            BorderThickness: =1
+            Height: =100
+            Items: =colDailyPlanSelectedIssues
+            Layout: =Layout.Vertical
+            TemplatePadding: =0
+            TemplateSize: =50
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="No",true,false)
+            Width: =700
+            X: =32
+            Y: =837
+            ZIndex: =48
+
+            lblDPQSelectedIssuesTitle As label:
+                AutoHeight: =true
+                Height: =15
+                OnSelect: =Select(Parent)
+                Text: =ThisItem.Issue
+                Width: =Parent.TemplateWidth*.429-icoDPQSelectedIssuesRemove.Width
+                X: =icoDPQSelectedIssuesRemove.Width
+                ZIndex: =1
+
+            recDPQSelectedIssuesSeparator As rectangle:
+                Height: =1
+                OnSelect: =Select(Parent)
+                Width: =Parent.TemplateWidth
+                Y: |-
+                    =If(
+                        lblDPQSelectedIssuesTitle.Height > lblDPQSelectedIssuesNotes.Height,
+                        lblDPQSelectedIssuesTitle.Height,
+                        lblDPQSelectedIssuesNotes.Height
+                    )
+                ZIndex: =2
+
+            lblDPQSelectedIssuesNotes As label:
+                AutoHeight: =true
+                Height: =Parent.TemplateHeight
+                OnSelect: =Select(Parent)
+                Text: =ThisItem.IssueNotes
+                Width: =Parent.TemplateWidth*.25
+                X: =lblDPQSelectedIssuesCategory.X+lblDPQSelectedIssuesCategory.Width
+                ZIndex: =4
+
+            lblDPQSelectedIssuesCategory As label:
+                AutoHeight: =true
+                Height: =Parent.TemplateHeight
+                OnSelect: =Select(Parent)
+                Text: =ThisItem.IssueCategory
+                Width: =Parent.TemplateWidth*.214
+                X: =lblDPQSelectedIssuesTitle.X+lblDPQSelectedIssuesTitle.Width
+                ZIndex: =5
+
+            btnDPQSelectedIssuesPhotoView As button:
+                Height: =25
+                OnSelect: =Set(varDPQSelectedIssuesPhotoPreviewVis,true);Set(varDPQSelectedIssuesPhotoPreview,ThisItem.Media)
+                PaddingBottom: =0
+                PaddingLeft: =0
+                PaddingRight: =0
+                PaddingTop: =0
+                Size: =12
+                Text: ="View"
+                Visible: =If(!IsBlank(ThisItem.Media),true)
+                Width: =50
+                X: =lblDPQSelectedIssuesNotes.X+lblDPQSelectedIssuesNotes.Width
+                Y: =(recDPQSelectedIssuesSeparator.Y-Self.Height)/2
+                ZIndex: =6
+
+            icoDPQSelectedIssuesRemove As icon.Cancel:
+                Height: =recDPQSelectedIssuesSeparator.Y
+                Icon: =Icon.Cancel
+                OnSelect: =Remove(colDailyPlanSelectedIssues,ThisItem)
+                Width: =30
+                ZIndex: =7
+
+        lblDPQSelectedIssuesHeaderTitle As label:
+            FontWeight: =FontWeight.Semibold
+            Height: =36
+            Size: =14
+            Text: ="Issue"
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="No",true,false)
+            Width: =300
+            X: =32
+            Y: =801
+            ZIndex: =49
+
+        lblDPQSelectedIssuesHeaderCategory As label:
+            FontWeight: =FontWeight.Semibold
+            Height: =36
+            Size: =14
+            Text: ="Category"
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="No",true,false)
+            X: =332
+            Y: =801
+            ZIndex: =50
+
+        lblDPQSelectedIssuesHeaderNotes As label:
+            FontWeight: =FontWeight.Semibold
+            Height: =36
+            Size: =14
+            Text: ="Notes"
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="No",true,false)
+            Width: =175
+            X: =482
+            Y: =801
+            ZIndex: =51
+
+        lblDPQSelectedIssuesHeaderPhoto As label:
+            FontWeight: =FontWeight.Semibold
+            Height: =36
+            Size: =14
+            Text: ="Photo"
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="No",true,false)
+            Width: =75
+            X: =657
+            Y: =801
+            ZIndex: =52
+
+        btnDPQAddIssue As button:
+            DisplayMode: |-
+                =If(
+                    IsBlank(varDailyPlanSelectedIssue),
+                    Disabled,
+                    DisplayMode.Edit
+                )
+            OnSelect: |-
+                =Set(varRawJSON, JSON(imgDPQNoAttachmentLastValue.Image, JSONFormat.IncludeBinaryData));
+                Set(varBase64Only, Mid(varRawJSON, Find(",",varRawJSON)+1,Len(varRawJSON)-Find(",",varRawJSON)-1));
+                If(
+                    varDailyPlanSelectedIssue="OTHER",
+                    Collect(
+                        colDailyPlanSelectedIssues,
+                        {
+                            IssueID: 1000,
+                            IssueCategory: varDailyPlanSelectedIssueCategory.Value,
+                            Issue: "OTHER"/* & txtDailyPlanIssueOtherInput_1.Text*/,
+                            IssueNotes: txtDPQIssueNotes.Text,
+                            FileName: First(attDPQNoAttachments.Attachments).Name,
+                            Media: imgDPQNoAttachmentLastValue.Image,
+                            BinaryImageData: varRawJSON,
+                            TrimmedBinaryImageData: varBase64Only
+                        }
+                    ),
+                    Collect(
+                        colDailyPlanSelectedIssues,
+                        {
+                            IssueID: 0,
+                            IssueCategory: varDailyPlanSelectedIssueCategory.Value,
+                            Issue: varDailyPlanSelectedIssue,
+                            IssueNotes: txtDPQIssueNotes.Text,
+                            FileName: First(attDPQNoAttachments.Attachments).Name,
+                            Media: imgDPQNoAttachmentLastValue.Image,
+                            BinaryImageData: varRawJSON,
+                            TrimmedBinaryImageData: varBase64Only
+                        }
+                    )
+                );
+                UpdateContext({varDailyPlanSelectedIssueOtherVis:false});
+                UpdateContext({varDailyPlanSelectedIssueInputReset:true});
+                UpdateContext({varDailyPlanSelectedIssueInputReset:false});
+                UpdateContext({varDailyPlanSelectedIssue:Blank()});
+                Set(varRawJSON, Blank());
+                Set(varBase64Only, Blank());
+                Reset(attDPQNoAttachments)
+            Text: ="Add Issue"
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="No",true,false)
+            X: =297
+            Y: =720
+            ZIndex: =53
+
+        txtDPQIssueNotes As text:
+            Default: =""
+            Height: =60
+            HintText: ="Enter Notes Here"
+            Mode: =TextMode.MultiLine
+            Reset: =varDailyPlanSelectedIssueInputReset
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="No",true,false)
+            Width: =473
+            X: =56
+            Y: =625
+            ZIndex: =54
+
+        galDPQIssues As gallery.galleryVertical:
+            BorderThickness: =2
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =168
+            Items: |-
+                =//Filter('[dbo].[tblIssues]',IssueCategory="GC ISSUE", Not(IssueID in colDailyPlanSelectedIssues.IssueID))
+                Filter(
+                    [
+                        {
+                            Value: "GC directed us not to work or to stop work.",
+                            Category: "GC ISSUE"
+                        },
+                        {
+                            Value: "Area not ready for our work to start.",
+                            Category: "GC ISSUE"
+                        },
+                        {
+                            Value: "Area is not accessible / obstacles in our way in the work area.",
+                            Category: "GC ISSUE"
+                        },
+                        {
+                            Value: "The project is not ready for us to start our work.",
+                            Category: "GC ISSUE"
+                        },
+                        {
+                            Value: "Safety issues are prevention us from working.",
+                            Category: "GC ISSUE"
+                        },
+                        {
+                            Value: "Waiting on information (ie. RFI, ASI, CO)",
+                            Category: "GC ISSUE"
+                        },
+                        {
+                            Value: "Coordination issue- Other trades",
+                            Category: "GC ISSUE"
+                        },
+                        {
+                            Value: "OTHER",
+                            Category: "GC ISSUE"
+                        },
+                        {
+                            Value: "Manpower Issue (lack of, not adequate, not productive)",
+                            Category: "INTERNAL ISSUE"
+                        },
+                        {
+                            Value: "Materials (Ductwork, Pipe, Vendor)",
+                            Category: "INTERNAL ISSUE"
+                        },
+                        {
+                            Value: "Shop Drawings (BIM Conflicts, shop drawings not adequate)",
+                            Category: "INTERNAL ISSUE"
+                        },
+                        {
+                            Value: "Subcontractor Issue",
+                            Category: "INTERNAL ISSUE"
+                        },
+                        {
+                            Value: "CSUSA Internal Trade Issue / Conflict.",
+                            Category: "INTERNAL ISSUE"
+                        },
+                        {
+                            Value: "OTHER",
+                            Category: "INTERNAL ISSUE"
+                        },
+                        {
+                            Value: "General Weather",
+                            Category: "WEATHER ISSUE"
+                        },
+                        {
+                            Value: "OTHER",
+                            Category: "WEATHER ISSUE"
+                        },
+                        {
+                            Value: "OTHER",
+                            Category: "OTHER"
+                        },
+                    ], 
+                    Value.Category = varDailyPlanSelectedIssueCategory.Value,
+                    Not(Value.Value in colDailyPlanSelectedIssues.Issue)
+                )
+            Layout: =Layout.Vertical
+            OnSelect: |
+                =UpdateContext({varDailyPlanSelectedIssue:ThisItem.Value.Value});
+                /*If( //This was when we were capturing a title for Other, now we'll just enter it as 'Other' with notes
+                    varDailyPlanSelectedIssue="OTHER",
+                    UpdateContext({varDailyPlanSelectedIssueOtherVis:true}),
+                    UpdateContext({varDailyPlanSelectedIssueOtherVis:false})
+                );*/
+                /*If( //Old method, collects OnSelect
+                    varDailyPlanSelectedIssue="OTHER",
+                    UpdateContext({varDailyPlanSelectedIssueOtherVis:true}),
+                    Collect(
+                        colDailyPlanSelectedIssues,
+                        {
+                            IssueID: 0,
+                            IssueCategory: ThisItem.Value.Category,
+                            Issue: ThisItem.Value.Value
+                        }
+                    );
+                    UpdateContext({varDailyPlanSelectedIssueOtherVis:false});
+                    UpdateContext({varDailyPlanSelectedIssue:Blank()})
+                );*/
+            TemplateFill: =If(ThisItem.Value.Value = varDailyPlanSelectedIssue, RGBA(0, 0, 0, .15), RGBA(0, 0, 0, 0))
+            TemplateSize: =30
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="No",true,false)
+            Width: =Parent.Width*.85
+            X: =56
+            Y: =450
+            ZIndex: =55
+
+            lblDPQIssueName As label:
+                Height: =28
+                OnSelect: =Select(Parent)
+                Text: =ThisItem.Value.Value
+                Width: =488
+                ZIndex: =1
+
+            btnDPQIssue As button:
+                Fill: =If(ThisItem.Value.Value = varDailyPlanSelectedIssue, ColorFade(RGBA(56, 96, 178, 1), -60%), RGBA(56, 96, 178, 1))
+                Height: =28
+                HoverBorderColor: =ColorFade(Self.BorderColor, 60%)
+                OnSelect: =Select(Parent)
+                Size: =12
+                Text: =ThisItem.Value.Value
+                Width: =Parent.TemplateWidth
+                ZIndex: =2
+
+        cboxDPQIssueCategories As combobox:
+            Height: =50
+            InputTextPlaceholder: =""
+            IsSearchable: =false
+            Items: |-
+                =//Distinct('[dbo].[tblIssues]'.IssueCategory,IssueCategory).Result 
+                [
+                    {
+                        Value: "GC ISSUE"
+                    },
+                    {
+                        Value: "INTERNAL ISSUE"
+                    },
+                     
+                    {
+                        Value: "WEATHER ISSUE"
+                    }, 
+                    { 
+                        Value: "OTHER"
+                    }
+                ]
+            NoSelectionText: ="CLICK DOWN ARROW FOR MENU"
+            OnChange: |-
+                =UpdateContext({varDailyPlanSelectedIssueOtherVis:false}); UpdateContext({varDailyPlanSelectedIssueCategory:Self.Selected.Value}); UpdateContext({varDailyPlanSelectedIssue:Blank()})
+            PaddingLeft: =5//(Self.Width-30-Len(Self.)*10)/2
+            Reset: =varDailyPlanSelectedIssueInputReset
+            SearchItems: =[]
+            SelectMultiple: =false
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="No",true,false)
+            Width: =Parent.Width*.85
+            X: =56
+            Y: =400
+            ZIndex: =56
+
+        lblDPQNoMessage As label:
+            Align: =Align.Center
+            Color: =RGBA(255, 0, 0, 1)
+            FontWeight: =FontWeight.Semibold
+            Height: =75
+            Size: =12
+            Text: ="Really? This activity is scheduled for you to work on today." & Char(13) & "Please choose why you are not working on this activity today from the dropdown menu below."
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="No",true,false)
+            Width: =759
+            Y: =335
+            ZIndex: =57
+
+    grpDPQVisualizer As group:
+        Height: =5
+        Width: =5
+        X: =60
+        Y: =60
+        ZIndex: =102
+
+        recDPQVisualizerFade As rectangle:
+            BorderColor: =RGBA(128, 128, 128, 1)
+            Fill: =RGBA(116, 116, 116, 0.4)
+            Height: =939
+            Visible: =varDailyPlanSliderVis
+            Width: =768
+            Y: =85
+            ZIndex: =1
+
+        recDPQVisualizerBackground As rectangle:
+            BorderColor: =RGBA(128, 128, 128, 1)
+            BorderThickness: =2
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =600
+            Visible: =varDailyPlanSliderVis
+            Width: =689
+            X: =38
+            Y: =250
+            ZIndex: =2
+
+        btnVisualizerConfirm As button:
+            Height: =34
+            OnSelect: |-
+                =Set(varDailyPlanUniversalActivityAutoID,If(!varDailyPlanActivitySearch, varActivityScheduleDetails.ActivityAutoID, varActivitySearchDetails.ActivityAutoID));
+                Patch(
+                    tblDailyActivities,
+                    Defaults(tblDailyActivities),
+                    {
+                        ProjectInternalID: varSelectedDailyPlanProjectInternalID,
+                        ActivityAutoID: varDailyPlanUniversalActivityAutoID,
+                        ActivityDate: Now(),
+                        ActivityNum: varActivityNum,
+                        ActivityDescription: varActivityDesc,
+                        ActivityCostCode: Value(varActivityCostCode),
+                        Trade: varActivityTrade,
+                        TotalMetricsQTY: varActivityTotalMetricsQTY,
+                        Measure: varActivityMeasure,
+                        BaseNumMen: varActivityBaseNumMen,
+                        PlanStartDate: varActivityPlanStartDate,
+                        PlanEndDate: varActivityPlanEndDate,
+                        ProductionPerDay: varActivityProductionPerDay,
+                        ActivityDuration: varActivityDuration,
+                        TotalManHours: varActivityTotalManHours,
+                        Target: varActivityTarget,
+                        Finalized: varActivityFinalized,
+                        Area: varActivityArea,
+                        WorkingToday: true,
+                        HowManyWorkers: Round(sliDPQVisualizerWorkers.Value/2,0),
+                        GoalGood: false,
+                        ChangeGoal: true,
+                        NewDailyGoal: Round(sliDPQVisualizerMetric.Value,0)
+                    }
+                );
+                UpdateContext({varDailyPlanStartPopup:false});
+                UpdateContext({varDailyPlanSliderVis:false});
+                UpdateContext({varResetRadio:true});
+                UpdateContext({varResetRadio:false});
+                ClearCollect(
+                    colFilteredDailyActivities,
+                    Filter(
+                        tblDailyActivities,
+                        ProjectInternalID = varSelectedDailyPlanProjectInternalID
+                    )
+                );
+                Navigate(scrDailyPlanActivities);
+                
+                //Previously we were overwriting values
+                /*Set(varActivityUpdatedBaseNumMen,(sliDPQVisualizerWorkers.Value/2));
+                UpdateContext({varDailyPlanSliderVis:!varDailyPlanSliderVis}); 
+                Reset(sliDPQVisualizerDays);
+                Reset(sliDPQVisualizerMetric);
+                Reset(sliDPQVisualizerWorkers);*/
+            Text: ="Use this plan"
+            Visible: =varDailyPlanSliderVis
+            Width: =166
+            X: =462
+            Y: =795
+            ZIndex: =3
+
+        btnVisualizerClose As button:
+            Height: =35
+            OnSelect: |-
+                =UpdateContext({varDailyPlanSliderVis:!varDailyPlanSliderVis}); Reset(sliDPQVisualizerDays);Reset(sliDPQVisualizerMetric);Reset(sliDPQVisualizerWorkers);
+            Text: ="Go Back"
+            Visible: =varDailyPlanSliderVis
+            Width: =152
+            X: =151
+            Y: =795
+            ZIndex: =4
+
+        sliDPQVisualizerDays As slider:
+            Default: |-
+                =varActivitySliderDaysValue
+                //Round(varActivityRemainingScheduleHours/varActivityBaseNumMen/8,0)
+                //Round(varActivityRemainingScheduleHours/(sliDPQVisualizerWorkers.Value/2)/8,0) //Self.Max/2
+            DisplayMode: =If(varDPQSliderMetricLock,Disabled,DisplayMode.Edit)
+            Height: =50
+            Max: =20
+            Min: =1
+            OnChange: |-
+                =If(
+                    varDailyPlanSelectedSlider = "Days",
+                    If(
+                        Self.Value > varActivitySliderInitialDaysValue, //If New Workers value is higher
+                        UpdateContext(
+                            {
+                                varActivitySliderDaysValue : Self.Value, 
+                                varActivitySliderWorkersValue : (varActivitySliderInitialWorkersValue/2) - (Abs((Self.Value) - (varActivitySliderInitialDaysValue)) * (varActivitySliderInitialWorkersValue / 2))
+                            }
+                        );
+                        UpdateContext(
+                            {
+                                varActivitySliderInitialWorkersValue : varActivitySliderWorkersValue, 
+                                varActivitySliderInitialDaysValue : varActivitySliderDaysValue
+                                
+                            }
+                        ),
+                        Self.Value < varActivitySliderInitialDaysValue, //If New Workers Value is lower
+                        UpdateContext(
+                            {
+                                varActivitySliderDaysValue : Self.Value, 
+                                varActivitySliderWorkersValue : (varActivitySliderInitialWorkersValue/2) + (Abs((Self.Value) - (varActivitySliderInitialDaysValue)) * (varActivitySliderInitialWorkersValue / 2))
+                            }
+                        );
+                        UpdateContext(
+                            {
+                                varActivitySliderInitialWorkersValue : varActivitySliderWorkersValue, 
+                                varActivitySliderInitialDaysValue : varActivitySliderDaysValue
+                            }
+                        )
+                    )
+                )
+            OnSelect: |-
+                =UpdateContext({varDailyPlanSelectedSlider:"Days"})
+            Visible: =varDailyPlanSliderVis
+            Width: =415
+            X: =175
+            Y: =lblDPQVisualizerDaysSliderHeader.Y
+            ZIndex: =5
+
+        lblDPQVisualizerDaysSliderHeader As label:
+            Align: =Align.Right
+            FontWeight: =FontWeight.Semibold
+            Height: =50
+            Size: =15
+            Text: ="Days"
+            Visible: =varDailyPlanSliderVis
+            Width: =96
+            X: =47
+            Y: =lblDPQVisualizerWorkersSliderHeader.Y+lblDPQVisualizerWorkersSliderHeader.Height
+            ZIndex: =6
+
+        sliDPQVisualizerWorkers As slider:
+            Default: |-
+                =varActivitySliderWorkersValue
+                //varActivityBaseNumMen*2
+                //Round(sliDPQVisualizerDays/(varActivityBaseNumMen)/8,0)
+            DisplayMode: =If(varDPQSliderMetricLock,Disabled,DisplayMode.Edit)
+            Height: =50
+            Max: =30
+            Min: =2
+            OnChange: |-
+                =If(
+                    varDailyPlanSelectedSlider = "Workers",
+                    If(
+                        Self.Value > varActivitySliderInitialWorkersValue, //If New Workers value is higher
+                        UpdateContext(
+                            {
+                                varActivitySliderWorkersValue : Self.Value, 
+                                varActivitySliderDaysValue : Round((varActivitySliderInitialDaysValue*8 - ((Abs(Self.Value-varActivitySliderInitialWorkersValue)/2)*8))/8,0)//,
+                                //varActivitySliderManHoursValue: Round((varActivitySliderInitialManHoursValue - ((Abs(Self.Value-varActivitySliderInitialWorkersValue)/2)*8)),0)
+                            }
+                        );
+                        UpdateContext(
+                            {
+                                varActivitySliderInitialWorkersValue : varActivitySliderWorkersValue, 
+                                varActivitySliderInitialDaysValue : varActivitySliderDaysValue//,
+                                //varActivitySliderInitialManHoursValue: varActivitySliderManHoursValue
+                            }
+                        ),
+                        Self.Value < varActivitySliderInitialWorkersValue, //If New Workers Value is lower
+                        UpdateContext(
+                            {
+                                varActivitySliderWorkersValue : Self.Value, 
+                                varActivitySliderDaysValue : Round((varActivitySliderInitialDaysValue*8 + ((Abs(Self.Value-varActivitySliderInitialWorkersValue)/2)*8))/8,0)//,
+                                //varActivitySliderManHoursValue: Round((varActivitySliderInitialManHoursValue + ((Abs(Self.Value-varActivitySliderInitialWorkersValue)/2)*8)),0)
+                            }
+                        );
+                        UpdateContext(
+                            {
+                                varActivitySliderInitialWorkersValue : varActivitySliderWorkersValue, 
+                                varActivitySliderInitialDaysValue : varActivitySliderDaysValue//,
+                                //varActivitySliderInitialManHoursValue: varActivitySliderManHoursValue
+                            }
+                        )
+                    )
+                )
+            OnSelect: |-
+                =UpdateContext({varDailyPlanSelectedSlider:"Workers"})
+            ShowValue: =false
+            Visible: =varDailyPlanSliderVis
+            Width: =415
+            X: =175
+            Y: =lblDPQVisualizerWorkersSliderHeader.Y
+            ZIndex: =7
+
+        lblDPQVisualizerWorkersSliderHeader As label:
+            Align: =Align.Center
+            FontWeight: =FontWeight.Semibold
+            Height: =50
+            Size: =15
+            Text: ="Workers"
+            Visible: =varDailyPlanSliderVis
+            Width: =96
+            X: =47
+            Y: =lblDPQVisualizerSliderHeadersMetric.Y+lblDPQVisualizerSliderHeadersMetric.Height
+            ZIndex: =8
+
+        tglDPQEnableMetric As toggleSwitch:
+            DisplayMode: =DisplayMode.Disabled
+            Visible: =false//varDailyPlanSliderVis
+            X: =608
+            Y: =645
+            ZIndex: =9
+
+        sliDPQVisualizerMetric As slider:
+            Default: |-
+                =varActivitySliderMetricValue
+                //varActivityDailyGoal
+            DisplayMode: =If(varDPQSliderMetricLock,DisplayMode.Edit,Disabled)
+            Height: =50
+            Max: =varActivityRemainingQTY
+            Min: =1
+            OnChange: |-
+                =If(
+                    varDailyPlanSelectedSlider = "Metric",
+                    If(
+                        Self.Value > varActivitySliderInitialMetricValue, //If New Metric Value is higher
+                        UpdateContext(
+                            {
+                                varActivitySliderMetricValue : Self.Value, 
+                                varActivitySliderWorkersValue : Round(sliDPQVisualizerWorkers.Value + ((Abs(Self.Value-varActivitySliderInitialMetricValue)/varDailyPlanSliderCalc)*2),0)
+                            }
+                        );
+                        UpdateContext(
+                            {
+                                varActivitySliderInitialMetricValue : varActivitySliderMetricValue, 
+                                varActivitySliderInitialWorkersValue : varActivitySliderWorkersValue
+                            }
+                        ),
+                        Self.Value < varActivitySliderInitialMetricValue, //If New Metric Value is lower
+                        UpdateContext(
+                            {
+                                varActivitySliderMetricValue : Self.Value, 
+                                varActivitySliderWorkersValue : Round(sliDPQVisualizerWorkers.Value - ((Abs(Self.Value-varActivitySliderInitialMetricValue)/varDailyPlanSliderCalc)*2),0)
+                            }
+                        );
+                        UpdateContext(
+                            {
+                                varActivitySliderInitialMetricValue : varActivitySliderMetricValue, 
+                                varActivitySliderInitialWorkersValue : varActivitySliderWorkersValue
+                            }
+                        )
+                    )
+                )
+            OnSelect: |-
+                =UpdateContext({varDailyPlanSelectedSlider:"Metric"})
+            Visible: =varDailyPlanSliderVis
+            Width: =415
+            X: =175
+            Y: =lblDPQVisualizerSliderHeadersMetric.Y
+            ZIndex: =10
+
+        lblDPQVisualizerSliderHeadersMetric As label:
+            Align: =Align.Right
+            FontWeight: =FontWeight.Semibold
+            Height: =50
+            Size: =15
+            Text: ="Metric"
+            Visible: =varDailyPlanSliderVis
+            Width: =96
+            X: =48
+            Y: =lblDPQVisualizerSliderTitle.Y+lblDPQVisualizerSliderTitle.Height
+            ZIndex: =11
+
+        lblDPQVisualizerSliderTitle As label:
+            Align: =Align.Center
+            Height: =45
+            Size: =15
+            Text: ="Use these sliders to adjust the data."
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =varDailyPlanSliderVis
+            Width: =687
+            X: =40
+            Y: =590
+            ZIndex: =12
+
+        lblDPQVisualizerDailyGoalManHoursValue As label:
+            Align: =Align.Center
+            Height: =55
+            Size: =14
+            Text: =(varActivityBaseNumMen)*8
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =varDailyPlanSliderVis
+            Width: =145
+            X: =lblDPQVisualizerDailyGoalHeader.X
+            Y: =lblDPQVisualizerManHoursRowHeader.Y
+            ZIndex: =13
+
+        lblDPQVisualizerRemainingManHoursValue As label:
+            Align: =Align.Center
+            Color: |-
+                =If(
+                    Value(Self.Text) > (varActivityRemainingScheduleHours/varActivityBaseNumMen)*8,
+                    RGBA(168, 0, 0, 1),
+                    RGBA(0, 0, 0, 1)
+                )
+            Height: =55
+            Size: =14
+            Text: |-
+                =If(
+                    varDailyPlanActivitySearch = true,
+                    Round(varActivityRemainingHours,0),
+                    Round(varActivityRemainingScheduleHours,0)
+                )
+                //(sliDPQVisualizerWorkers/2)*sliDPQVisualizerDays*8
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =varDailyPlanSliderVis
+            Width: =145
+            X: =lblDPQVisualizerRemainingHeader.X
+            Y: =lblDPQVisualizerManHoursRowHeader.Y
+            ZIndex: =14
+
+        lblDPQVisualizerOriginalDataManHoursValue As label:
+            Align: =Align.Center
+            Height: =55
+            Size: =14
+            Text: =varActivityTotalManHours
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =varDailyPlanSliderVis
+            Width: =145
+            X: =lblDPQVisualizerOriginalDataHeader.X
+            Y: =lblDPQVisualizerManHoursRowHeader.Y
+            ZIndex: =15
+
+        lblDPQVisualizerManHoursRowHeader As label:
+            Align: =Align.Right
+            FontWeight: =FontWeight.Semibold
+            Height: =55
+            Size: =15
+            Text: ="Man Hours"
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =varDailyPlanSliderVis
+            Width: =100
+            X: =recDPQVisualizerBackground.X
+            Y: =lblDPQVisualizerDaysRowHeader.Y + lblDPQVisualizerDaysRowHeader.Height +15
+            ZIndex: =16
+
+        lblDPQVisualizerDailyGoalDaysValue As label:
+            Align: =Align.Center
+            Height: =50
+            Size: =14
+            Text: =1//sliDPQVisualizerDays //(varActivityRemainingScheduleHours/varActivityBaseNumMen/8)
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =false//varDailyPlanSliderVis
+            Width: =145
+            X: =lblDPQVisualizerDailyGoalHeader.X
+            Y: =lblDPQVisualizerDaysRowHeader.Y
+            ZIndex: =17
+
+        lblDPQVisualizerRemainingDaysValue As label:
+            Align: =Align.Center
+            Color: |-
+                =If(
+                    Value(Self.Text) > (varActivityRemainingScheduleHours/varActivityBaseNumMen/8),
+                    RGBA(168, 0, 0, 1),
+                    RGBA(0, 0, 0, 1)
+                )
+            Height: =50
+            Size: =14
+            Text: |-
+                =If(
+                    varDailyPlanActivitySearch = true,
+                    Round(varActivityRemainingHours/varActivityBaseNumMen/8,0),
+                    Round(varActivityRemainingScheduleHours/varActivityBaseNumMen/8,0)
+                )
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =varDailyPlanSliderVis
+            Width: =145
+            X: =lblDPQVisualizerRemainingHeader.X
+            Y: =lblDPQVisualizerDaysRowHeader.Y
+            ZIndex: =18
+
+        lblDPQVisualizerOriginalDataDaysValue As label:
+            Align: =Align.Center
+            Height: =50
+            Size: =14
+            Text: =varActivityTotalManHours/varActivityBaseNumMen/8
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =varDailyPlanSliderVis
+            Width: =145
+            X: =lblDPQVisualizerOriginalDataHeader.X
+            Y: =lblDPQVisualizerDaysRowHeader.Y
+            ZIndex: =19
+
+        lblDPQVisualizerDaysRowHeader As label:
+            Align: =Align.Right
+            FontWeight: =FontWeight.Semibold
+            Height: =50
+            Size: =15
+            Text: ="Days"
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =varDailyPlanSliderVis
+            Width: =100
+            X: =recDPQVisualizerBackground.X
+            Y: =lblDPQVisualizerWorkersRowHeader.Y + lblDPQVisualizerWorkersRowHeader.Height +15
+            ZIndex: =20
+
+        lblDPQVisualizerDailyGoalWorkersValue As label:
+            Align: =Align.Center
+            Height: =50
+            Size: =14
+            Text: =varActivityBaseNumMen
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =varDailyPlanSliderVis
+            Width: =145
+            X: =lblDPQVisualizerDailyGoalHeader.X
+            Y: =lblDPQVisualizerWorkersRowHeader.Y
+            ZIndex: =21
+
+        del_lblDPQVisualizerRemainingWorkersValue As label:
+            Align: =Align.Center
+            Height: =50
+            Size: =14
+            Text: =varActivityBaseNumMen
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =false//varDailyPlanSliderVis
+            Width: =145
+            X: =lblDPQVisualizerRemainingHeader.X
+            Y: =lblDPQVisualizerWorkersRowHeader.Y
+            ZIndex: =22
+
+        lblDPQVisualizerOriginalDataWorkersValue As label:
+            Align: =Align.Center
+            Height: =50
+            Size: =14
+            Text: =varActivityBaseNumMen
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =varDailyPlanSliderVis
+            Width: =145
+            X: =lblDPQVisualizerOriginalDataHeader.X
+            Y: =lblDPQVisualizerWorkersRowHeader.Y
+            ZIndex: =23
+
+        lblDPQVisualizerWorkersRowHeader As label:
+            Align: =Align.Center
+            FontWeight: =FontWeight.Semibold
+            Height: =50
+            Size: =15
+            Text: ="Workers"
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =varDailyPlanSliderVis
+            Width: =100
+            X: =recDPQVisualizerBackground.X
+            Y: =lblDPQVisualizerMetricRowHeader.Y + lblDPQVisualizerMetricRowHeader.Height +15
+            ZIndex: =24
+
+        lblDPQVisualizerDailyGoalMetricValue As label:
+            Align: =Align.Center
+            Height: =50
+            Size: =14
+            Text: =Round(varActivityDailyGoal,0) & " " & varActivityMeasure//RoundUp(varActivityRemainingQTY/(varActivityRemainingScheduleHours/*varActivityRemainingHours*//varActivityBaseNumMen/8),0) & " " & varActivityMeasure
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =varDailyPlanSliderVis
+            Width: =145
+            X: =lblDPQVisualizerDailyGoalHeader.X
+            Y: =recDPQVisualizerBackground.Y+lblDPQVisualizerOriginalDataHeader.Height
+            ZIndex: =25
+
+        lblDPQVisualizerRemainingMetricValue As label:
+            Align: =Align.Center
+            Height: =50
+            Size: =14
+            Text: =Round(varActivityRemainingQTY,0) & " " & varActivityMeasure
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =varDailyPlanSliderVis
+            Width: =145
+            X: =lblDPQVisualizerRemainingHeader.X
+            Y: =recDPQVisualizerBackground.Y+lblDPQVisualizerOriginalDataHeader.Height
+            ZIndex: =26
+
+        lblDPQVisualizerOriginalDataMetricValue As label:
+            Align: =Align.Center
+            Height: =50
+            Size: =14
+            Text: =varActivityTotalMetricsQTY & " " & varActivityMeasure
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =varDailyPlanSliderVis
+            Width: =145
+            X: =lblDPQVisualizerOriginalDataHeader.X
+            Y: =recDPQVisualizerBackground.Y+lblDPQVisualizerOriginalDataHeader.Height
+            ZIndex: =27
+
+        lblDPQVisualizerMetricRowHeader As label:
+            Align: =Align.Right
+            FontWeight: =FontWeight.Semibold
+            Height: =50
+            Size: =15
+            Text: ="Metric"
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =varDailyPlanSliderVis
+            Width: =100
+            X: =recDPQVisualizerBackground.X
+            Y: =recDPQVisualizerBackground.Y+lblDPQVisualizerOriginalDataHeader.Height
+            ZIndex: =28
+
+        lblDPQVisualizerDailyGoalHeader As label:
+            Align: =Align.Center
+            FontWeight: =FontWeight.Semibold
+            Height: =85
+            Size: =15
+            Text: ="Calculated Goal"
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =varDailyPlanSliderVis
+            Width: =145
+            X: =lblDPQVisualizerRemainingHeader.X+lblDPQVisualizerRemainingHeader.Width
+            Y: =recDPQVisualizerBackground.Y
+            ZIndex: =29
+
+        lblDPQVisualizerRemainingHeader As label:
+            Align: =Align.Center
+            FontWeight: =FontWeight.Semibold
+            Height: =85
+            Size: =15
+            Text: |-
+                ="Remaining as of:" & Char(13) & Today() & Char(13)
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =varDailyPlanSliderVis
+            Width: =145
+            X: =lblDPQVisualizerOriginalDataHeader.X+lblDPQVisualizerOriginalDataHeader.Width
+            Y: =recDPQVisualizerBackground.Y
+            ZIndex: =30
+
+        lblDPQVisualizerOriginalDataHeader As label:
+            Align: =Align.Center
+            FontWeight: =FontWeight.Semibold
+            Height: =85
+            Size: =15
+            Text: ="Estimated"
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =varDailyPlanSliderVis
+            Width: =145
+            X: =lblDPQVisualizerMetricRowHeader.X+lblDPQVisualizerMetricRowHeader.Width
+            Y: =recDPQVisualizerBackground.Y
+            ZIndex: =31
+
+        lblDPQVisualizerTestPlanHeader As label:
+            Align: =Align.Center
+            FontWeight: =FontWeight.Semibold
+            Height: =85
+            Size: =15
+            Text: |-
+                ="Simulated Plan"// Calc: " & varDailyPlanSliderCalc
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =varDailyPlanSliderVis
+            Width: =145
+            X: =lblDPQVisualizerDailyGoalHeader.X+lblDPQVisualizerDailyGoalHeader.Width
+            Y: =recDPQVisualizerBackground.Y
+            ZIndex: =32
+
+        lblDPQVisualizerTestPlanMetricValue As label:
+            Align: =Align.Center
+            BorderThickness: =1
+            Height: =50
+            Size: =14
+            Text: =sliDPQVisualizerMetric //varActivityDailyGoal/*varActivityDailyGoal*/sliDPQPopupMetric.Value & " " & varActivityMeasure//RoundUp(varActivityRemainingQTY/(varActivityRemainingScheduleHours/*varActivityRemainingHours*//varActivityBaseNumMen/8),0) & " " & varActivityMeasure
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =varDailyPlanSliderVis
+            Width: =145
+            X: =lblDPQVisualizerTestPlanHeader.X
+            Y: =recDPQVisualizerBackground.Y+lblDPQVisualizerOriginalDataHeader.Height
+            ZIndex: =33
+
+        lblDPQVisualizerTestPlanlWorkersValue As label:
+            Align: =Align.Center
+            BorderThickness: =1
+            Height: =50
+            Size: =14
+            Text: =sliDPQVisualizerWorkers/2 //varActivityBaseNumMen
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =varDailyPlanSliderVis
+            Width: =145
+            X: =lblDPQVisualizerTestPlanHeader.X
+            Y: =lblDPQVisualizerWorkersRowHeader.Y
+            ZIndex: =34
+
+        lblDPQVisualizerTestPlanDaysValue As label:
+            Align: =Align.Center
+            BorderThickness: =1
+            Color: |-
+                =If(
+                    Value(Self.Text) > (varActivityRemainingScheduleHours/varActivityBaseNumMen/8),
+                    RGBA(168, 0, 0, 1),
+                    RGBA(0, 0, 0, 1)
+                )
+            Height: =50
+            Size: =14
+            Text: =sliDPQVisualizerDays //varActivityRemainingScheduleHours/varActivityBaseNumMen/8
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =varDailyPlanSliderVis
+            Width: =145
+            X: =lblDPQVisualizerTestPlanHeader.X
+            Y: =lblDPQVisualizerDaysRowHeader.Y
+            ZIndex: =35
+
+        lblDPQVisualizerTestPlanManHoursValue As label:
+            Align: =Align.Center
+            BorderThickness: =1
+            Color: |-
+                =If(
+                    Value(Self.Text) > (varActivityRemainingScheduleHours/varActivityBaseNumMen)*8,
+                    RGBA(168, 0, 0, 1),
+                    RGBA(0, 0, 0, 1)
+                )
+            Height: =55
+            Size: =14
+            Text: |-
+                =//varActivitySliderManHoursValue
+                (sliDPQVisualizerWorkers/2)*sliDPQVisualizerDays*8
+                //(sliDPQVisualizerWorkers/2)*8
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =varDailyPlanSliderVis
+            Width: =145
+            X: =lblDPQVisualizerTestPlanHeader.X
+            Y: =lblDPQVisualizerManHoursRowHeader.Y
+            ZIndex: =36
+
+        imgDPQVisualizerLockIcon As image:
+            Height: =50
+            Image: |-
+                =If(
+                    varDPQSliderMetricLock,
+                    "data:image/svg+xml;utf8, %3Csvg%20%20viewBox%3D%270%200%202048%202048%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%3E%3Cpath%20d%3D%27M1792%20896v1152H256V896h1152V512q0-82-29-152t-80-122-122-81-153-29q-82%200-152%2029t-122%2080-81%20122-29%20153H512q0-109%2039-202t108-163T821%2039t203-39q109%200%20202%2039t163%20108%20108%20162%2039%20203v384h256z%27%20fill%3D%27%23000000%27%3E%3C%2Fpath%3E%3C%2Fsvg%3E",
+                    "data:image/svg+xml;utf8, %3Csvg%20%20viewBox%3D%270%200%202048%202048%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%3E%3Cpath%20d%3D%27M1792%20896v1152H256V896h256V522q0-108%2039-203t108-166T821%2041t203-41q109%200%20202%2041t163%20112%20108%20166%2039%20203v374h256zm-1152%200h768V522q0-81-29-152t-80-126-122-85-153-31q-82%200-152%2031t-122%2085-81%20125-29%20153v374z%27%20fill%3D%27%23000000%27%3E%3C%2Fpath%3E%3C%2Fsvg%3E"
+                )
+            OnSelect: |-
+                =UpdateContext({varDPQSliderMetricLock:!varDPQSliderMetricLock})
+            Visible: =varDailyPlanSliderVis
+            Width: =50
+            X: =598
+            Y: =632
+            ZIndex: =37
+
+        icoDPQSimulatorClose As icon.BackArrow:
+            Height: =50
+            Icon: =Icon.CancelBadge
+            OnSelect: |-
+                =UpdateContext({varDailyPlanSliderVis:!varDailyPlanSliderVis}); Reset(sliDPQVisualizerDays);Reset(sliDPQVisualizerMetric);Reset(sliDPQVisualizerWorkers);
+            PaddingBottom: =0.00
+            PaddingLeft: =0.00
+            PaddingTop: =5
+            Visible: =varDailyPlanSliderVis
+            X: =38
+            Y: =251
+            ZIndex: =38
+
+    grpDPQSelectedIssuesPhotoView As group:
+        Height: =5
+        Width: =5
+        X: =60
+        Y: =60
+        ZIndex: =105
+
+        recDPQNoAttachmentPhotoFade As rectangle:
+            Fill: =RGBA(0, 0, 0, 0.2)
+            Height: =1024
+            OnSelect: =Set(varDPQSelectedIssuesPhotoPreviewVis,false)
+            Visible: =varDPQSelectedIssuesPhotoPreviewVis
+            Width: =768
+            ZIndex: =108
+
+        btnDPQNoAttachmentPhotoBackground As button:
+            DisabledFill: =RGBA(255, 255, 255, 1)
+            DisplayMode: =DisplayMode.Disabled
+            Height: =imgDPQNoAttachmentPhotoView.Height
+            RadiusBottomLeft: =5
+            RadiusBottomRight: =5
+            RadiusTopLeft: =5
+            RadiusTopRight: =5
+            Text: =""
+            Visible: =varDPQSelectedIssuesPhotoPreviewVis
+            Width: =imgDPQNoAttachmentPhotoView.Width
+            X: =imgDPQNoAttachmentPhotoView.X
+            Y: =imgDPQNoAttachmentPhotoView.Y
+            ZIndex: =109
+
+        imgDPQNoAttachmentPhotoView As image:
+            Height: =Parent.Height*.3
+            Image: =varDPQSelectedIssuesPhotoPreview
+            PaddingBottom: =4
+            PaddingLeft: =4
+            PaddingRight: =4
+            PaddingTop: =4
+            Visible: =varDPQSelectedIssuesPhotoPreviewVis
+            Width: =Parent.Width*.55
+            X: =(Parent.Width-Self.Width)/2
+            Y: =(Parent.Height-Self.Height)/2
+            ZIndex: =110
+
+    btnAppExit_DailyPlanQuestions As button:
+        Fill: =RGBA(168, 0, 0, 1)
+        Height: =25
+        HoverFill: =ColorFade(Self.Fill, -20%)
+        OnSelect: =Exit()
+        Size: =11
+        Text: ="Exit"
+        Width: =75
+        X: =585
+        Y: =31
+        ZIndex: =111
+
+    grpDailyPlanQuestionsYes As group:
+        Height: =5
+        Width: =5
+        X: =60
+        Y: =60
+        ZIndex: =111
+
+        btnStartActivityYesSubmit As button:
+            DisplayMode: =Edit
+            Fill: =RGBA(168, 0, 0, 1)
+            Height: =50
+            OnSelect: |-
+                =Set(varDailyPlanUniversalActivityAutoID,If(!varDailyPlanActivitySearch, varActivityScheduleDetails.ActivityAutoID, varActivitySearchDetails.ActivityAutoID));
+                Patch(
+                    tblDailyActivities,
+                    Defaults(tblDailyActivities),
+                    {
+                        ProjectInternalID: varSelectedDailyPlanProjectInternalID,
+                        ActivityAutoID: varDailyPlanUniversalActivityAutoID,
+                        ActivityDate: Now(),
+                        ActivityNum: varActivityNum,
+                        ActivityDescription: varActivityDesc,
+                        ActivityCostCode: Value(varActivityCostCode),
+                        Trade: varActivityTrade,
+                        TotalMetricsQTY: varActivityTotalMetricsQTY,
+                        Measure: varActivityMeasure,
+                        BaseNumMen: varActivityBaseNumMen,
+                        PlanStartDate: varActivityPlanStartDate,
+                        PlanEndDate: varActivityPlanEndDate,
+                        ProductionPerDay: varActivityProductionPerDay,
+                        ActivityDuration: varActivityDuration,
+                        TotalManHours: varActivityTotalManHours,
+                        Target: varActivityTarget,
+                        Finalized: varActivityFinalized,
+                        Area: varActivityArea,
+                        WorkingToday: true,
+                        HowManyWorkers: varActivityBaseNumMen,//Value(txtNumOfWorkers_1.Text),
+                        GoalGood: true,
+                        ChangeGoal: false,
+                        NewDailyGoal: /*Round(*/varActivityDailyGoal/*(varActivityBaseNumMen/Value(txtNumOfWorkers_1.Text))*///,0)
+                    }
+                );
+                UpdateContext({varDailyPlanStartPopup:false});
+                UpdateContext({varDailyPlanSliderVis:false});
+                UpdateContext({varResetRadio:true});
+                UpdateContext({varResetRadio:false});
+                ClearCollect(
+                    colFilteredDailyActivities,
+                    Filter(
+                        tblDailyActivities,
+                        ProjectInternalID = varSelectedDailyPlanProjectInternalID
+                    )
+                );
+                Navigate(scrDailyPlanActivities);
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =14.99
+            Text: ="Submit"
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="Yes",true,false)
+            Width: =264
+            X: =251
+            Y: =900
+            ZIndex: =45
+
+        btnDPQOpenVisualizer As button:
+            Height: =50
+            OnSelect: |-
+                =UpdateContext({varDailyPlanSliderVis:true});
+                UpdateContext(
+                    {
+                        varActivitySliderInitialMetricValue : varActivityDailyGoal, 
+                        varActivitySliderInitialWorkersValue : varActivityBaseNumMen*2,
+                        varActivitySliderInitialDaysValue : Round(varActivityRemainingScheduleHours/varActivityBaseNumMen/8,0),
+                        varActivitySliderInitialManHoursValue: varActivityBaseNumMen*Round(varActivityRemainingScheduleHours/varActivityBaseNumMen/8,0)*8
+                    }
+                );
+                UpdateContext(
+                    {
+                        varActivitySliderMetricValue : varActivityDailyGoal, 
+                        varActivitySliderWorkersValue : varActivityBaseNumMen*2,
+                        varActivitySliderDaysValue : Round(varActivityRemainingScheduleHours/varActivityBaseNumMen/8,0),
+                        varActivitySliderManHoursValue: varActivityBaseNumMen*Round(varActivityRemainingScheduleHours/varActivityBaseNumMen/8,0)*8
+                    }
+                );
+                UpdateContext({varDailyPlanSliderCalc:Round(varActivityTotalMetricsQTY/varActivityBaseNumMen/(varActivityTotalManHours/varActivityBaseNumMen/8),0)});
+                Reset(sliDPQVisualizerDays);
+                Reset(sliDPQVisualizerMetric);
+                Reset(sliDPQVisualizerWorkers);
+            Text: ="Open Simulator"
+            Visible: =false//If(radDailyPlanQuestionsYesNo.Selected.Value="Yes",true,false)
+            Width: =200
+            X: =(Parent.Width-Self.Width)/2
+            Y: =lblDPQManHoursRowHeader.Y+lblDPQManHoursRowHeader.Height+50
+            ZIndex: =58
+
+        del_htmlDPQManHoursOverUnder As htmlViewer:
+            Height: =75
+            HtmlText: |-
+                ="<div style='text-align: center'>
+                    "& If(varActivityEstHoursToDate=0,"<font> -",varActivityActualHours<varActivityEstHoursToDate,"<font color=Green> Under","<font color=Red> Over") &"</font>
+                    <br> 
+                    <b>ManHours</b>
+                <div>"
+            Size: =15
+            Visible: =false//If(radDailyPlanQuestionsYesNo.Selected.Value="Yes",true,false)
+            Width: =lblDPQRemainingHeader.Width
+            X: =lblDPQRemainingHeader.X+Self.Width/2
+            Y: =lblDPQManHoursRowHeader.Y+lblDPQManHoursRowHeader.Height+5
+            ZIndex: =59
+
+        del_htmlDPQScheduleAheadBehind As htmlViewer:
+            Height: =75
+            HtmlText: |-
+                ="<div style='text-align: center; border: solid 1px; border-radius: 10px; background-color: "& 
+                    If(
+                        (varActivityTotalMetricsQTY-varActivityRemainingQTY)=varActivityEstQTYToDate,
+                        "green",
+                        (varActivityTotalMetricsQTY-varActivityRemainingQTY)>varActivityEstQTYToDate,
+                        "green",
+                        "red"
+                    )
+                &"'>
+                    <b>Schedule</b>
+                    <br>
+                    "& If(
+                        (varActivityTotalMetricsQTY-varActivityRemainingQTY)=varActivityEstQTYToDate,
+                        "<font>On",//"<font color=Green> On",
+                        (varActivityTotalMetricsQTY-varActivityRemainingQTY)>varActivityEstQTYToDate,
+                        "<font>Ahead",//"<font color=Green> Ahead",
+                        "<font>Behind"//"<font color=Red> Behind"
+                    ) &"</font>
+                <div>"
+            Size: =15
+            Visible: =false//If(radDailyPlanQuestionsYesNo.Selected.Value="Yes",true,false)
+            Width: =lblDPQOriginalDataHeader.Width
+            X: =lblDPQOriginalDataHeader.X+Self.Width/2
+            Y: =lblDPQManHoursRowHeader.Y+lblDPQManHoursRowHeader.Height+5
+            ZIndex: =60
+
+        btnDPQScheduleAheadBehind As button:
+            DisabledFill: |-
+                =If(
+                    (varActivityTotalMetricsQTY-varActivityRemainingQTY)=varActivityEstQTYToDate,
+                    RGBA(244, 244, 244, 1),
+                    (varActivityTotalMetricsQTY-varActivityRemainingQTY)>varActivityEstQTYToDate,
+                    RGBA(100, 200, 100, 1),
+                    RGBA(164, 0, 0, 1)
+                )
+            DisplayMode: =DisplayMode.Disabled
+            Fill: =RGBA(168, 0, 0, 1)
+            Height: =50
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =14.99
+            Text: =""
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="Yes",true,false)
+            Width: =200
+            X: =92
+            Y: =815
+            ZIndex: =61
+
+        btnDPQManHoursOverUnder As button:
+            DisabledFill: |-
+                =If(
+                    varActivityEstHoursToDate=0,
+                    RGBA(244, 244, 244, 1),
+                    (varActivityActualHours<varActivityEstHoursToDate),
+                    RGBA(100, 200, 100, 1),
+                    RGBA(164, 0, 0, 1)
+                )
+            DisplayMode: =DisplayMode.Disabled
+            Fill: =RGBA(168, 0, 0, 1)
+            Height: =50
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =14.99
+            Text: =""
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="Yes",true,false)
+            Width: =200
+            X: =476
+            Y: =815
+            ZIndex: =62
+
+        lblDPQScheduleAheadBehindHeader As label:
+            Align: =Align.Center
+            Color: |-
+                =If(
+                    (varActivityTotalMetricsQTY-varActivityRemainingQTY)=varActivityEstQTYToDate,
+                    RGBA(0, 0, 0, 1),
+                    (varActivityTotalMetricsQTY-varActivityRemainingQTY)>varActivityEstQTYToDate,
+                    RGBA(0, 0, 0, 1),
+                    RGBA(255, 255, 255, 1)
+                )
+            FontWeight: =FontWeight.Semibold
+            Height: =btnDPQScheduleAheadBehind.Height/2
+            Size: =12
+            Text: ="Schedule"
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="Yes",true,false)
+            Width: =btnDPQScheduleAheadBehind.Width
+            X: =btnDPQScheduleAheadBehind.X
+            Y: =btnDPQScheduleAheadBehind.Y
+            ZIndex: =63
+
+        lblDPQScheduleAheadBehindValue As label:
+            Align: =Align.Center
+            Color: |-
+                =If(
+                    (varActivityTotalMetricsQTY-varActivityRemainingQTY)=varActivityEstQTYToDate,
+                    RGBA(0, 0, 0, 1),
+                    (varActivityTotalMetricsQTY-varActivityRemainingQTY)>varActivityEstQTYToDate,
+                    RGBA(0, 0, 0, 1),
+                    RGBA(255, 255, 255, 1)
+                )
+            Height: =btnDPQScheduleAheadBehind.Height/2
+            Size: =12
+            Text: |-
+                =If(
+                    (varActivityTotalMetricsQTY-varActivityRemainingQTY)=varActivityEstQTYToDate,
+                    "--",
+                    (varActivityTotalMetricsQTY-varActivityRemainingQTY)>varActivityEstQTYToDate,
+                    "Over",
+                    "Under"
+                )
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="Yes",true,false)
+            Width: =btnDPQScheduleAheadBehind.Width
+            X: =btnDPQScheduleAheadBehind.X
+            Y: =btnDPQScheduleAheadBehind.Y+btnDPQScheduleAheadBehind.Height-Self.Height
+            ZIndex: =64
+
+        lblDPQManHoursOverUnderHeader As label:
+            Align: =Align.Center
+            Color: |-
+                =If(
+                    varActivityEstHoursToDate=0,
+                    RGBA(0, 0, 0, 1),
+                    (varActivityActualHours<varActivityEstHoursToDate),
+                    RGBA(0, 0, 0, 1),
+                    RGBA(255, 255, 255, 1)
+                )
+            FontWeight: =FontWeight.Semibold
+            Height: =btnDPQManHoursOverUnder.Height/2
+            Size: =12
+            Text: ="ManHours"
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="Yes",true,false)
+            Width: =btnDPQManHoursOverUnder.Width
+            X: =btnDPQManHoursOverUnder.X
+            Y: =btnDPQManHoursOverUnder.Y
+            ZIndex: =65
+
+        lblDPQManHoursOverUnderValue As label:
+            Align: =Align.Center
+            Color: |-
+                =If(
+                    varActivityEstHoursToDate=0,
+                    RGBA(0, 0, 0, 1),
+                    (varActivityActualHours<varActivityEstHoursToDate),
+                    RGBA(0, 0, 0, 1),
+                    RGBA(255, 255, 255, 1)
+                )
+            Height: =btnDPQManHoursOverUnder.Height/2
+            Size: =12
+            Text: |-
+                =If(
+                    varActivityEstHoursToDate=0,
+                    "--",
+                    varActivityActualHours<varActivityEstHoursToDate,
+                    "Under",
+                    "Over"
+                )
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="Yes",true,false)
+            Width: =btnDPQManHoursOverUnder.Width
+            X: =btnDPQManHoursOverUnder.X
+            Y: =btnDPQManHoursOverUnder.Y+btnDPQManHoursOverUnder.Height-Self.Height
+            ZIndex: =66
+
+        lblDPQDailyGoalManHoursValue As label:
+            Align: =Align.Center
+            Height: =65
+            Size: =15
+            Text: |-
+                =(If(
+                    IsBlank(varActivityUpdatedBaseNumMen),
+                    varActivityBaseNumMen,
+                    varActivityUpdatedBaseNumMen
+                ))*8
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="Yes",true,false)
+            Width: =lblDPQDailyGoalHeader.Width
+            X: =lblDPQDailyGoalHeader.X
+            Y: =lblDPQManHoursRowHeader.Y
+            ZIndex: =67
+
+        lblDPQRemainingManHoursValue As label:
+            Align: =Align.Center
+            Height: =65
+            Size: =15
+            Text: |-
+                =If(
+                    varDailyPlanActivitySearch = true,
+                    varActivityRemainingHours,
+                    varActivityRemainingScheduleHours
+                )
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="Yes",true,false)
+            Width: =lblDPQRemainingHeader.Width
+            X: =lblDPQRemainingHeader.X
+            Y: =lblDPQManHoursRowHeader.Y
+            ZIndex: =68
+
+        lblDPQOriginalDataManHoursValue As label:
+            Align: =Align.Center
+            Height: =65
+            Size: =15
+            Text: =varActivityTotalManHours
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="Yes",true,false)
+            Width: =lblDPQOriginalDataHeader.Width
+            X: =lblDPQOriginalDataHeader.X
+            Y: =lblDPQManHoursRowHeader.Y
+            ZIndex: =69
+
+        lblDPQManHoursRowHeader As label:
+            Align: =Align.Right
+            FontWeight: =FontWeight.Semibold
+            Height: =65
+            Size: =16
+            Text: ="Man Hours"
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="Yes",true,false)
+            Width: =93
+            Y: =lblDPQDaysRowHeader.Y+lblDPQDaysRowHeader.Height+25
+            ZIndex: =70
+
+        lblDPQDailyGoalDaysValue As label:
+            Align: =Align.Center
+            Height: =50
+            Size: =15
+            Text: =//Round((varActivityRemainingScheduleHours/If(IsBlank(varActivityUpdatedBaseNumMen),varActivityBaseNumMen,varActivityUpdatedBaseNumMen)/8),0)
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="Yes",true,false)
+            Width: =lblDPQDailyGoalHeader.Width
+            X: =lblDPQDailyGoalHeader.X
+            Y: =lblDPQDaysRowHeader.Y
+            ZIndex: =71
+
+        lblDPQRemainingDaysValue As label:
+            Align: =Align.Center
+            Height: =50
+            Size: =15
+            Text: |-
+                =If(
+                    varDailyPlanActivitySearch = true,
+                    Round((varActivityRemainingHours/If(IsBlank(varActivityUpdatedBaseNumMen),varActivityBaseNumMen,varActivityUpdatedBaseNumMen)/8),0),
+                    Round((varActivityRemainingScheduleHours/If(IsBlank(varActivityUpdatedBaseNumMen),varActivityBaseNumMen,varActivityUpdatedBaseNumMen)/8),0)
+                )
+                
+                // Previous Measure
+                //varActivityRemainingHours/varActivityBaseNumMen/8
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="Yes",true,false)
+            Width: =lblDPQRemainingHeader.Width
+            X: =lblDPQRemainingHeader.X
+            Y: =lblDPQDaysRowHeader.Y
+            ZIndex: =72
+
+        lblDPQOriginalDataDaysValue As label:
+            Align: =Align.Center
+            Height: =50
+            Size: =15
+            Text: =varActivityTotalManHours/varActivityBaseNumMen/8
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="Yes",true,false)
+            Width: =lblDPQOriginalDataHeader.Width
+            X: =lblDPQOriginalDataHeader.X
+            Y: =lblDPQDaysRowHeader.Y
+            ZIndex: =73
+
+        lblDPQDaysRowHeader As label:
+            Align: =Align.Right
+            FontWeight: =FontWeight.Semibold
+            Height: =50
+            Size: =15
+            Text: ="Days"
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="Yes",true,false)
+            Width: =93
+            Y: =lblDPQWorkersRowHeader.Y+lblDPQWorkersRowHeader.Height+25
+            ZIndex: =74
+
+        lblDPQDailyGoalWorkersValue As label:
+            Align: =Align.Center
+            Height: =50
+            Size: =15
+            Text: |-
+                =//If(
+                    //IsBlank(varActivityUpdatedBaseNumMen),
+                    varActivityBaseNumMen//,
+                    //varActivityUpdatedBaseNumMen
+                //)
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="Yes",true,false)
+            Width: =lblDPQDailyGoalHeader.Width
+            X: =lblDPQDailyGoalHeader.X
+            Y: =lblDPQWorkersRowHeader.Y
+            ZIndex: =75
+
+        del_lblDPQRemainingWorkersValue As label:
+            Align: =Align.Center
+            Height: =50
+            Size: =15
+            Text: =varActivityBaseNumMen
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =false//If(radDailyPlanQuestionYesNo_1.Selected.Value="Yes",true,false)
+            Width: =lblDPQRemainingHeader.Width
+            X: =lblDPQRemainingHeader.X
+            Y: =lblDPQWorkersRowHeader.Y
+            ZIndex: =76
+
+        lblDPQOriginalDataWorkersValue As label:
+            Align: =Align.Center
+            Height: =50
+            Size: =15
+            Text: =varActivityBaseNumMen
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="Yes",true,false)
+            Width: =lblDPQOriginalDataHeader.Width
+            X: =lblDPQOriginalDataHeader.X
+            Y: =lblDPQWorkersRowHeader.Y
+            ZIndex: =77
+
+        lblDPQWorkersRowHeader As label:
+            Align: =Align.Center
+            FontWeight: =FontWeight.Semibold
+            Height: =50
+            Size: =15
+            Text: ="Workers"
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="Yes",true,false)
+            Width: =93
+            Y: =lblDPQMetricRowHeader.Y+lblDPQMetricRowHeader.Height+25
+            ZIndex: =78
+
+        lblDPQOriginalDailyGoalMetric As label:
+            Align: =Align.Center
+            Height: =25
+            Italic: =true
+            PaddingLeft: =0
+            PaddingRight: =0
+            Size: =10
+            Text: |-
+                ="Original Daily Goal: " & varActivityProductionPerDay & " " & If(varActivityMeasure="Each","",varActivityMeasure) //RoundUp(varActivityRemainingQTY/(varActivityRemainingScheduleHours/*varActivityRemainingHours*//varActivityBaseNumMen/8),0) & " " & varActivityMeasure
+            VerticalAlign: =VerticalAlign.Top
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="Yes",true,false)
+            Width: =lblDPQDailyGoalHeader.Width
+            X: =lblDPQDailyGoalHeader.X
+            Y: =lblDPQDailyGoalMetricValue.Y+lblDPQDailyGoalMetricValue.Height
+            ZIndex: =79
+
+        lblDPQDailyGoalMetricValue As label:
+            Align: =Align.Center
+            Height: =50
+            Size: =15
+            Text: =varActivityDailyGoal & " " & If(varActivityMeasure="Each","",varActivityMeasure) //RoundUp(varActivityRemainingQTY/(varActivityRemainingScheduleHours/*varActivityRemainingHours*//varActivityBaseNumMen/8),0) & " " & varActivityMeasure
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="Yes",true,false)
+            Width: =lblDPQDailyGoalHeader.Width
+            X: =lblDPQDailyGoalHeader.X
+            Y: =lblDPQMetricRowHeader.Y
+            ZIndex: =80
+
+        lblDPQRemainingMetricValue As label:
+            Align: =Align.Center
+            Height: =50
+            Size: =15
+            Text: =varActivityRemainingQTY & " " & varActivityMeasure
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="Yes",true,false)
+            Width: =lblDPQRemainingHeader.Width
+            X: =lblDPQRemainingHeader.X
+            Y: =lblDPQMetricRowHeader.Y
+            ZIndex: =81
+
+        lblDPQOriginalDataMetricValue As label:
+            Align: =Align.Center
+            Height: =50
+            Size: =15
+            Text: =varActivityTotalMetricsQTY & " " & varActivityMeasure
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="Yes",true,false)
+            Width: =lblDPQOriginalDataHeader.Width
+            X: =lblDPQOriginalDataHeader.X
+            Y: =lblDPQMetricRowHeader.Y
+            ZIndex: =82
+
+        lblDPQMetricRowHeader As label:
+            Align: =Align.Right
+            FontWeight: =FontWeight.Semibold
+            Height: =50
+            Size: =15
+            Text: ="Metric"
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="Yes",true,false)
+            Width: =93
+            Y: =lblDPQOriginalDataHeader.Y+lblDPQOriginalDataHeader.Height+25
+            ZIndex: =83
+
+        lblDPQDailyGoalHeader As label:
+            Align: =Align.Center
+            FontWeight: =FontWeight.Semibold
+            Height: =110
+            Size: =16
+            Text: ="Calculated Daily Goal"
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="Yes",true,false)
+            Width: =(Parent.Width-lblDPQMetricRowHeader.Width)/3
+            X: =lblDPQRemainingHeader.X+lblDPQRemainingHeader.Width
+            Y: =lblDPQOriginalDataHeader.Y
+            ZIndex: =84
+
+        lblDPQRemainingHeader As label:
+            Align: =Align.Center
+            FontWeight: =FontWeight.Semibold
+            Height: =110
+            Size: =16
+            Text: |-
+                ="Remaining as of:" & Char(13) & Today() & Char(13) & "Today"
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="Yes",true,false)
+            Width: =(Parent.Width-lblDPQMetricRowHeader.Width)/3
+            X: =(Parent.Width-Self.Width)/2//lblDPQOriginalDataHeader.X+lblDPQOriginalDataHeader.Width
+            Y: =lblDPQOriginalDataHeader.Y
+            ZIndex: =85
+
+        lblDPQOriginalDataHeader As label:
+            Align: =Align.Center
+            FontWeight: =FontWeight.Semibold
+            Height: =110
+            Size: =16
+            Text: ="Estimated"
+            VerticalAlign: =VerticalAlign.Bottom
+            Visible: =If(radDailyPlanQuestionsYesNo.Selected.Value="Yes",true,false)
+            Width: =lblDPQRemainingHeader.X-lblDPQMetricRowHeader.Width //(Parent.Width-lblDPQMetricRowHeader.Width)/3
+            X: =lblDPQRemainingHeader.X-Self.Width//lblDPQMetricRowHeader.Width
+            Y: =lblDailyPlanQuestion.Y+lblDailyPlanQuestion.Height + 15
+            ZIndex: =86
+
+    grpDPQMetricMetPopup As group:
+        Height: =5
+        Width: =5
+        X: =60
+        Y: =60
+        ZIndex: =122
+
+        recDPQMetricMetPopupFade As rectangle:
+            BorderColor: =RGBA(128, 128, 128, 1)
+            Fill: =RGBA(116, 116, 116, 0.4)
+            Height: =938
+            Visible: =varDailyPlanMetricMetVis
+            Width: =768
+            Y: =85
+            ZIndex: =100
+
+        recDPQMetricMetPopupBackground As rectangle:
+            BorderColor: =RGBA(128, 128, 128, 1)
+            BorderThickness: =2
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =598
+            Visible: =varDailyPlanMetricMetVis
+            Width: =691
+            X: =38
+            Y: =201
+            ZIndex: =101
+
+        btnDPQMetricMetPopupSubmit As button:
+            DisplayMode: |-
+                =If(
+                    radDPQMetricMetPopupYesNo.Selected.Value="No",
+                    Edit,
+                    radDPQMetricMetPopupYesNo.Selected.Value="Yes" && !IsBlank(cboxDPQMetricMetPopupIssueSelect.Selected.Value),
+                    Edit,
+                    Disabled
+                )
+            Height: =61
+            OnSelect: |-
+                =Patch(
+                    tblDailyActivities,
+                    Defaults(tblDailyActivities),
+                    {
+                        ProjectInternalID: varSelectedDailyPlanProjectInternalID,
+                        ActivityAutoID: varActivitySearchDetails.ActivityAutoID, 
+                        ActivityDate: Today(),
+                        ActivityNum: varActivityNum,
+                        ActivityDescription: varActivityDesc,
+                        ActivityCostCode: Value(varActivityCostCode),
+                        Trade: varActivityTrade,
+                        TotalMetricsQTY: varActivityTotalMetricsQTY,
+                        Measure: varActivityMeasure,
+                        BaseNumMen: varActivityBaseNumMen,
+                        PlanStartDate: varActivityPlanStartDate,
+                        PlanEndDate: varActivityPlanEndDate,
+                        ProductionPerDay: varActivityProductionPerDay,
+                        ActivityDuration: varActivityDuration,
+                        TotalManHours: varActivityTotalManHours,
+                        Target: varActivityTarget,
+                        Finalized: varActivityFinalized,
+                        Area: varActivityArea,
+                        WorkingToday: If(radDPQMetricMetPopupYesNo.Selected.Value="Yes",true,false),//true,
+                        Issue: If(
+                            cboxDPQMetricMetPopupIssueSelect.Selected.Value="Other",
+                            txtDPQMetricMetPopupInput.Text,
+                            cboxDPQMetricMetPopupIssueSelect.Selected.Value
+                        ),
+                        Rework: true
+                    }
+                );
+                UpdateContext({varDailyPlanStartPopup:false});
+                UpdateContext({varDailyPlanStartPopupNewGoalVis:false});
+                UpdateContext({varDailyPlanStartPopupChangeConfirm:false});
+                ClearCollect(
+                    colFilteredDailyActivities,
+                    Filter(
+                        tblDailyActivities,
+                        ProjectInternalID = varSelectedDailyPlanProjectInternalID
+                    )
+                );
+                Navigate(scrDailyPlanActivities);
+                UpdateContext({varDailyPlanMetricMetVis:false})
+            Text: ="Submit"
+            Visible: =varDailyPlanMetricMetVis
+            Width: =225
+            X: =recDPQMetricMetPopupBackground.X+(recDPQMetricMetPopupBackground.Width-Self.Width)/2
+            Y: =720
+            ZIndex: =102
+
+        txtDPQMetricMetPopupInput As text:
+            Default: =""
+            Height: =99
+            HintText: ="Enter Notes Here"
+            Mode: =TextMode.MultiLine
+            Reset: =varDailyPlanSelectedIssueInputReset
+            Visible: |-
+                =If(
+                    cboxDPQMetricMetPopupIssueSelect.Selected.Value = "Other" && radDPQMetricMetPopupYesNo.Selected.Value = "Yes",
+                    true,
+                    false
+                )
+            Width: =475
+            X: =146.5
+            Y: =590
+            ZIndex: =103
+
+        cboxDPQMetricMetPopupIssueSelect As combobox:
+            DisplayFields: =["Value"]
+            Height: =61
+            IsSearchable: =false
+            Items: |-
+                =Table(
+                    {
+                        Value: "Change Order Work"
+                    },
+                    {
+                        Value: "GC Directed Work (T&M)"
+                    },
+                    {
+                        Value: "Rework/Damage Work"
+                    },
+                    {
+                        Value: "Clean up"
+                    },
+                    {
+                        Value: "Unload/Load Materials"
+                    },
+                    {
+                        Value: "Testing"
+                    },
+                    {
+                        Value: "Working for directly for Owner or Others Trades (T&M)"
+                    },
+                    {
+                        Value: "Other"
+                    }
+                )
+            SearchFields: =["Value"]
+            SearchItems: =[]
+            SelectMultiple: =false
+            Size: =15
+            Visible: =If(radDPQMetricMetPopupYesNo.Selected.Value = "Yes" && varDailyPlanMetricMetVis, true, false)
+            Width: =475
+            X: =recDPQMetricMetPopupBackground.X+(recDPQMetricMetPopupBackground.Width-Self.Width)/2
+            Y: =504
+            ZIndex: =104
+
+        lblDPQMetricMetPopupDropdownMessage As label:
+            Align: =Align.Center
+            Height: =61
+            Size: =15
+            Text: ="Well what will you be working on?"
+            Visible: =If(radDPQMetricMetPopupYesNo.Selected.Value = "Yes" && varDailyPlanMetricMetVis, true, false)
+            Width: =691
+            X: =38
+            Y: =443
+            ZIndex: =105
+
+        radDPQMetricMetPopupYesNo As radio:
+            FocusedBorderThickness: =0
+            Height: =87
+            Items: =["Yes","No"]
+            Layout: =Layout.Horizontal
+            OnChange: =
+            Reset: =varResetRadio
+            Size: =15
+            Visible: =varDailyPlanMetricMetVis
+            Width: =215
+            X: =recDPQMetricMetPopupBackground.X+(recDPQMetricMetPopupBackground.Width-Self.Width)/2
+            Y: =356
+            ZIndex: =106
+
+        lblDPQMetricMetPopupMessage As label:
+            Align: =Align.Center
+            Height: =155
+            Size: =18
+            Text: ="The work on this activity is finished. Do you still want to work on this activity? "
+            Visible: =varDailyPlanMetricMetVis
+            Width: =691
+            X: =38
+            Y: =201
+            ZIndex: =107
+

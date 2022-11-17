@@ -1,0 +1,480 @@
+scrScheduleNewActivity As screen:
+    OnVisible: |-
+        =UpdateContext({ResetNewProject:true});UpdateContext({ResetNewProject:false})
+
+    txtArea_3 As text:
+        Default: =
+        Height: =56
+        HintText: ="Enter an Area"
+        PaddingBottom: =3.75
+        PaddingLeft: =9.00
+        Reset: =ResetNewActivity
+        Size: =17.99
+        Width: =325
+        X: =41
+        Y: =284
+        ZIndex: =1
+
+    lblNewProject_6 As label:
+        Align: =Align.Center
+        Height: =56.22
+        PaddingBottom: =3.75
+        PaddingLeft: =3.75
+        Size: =26.99
+        Text: ="Create a new activity"
+        Width: =Parent.Width
+        Y: =153.60
+        ZIndex: =7
+
+    btnSubmit_2 As button:
+        Fill: =RGBA(168, 0, 0, 1)
+        Height: =49.48
+        OnSelect: |-
+            =UpdateContext({NewActivityCheckPopup:true})
+        PaddingBottom: =3.75
+        PaddingLeft: =3.75
+        Size: =14.99
+        Text: ="Submit"
+        Width: =264
+        X: =(Parent.Width-btnSubmit_2.Width)/2
+        Y: =899.56
+        ZIndex: =8
+
+    lblActivityNum_4 As label:
+        Height: =37
+        PaddingBottom: =3.75
+        PaddingLeft: =3.75
+        Size: =17.99
+        Text: |-
+            ="Activity #"
+        Width: =293
+        X: =38
+        Y: =247.30
+        ZIndex: =9
+
+    icoBack_4 As icon.BackArrow:
+        Height: =47.98
+        Icon: =Icon.BackArrow
+        OnSelect: |-
+            =UpdateContext({ResetNewActivity:true});UpdateContext({ResetNewActivity:false});Back()
+        PaddingBottom: =0.00
+        PaddingLeft: =0.00
+        X: =20
+        Y: =100.33
+        ZIndex: =10
+
+    grpBanner_5 As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =10
+
+        recBanner_5 As rectangle:
+            Height: =85.33
+            Width: =768
+            Y: =0.00
+            ZIndex: =3
+
+        imgClientLogo_5 As image:
+            Height: =77.84
+            Image: =ComfortSystemsLogo
+            ImagePosition: =ImagePosition.Fill
+            PaddingBottom: =0.00
+            PaddingLeft: =0.00
+            Width: =imgClientLogo_5.Height*2
+            X: =recBanner_5.X+5
+            Y: =3.75
+            ZIndex: =4
+
+        "'lblToday''sDate_5' As label":
+            Align: =Align.Right
+            Color: =RGBA(255, 255, 255, 1)
+            Height: =28.44
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =13.49
+            Text: =Today()
+            Width: =Parent.Width/2
+            X: =(recBanner_5.X+recBanner_5.Width)-'lblToday''sDate_5'.Width
+            Y: =0.00
+            ZIndex: =5
+
+        lblWelcome_5 As label:
+            Align: =Align.Right
+            Color: =RGBA(255, 255, 255, 1)
+            Height: =28.44
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =13.49
+            Text: =Concatenate("Welcome  ",User().FullName)
+            Width: =Parent.Width/2
+            X: =(recBanner_5.X+recBanner_5.Width)-lblWelcome_5.Width
+            Y: =56.89
+            ZIndex: =6
+
+    lblActivityDesc_1 As label:
+        Height: =37.48
+        PaddingBottom: =3.75
+        PaddingLeft: =3.75
+        Size: =17.99
+        Text: ="Activity Description"
+        Width: =Parent.Width/2
+        X: =(Parent.Width-lblActivityDesc_1.Width)/10
+        Y: =359.75
+        ZIndex: =11
+
+    txtActivityDesc_1 As text:
+        Default: =
+        Height: =56.22
+        HintText: ="Enter a Project Name"
+        PaddingBottom: =3.75
+        PaddingLeft: =9.00
+        Reset: =ResetNewActivity
+        Size: =17.99
+        Width: =Parent.Width*.9
+        X: =lblActivityDesc_1.X
+        Y: =397.23
+        ZIndex: =12
+
+    lblTrade_4 As label:
+        Height: =38
+        PaddingBottom: =3.75
+        PaddingLeft: =3.75
+        Size: =17.99
+        Text: ="Trade"
+        Width: =328
+        X: =38
+        Y: =499
+        ZIndex: =13
+
+    lblArea_4 As label:
+        Height: =37
+        PaddingBottom: =3.75
+        PaddingLeft: =3.75
+        Size: =17.99
+        Text: ="Area"
+        Width: =293
+        X: =404
+        Y: =247
+        ZIndex: =14
+
+    txtArea_1 As text:
+        Default: =
+        Height: =56
+        HintText: ="Enter an Area"
+        PaddingBottom: =3.75
+        PaddingLeft: =9.00
+        Reset: =ResetNewActivity
+        Size: =17.99
+        Width: =325
+        X: =404
+        Y: =284
+        ZIndex: =15
+
+    cboxTrade_1 As combobox:
+        DisplayFields: =["Trade"]
+        Height: =56
+        IsSearchable: =false
+        Items: ='[dbo].[tblTrades]'
+        Reset: =ResetNewActivity
+        SearchFields: =["Trade"]
+        SearchItems: =[]
+        SelectMultiple: =false
+        Width: =637
+        X: =38
+        Y: =537
+        ZIndex: =16
+
+    Icon3_3 As icon.Add:
+        Height: =56
+        Icon: =Icon.Add
+        OnSelect: |-
+            =UpdateContext({ResetAddTrade:true});UpdateContext({ResetAddTrade:false});UpdateContext({AddTrade:true})
+        Width: =56
+        X: =675
+        Y: =537
+        ZIndex: =17
+
+    grpNewActivityCheckPopup_1 As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =56
+
+        Rectangle3_1 As rectangle:
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =939
+            Visible: =NewActivityCheckPopup
+            Width: =768
+            Y: =85
+            ZIndex: =18
+
+        lblActivityNum_3 As label:
+            Height: =37
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =18
+            Text: |-
+                ="Activity #"
+            Visible: =NewActivityCheckPopup
+            Width: =225
+            X: =20
+            Y: =233
+            ZIndex: =19
+
+        lblArea_3 As label:
+            Height: =37
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =18
+            Text: ="Area"
+            Visible: =NewActivityCheckPopup
+            Width: =225
+            X: =20
+            Y: =275
+            ZIndex: =20
+
+        lvlActivityDesc_3 As label:
+            Height: =37
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =18
+            Text: |-
+                ="Activity Description
+                "
+            Visible: =NewActivityCheckPopup
+            Width: =225
+            X: =20
+            Y: =317
+            ZIndex: =21
+
+        lblTrade_3 As label:
+            Height: =37
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =18
+            Text: ="Trade"
+            Visible: =NewActivityCheckPopup
+            Width: =225
+            X: =20
+            Y: =359
+            ZIndex: =22
+
+        lblNewProject_5 As label:
+            Align: =Align.Center
+            Height: =100
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =26.99
+            Text: ="Please ensure the following information is correct."
+            Visible: =NewActivityCheckPopup
+            Width: =Parent.Width
+            Y: =114
+            ZIndex: =23
+
+        btnConfirm_4 As button:
+            Fill: =RGBA(168, 0, 0, 1)
+            Height: =49.48
+            OnSelect: |-
+                =Patch(
+                    '[dbo].[tblActivities]',
+                    Defaults('[dbo].[tblActivities]'),
+                    {
+                        ActivityNum: txtArea_3.Text,
+                        Area: txtArea.Text,
+                        ActivityDesc: txtActivityDesc_1.Text,
+                        TradeID: cboxTrade_1.Selected.TradeID,
+                        Created: Today(),
+                        CreatedBy: User().Email
+                    }
+                );
+                UpdateContext({NewActivityCheckPopup:false});
+                UpdateContext({ResetNewActivity:true});
+                UpdateContext({ResetNewActivity:false});
+                Navigate(scrScheduleAddActivity)
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =14.99
+            Text: ="Confirm"
+            Visible: =NewActivityCheckPopup
+            Width: =264
+            X: =444
+            Y: =905
+            ZIndex: =24
+
+        btnCancel_4 As button:
+            Fill: =RGBA(168, 0, 0, 1)
+            Height: =49.48
+            OnSelect: |-
+                =UpdateContext({NewActivityCheckPopup:false})
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =14.99
+            Text: ="Cancel"
+            Visible: =NewActivityCheckPopup
+            Width: =264
+            X: =68
+            Y: =904
+            ZIndex: =25
+
+        lblActivityNum_5 As label:
+            Height: =37
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =18
+            Text: =txtArea_3.Text
+            Visible: =NewActivityCheckPopup
+            Width: =475
+            X: =275
+            Y: =233
+            ZIndex: =32
+
+        lblArea_5 As label:
+            Height: =37
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =18
+            Text: =txtArea.Text
+            Visible: =NewActivityCheckPopup
+            Width: =475
+            X: =275
+            Y: =275
+            ZIndex: =33
+
+        lvlActivityDesc_4 As label:
+            Height: =37
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =18
+            Text: =txtActivityDesc_1.Text
+            Visible: =NewActivityCheckPopup
+            Width: =475
+            X: =275
+            Y: =317
+            ZIndex: =34
+
+        lblTrade_5 As label:
+            Height: =37
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =18
+            Text: =cboxTrade_1.Selected.Trade
+            Visible: =NewActivityCheckPopup
+            Width: =475
+            X: =275
+            Y: =359
+            ZIndex: =35
+
+    grpAddTrade_1 As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =60
+
+        Rectangle4_2 As rectangle:
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =940
+            Visible: =AddTrade
+            Width: =768
+            Y: =84
+            ZIndex: =42
+
+        btnConfirm_5 As button:
+            Fill: =RGBA(168, 0, 0, 1)
+            Height: =49.48
+            OnSelect: |-
+                =Patch(
+                    '[dbo].[tblTrades]',
+                    Defaults('[dbo].[tblTrades]'),
+                    {
+                        Trade: txtNewTrade_1.Text
+                    }
+                );
+                UpdateContext({AddTrade:false});
+                UpdateContext({ResetAddTrade:true});
+                UpdateContext({ResetAddTrade:false})
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =14.99
+            Text: ="Add"
+            Visible: =AddTrade
+            Width: =264
+            X: =464
+            Y: =925
+            ZIndex: =43
+
+        btnCancel_5 As button:
+            Fill: =RGBA(168, 0, 0, 1)
+            Height: =49.48
+            OnSelect: |-
+                =UpdateContext({ResetAddTrade:true});UpdateContext({ResetAddTrade:false});UpdateContext({AddTrade:false})
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =14.99
+            Text: ="Cancel"
+            Visible: =AddTrade
+            Width: =264
+            X: =88
+            Y: =924
+            ZIndex: =44
+
+        lblNewTrade_1 As label:
+            Size: =18
+            Text: |-
+                ="New Trade:"
+            Visible: =AddTrade
+            X: =57
+            Y: =226
+            ZIndex: =45
+
+        txtNewTrade_1 As text:
+            Default: =
+            HintText: ="Enter a new Trade"
+            Reset: =ResetAddTrade
+            Size: =18
+            Visible: =AddTrade
+            Width: =450
+            X: =207
+            Y: =226
+            ZIndex: =46
+
+        lblExistingTrades_1 As label:
+            Size: =18
+            Text: |-
+                ="Existing Trades:"
+            Visible: =AddTrade
+            Width: =250
+            X: =37
+            Y: =322
+            ZIndex: =47
+
+        galExistingtrades_1 As gallery.galleryVertical:
+            BorderThickness: =2
+            Height: =500
+            Items: ='[dbo].[tblTrades]'
+            Layout: =Layout.Vertical
+            TemplateSize: =80
+            Visible: =AddTrade
+            Width: =694
+            X: =37
+            Y: =362
+            ZIndex: =48
+
+            Label9_2 As label:
+                OnSelect: =Select(Parent)
+                Size: =18
+                Text: =ThisItem.Trade
+                X: =20
+                Y: =20
+                ZIndex: =1
+
+            Rectangle5_2 As rectangle:
+                Height: =1
+                OnSelect: =Select(Parent)
+                Width: =684
+                Y: =79
+                ZIndex: =2
+

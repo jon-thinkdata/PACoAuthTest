@@ -1,0 +1,1623 @@
+scrAfternoonCheckinWrapUp As screen:
+    OnVisible: |-
+        =Set(varGlobalTime,Text(Now(),ShortDateTime));
+        UpdateContext({varRadioReset:true});UpdateContext({varRadioReset:false}); //Remove this when deleting radio controls
+        Set(varRawJSON, Blank());
+        Set(varBase64Only, Blank());
+        Clear(colWrapUpPictureAttachments);
+        Reset(attWrapUpPictureAttachments);
+        Clear(colWrapUpDSAandEElistAttachments);
+        Reset(attWrapUpDSAandEElistAttachments);
+        Clear(colWrapUpTimeSheetsAttachments);
+        Reset(del_attWrapUpTimeSheetsAttachments);
+        Clear(colWrapUpMSAAttachments);
+        Reset(attWrapUpMSAAttachments);
+        Clear(colWrapUpMTAAttachments);
+        Reset(attWrapUpMTAAttachments);
+        Set(varWrapUpAttachedPicturesEmpty,false);
+        Set(varWrapUpAttachedDSAandEElistEmpty,false);
+        Set(varWrapUpAttachedTimeSheetsEmpty,false);
+        Set(varWrapUpAttachedMSAEmpty,false);
+        Set(varWrapUpAttachedMTAEmpty,false);
+        Reset(txtWrapUpUrgentMessageInput);
+
+    btnAfternoonCheckinWrapUpDone As button:
+        DisplayMode: |-
+            =If(
+                chkWrapUpAttachedPictures.Value = true && IsEmpty(colWrapUpPictureAttachments),
+                Disabled,
+                varWrapUpAttachedPicturesEmpty = true && IsBlank(txtWrapUpNoPicture.Text),
+                Disabled,
+                chkWrapUpAttachedDSAandEElist.Value = true && IsEmpty(colWrapUpDSAandEElistAttachments),
+                Disabled,
+                varWrapUpAttachedDSAandEElistEmpty = true && IsBlank(txtWrapUpNoDSAandEElist.Text),
+                Disabled,
+                del_chkWrapUpAttachedTimeSheets.Value = true && IsEmpty(colWrapUpTimeSheetsAttachments),
+                Disabled,
+                varWrapUpAttachedTimeSheetsEmpty = true && IsBlank(txtWrapUpNoTimeSheets.Text),
+                Disabled,
+                chkWrapUpAttachedMSA.Value = true && IsEmpty(colWrapUpMSAAttachments),
+                Disabled,
+                varWrapUpAttachedMSAEmpty = true && IsBlank(txtWrapUpNoMSA.Text),
+                Disabled,
+                chkWrapUpAttachedMTA.Value = true && IsEmpty(colWrapUpMTAAttachments),
+                Disabled,
+                varWrapUpAttachedMTAEmpty = true && IsBlank(txtWrapUpNoMTA.Text),
+                Disabled,
+                chkWrapUpDailyUrgentMessage.Value = true && IsBlank(txtWrapUpUrgentMessageInput.Text),
+                Disabled,
+                Edit
+            )
+        Fill: =RGBA(168, 0, 0, 1)
+        Height: =47
+        OnSelect: |-
+            =//Check if Attachments are added
+            Concurrent(
+                If(
+                    chkWrapUpAttachedPictures.Value = false,
+                    Set(varWrapUpAttachedPicturesEmpty, true)
+                ),
+                If(
+                    chkWrapUpAttachedDSAandEElist.Value = false,
+                    Set(varWrapUpAttachedDSAandEElistEmpty, true)
+                )/*,
+                If(
+                    chkWrapUpAttachedTimeSheets.Value = false,
+                    Set(varWrapUpAttachedTimeSheetsEmpty, true)
+                ),
+                If(
+                    chkWrapUpAttachedMSA.Value = false,
+                    Set(varWrapUpAttachedMSAEmpty, true)
+                ),
+                If(
+                    chkWrapUpAttachedMTA.Value = false,
+                    Set(varWrapUpAttachedMTAEmpty, true)
+                )
+            */);
+            Set(WrapUpProjectInternalID,
+                If(
+                    IsBlank(varSelectedAfternoonCheckinProjectInternalID),
+                    varSelectedDailyPlanProjectInternalID,
+                    varSelectedAfternoonCheckinProjectInternalID
+                )
+            );
+            Set(WrapUpProjectName,
+                If(
+                    IsBlank(varSelectedAfternoonCheckinProjectName),
+                    varSelectedDailyPlanProjectName,
+                    varSelectedAfternoonCheckinProjectName
+                )
+            );
+            If(
+                varWrapUpAttachedPicturesEmpty=true && IsBlank(txtWrapUpNoPicture.Text),
+                //Do nothing
+                false,
+                varWrapUpAttachedDSAandEElistEmpty=true && IsBlank(txtWrapUpNoDSAandEElist.Text),
+                //Do nothing
+                false/*,
+                varWrapUpAttachedTimeSheetsEmpty=true && IsBlank(txtWrapUpNoTimeSheets.Text),
+                //Do nothing
+                false,
+                varWrapUpAttachedMSAEmpty=true && IsBlank(txtWrapUpNoMSA.Text),
+                //Do nothing
+                false,
+                varWrapUpAttachedMTAEmpty=true && IsBlank(txtWrapUpNoMTA.Text),
+                //Do nothing
+                false*/,
+                Patch(
+                    tblAfternoonWrapUp,
+                    Defaults(tblAfternoonWrapUp),
+                    {
+                        ProjectInternalID: WrapUpProjectInternalID,
+                        AttachedPictures: chkWrapUpAttachedPictures.Value,
+                        NoAttachedPicturesReason: txtWrapUpNoPicture.Text,
+                        AttachedDSAandEElist: chkWrapUpAttachedDSAandEElist.Value,
+                        NoAttachedDSAandEElistReason: txtWrapUpNoDSAandEElist.Text,
+                        //AttachedTimeSheets: del_chkWrapUpAttachedTimeSheets.Value,
+                        //NoAttachedTimeSheetsReason: txtWrapUpNoTimeSheets.Text,
+                        AttachedMSA: chkWrapUpAttachedMSA.Value,
+                        NoAttachedMSAReason: txtWrapUpNoMSA.Text,
+                        AttachedMTA: chkWrapUpAttachedMTA.Value,
+                        NoAttachedMTAReason: txtWrapUpNoMTA.Text,
+                        UrgentMessageCheck: chkWrapUpDailyUrgentMessage.Value,
+                        Title: txtWrapUpUrgentMessageInput.Text
+                    }
+                );
+                //Save Pictures
+                If(
+                    varWrapUpAttachedPicturesEmpty = true,
+                    1=1, //Change to Patch that writes the 'No' reason
+                    'SmartApp-SaveAttachments'.Run(
+                        JSON(colWrapUpPictureAttachments),
+                        0,//DailyActivityAutoID
+                        WrapUpProjectInternalID
+                    )
+                );
+                //Save DSA and EE list
+                If(
+                    varWrapUpAttachedDSAandEElistEmpty = true,
+                    1=1, //Change to Patch that writes the 'No' reason
+                    'SmartApp-SaveAttachments'.Run(
+                        JSON(colWrapUpDSAandEElistAttachments),
+                        0,//DailyActivityAutoID
+                        WrapUpProjectInternalID
+                    )
+                );
+                //Save Time Sheets
+                /*If(
+                    varWrapUpAttachedTimeSheetsEmpty = true,
+                    1=1, //Change to Patch that writes the 'No' reason
+                    'SmartApp-SaveAttachments'.Run(
+                        JSON(colWrapUpTimeSheetsAttachments),
+                        0,//DailyActivityAutoID
+                        varSelectedAfternoonCheckinProjectInternalID
+                    )
+                );*/
+                //Save Monthly Safety Audit
+                If(
+                    varWrapUpAttachedMSAEmpty = true,
+                    1=1, //Change to Patch that writes the 'No' reason
+                    'SmartApp-SaveAttachments'.Run(
+                        JSON(colWrapUpMSAAttachments),
+                        0,//DailyActivityAutoID
+                        WrapUpProjectInternalID
+                    )
+                );
+                //Save Monthly Tool Audit
+                If(
+                    varWrapUpAttachedPicturesEmpty = true,
+                    1=1, //Change to Patch that writes the 'No' reason
+                    'SmartApp-SaveAttachments'.Run(
+                        JSON(colWrapUpMTAAttachments),
+                        0,//DailyActivityAutoID
+                        WrapUpProjectInternalID
+                    )
+                );
+                //Urgent Message Flow trigger
+                If(
+                    chkWrapUpDailyUrgentMessage.Value = true,
+                    'SmartApp-UrgentMessage'.Run(
+                        "Test",
+                        WrapUpProjectInternalID,
+                        User().Email,
+                        txtWrapUpUrgentMessageInput.Text,
+                        WrapUpProjectName
+                    )
+                );
+                //Show Wrap-Up Complete Pop-up
+                UpdateContext({varWrapUpDoneVis:true});
+            );
+        PaddingBottom: =3.75
+        PaddingLeft: =3.75
+        Size: =14.99
+        Text: ="Done"
+        Width: =200
+        X: =278
+        Y: =963
+        ZIndex: =1
+
+    del_galWrapUpDailyUrgentMessage As gallery.variableTemplateHeightGallery:
+        BorderThickness: =1
+        Height: =71
+        Items: =colWrapUpEoJPictures
+        Layout: =Layout.Vertical
+        OnSelect: =Remove(colWrapUpEoJPictures, ThisItem)
+        TemplateSize: =25
+        Visible: =false//If(chkWrapUpDailyUrgentMessage.Value=true,true,false)
+        Width: =412
+        X: =283
+        Y: =881
+        ZIndex: =2
+
+        lblWrapUpAttachedEoJPicturesFileName As label:
+            AutoHeight: =true
+            Height: =20
+            OnSelect: =Select(Parent)
+            PaddingTop: =0
+            Size: =12
+            Text: =ThisItem.FileName
+            Width: =Parent.TemplateWidth-40
+            X: =35
+            ZIndex: =1
+
+        icoWrapUpAttachedEoJPicturesRemove As icon.Add:
+            Height: =25
+            Icon: =Icon.CancelBadge
+            OnSelect: =Select(Parent)
+            Width: =25
+            X: =5
+            ZIndex: =2
+
+    del_imgWrapUpDailyUrgentMessage As image:
+        Height: =80
+        Image: =If(IsBlank(del_btnWrapUpDailyUrgentMessage.Media), SampleImage, del_btnWrapUpDailyUrgentMessage.Media)
+        ImagePosition: =ImagePosition.Fill
+        Visible: =false//If(chkWrapUpDailyUrgentMessage.Value=true,false,IsBlank(btnWrapUpDailyUrgentMessage.Media),false, del_galWrapUpDailyUrgentMessage.Visible = false, false, true)
+        Width: =233
+        X: =44
+        Y: =874
+        ZIndex: =3
+
+    del_btnWrapUpDailyUrgentMessage As addMedia:
+        ChangePictureText: ="Tap or click to add a picture"
+        Color: =RGBA(255, 255, 255, 1)
+        Fill: =RGBA(116, 116, 116, 1)
+        Height: =75
+        OnChange: |-
+            =Set(varWrapUpEoJPicturesImgRawJSON, JSON(del_imgWrapUpDailyUrgentMessage.Image, JSONFormat.IncludeBinaryData));
+            Set(varWrapUpEoJPicturesImgBase64Only, Mid(varWrapUpEoJPicturesImgRawJSON, Find(",",varWrapUpEoJPicturesImgRawJSON)+1,Len(varWrapUpEoJPicturesImgRawJSON)-Find(",",varWrapUpEoJPicturesImgRawJSON)-1));
+            Collect(
+                colWrapUpEoJPictures,
+                {
+                    FileName: del_btnWrapUpDailyUrgentMessage.FileName,
+                    Media: del_btnWrapUpDailyUrgentMessage.Media,
+                    BinaryImageData: varWrapUpEoJPicturesImgRawJSON,
+                    TrimmedBinaryImageData: varWrapUpEoJPicturesImgBase64Only
+                }
+            );
+        Reset: =false//varWrapUpEoDPictureReset
+        Size: =15
+        Visible: =false//If(chkWrapUpDailyUrgentMessage.Value=true,true,false)
+        Width: =233
+        X: =44
+        Y: =877
+        ZIndex: =4
+
+    txtWrapUpUrgentMessageInput As text:
+        Default: =""
+        Height: =45
+        HintText: =""
+        Visible: =If(chkWrapUpDailyUrgentMessage.Value=true,true,false)
+        Width: =635
+        X: =60
+        Y: =762
+        ZIndex: =5
+
+    chkWrapUpDailyUrgentMessage As checkbox:
+        FocusedBorderThickness: =0
+        OnUncheck: |-
+            =Reset(txtWrapUpUrgentMessageInput);
+            //Set(varWrapUpEoJPicturesImgRawJSON,Blank());
+            //Set(varWrapUpEoJPicturesImgBase64Only,Blank());
+            //Reset(del_btnWrapUpDailyUrgentMessage);
+            //Reset(del_galWrapUpDailyUrgentMessage);
+            //Clear(colWrapUpEoJPictures);
+        Reset: =varRadioReset
+        Text: =""
+        Width: =50
+        X: =645
+        Y: =713
+        ZIndex: =6
+
+    lblWrapUpDailyUrgentMessage As label:
+        Height: =45
+        Size: =15
+        Text: ="- Do you have an urgent message for today?"
+        Width: =479
+        X: =20
+        Y: =718
+        ZIndex: =7
+
+    lblWrapUpNoMTASubText As label:
+        Color: =RGBA(255, 0, 0, 1)
+        Height: =35
+        Text: ="Please explain why nothing is attached."
+        VerticalAlign: =VerticalAlign.Top
+        Visible: =false
+        Width: =625
+        X: =60
+        Y: =830
+        ZIndex: =8
+
+    txtWrapUpNoMTA As text:
+        Default: =""
+        Height: =45
+        HintText: =""
+        Visible: =varWrapUpAttachedMTAEmpty
+        Width: =635
+        X: =60
+        Y: =785
+        ZIndex: =9
+
+    del_radWrapUpAttachedMTA As radio:
+        FocusedBorderThickness: =0
+        Height: =45
+        Items: =["Yes", "No"]
+        Layout: =Layout.Horizontal
+        PaddingBottom: =0
+        PaddingTop: =0
+        Reset: =varRadioReset
+        Size: =15
+        Visible: =false
+        Width: =220
+        X: =499
+        Y: =740
+        ZIndex: =10
+
+    grpAfternoonCheckinWrapUpBanner As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =10
+
+        recAfternoonCheckinWrapUpBackground As rectangle:
+            Fill: =RGBA(204, 204, 204, 1)
+            Height: =85.33
+            Width: =768
+            Y: =0.00
+            ZIndex: =76
+
+        lblAfternoonCheckinWrapUpTodaysDate As label:
+            Align: =Align.Right
+            Height: =28.44
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =13.49
+            Text: =varGlobalTime //Text(Now(),ShortDateTime)
+            Width: =Parent.Width/2
+            X: =(recAfternoonCheckinWrapUpBackground.X+recAfternoonCheckinWrapUpBackground.Width)-lblAfternoonCheckinWrapUpTodaysDate.Width
+            Y: =0.00
+            ZIndex: =78
+
+        lblAfternoonCheckinWrapUpWelcome As label:
+            Align: =Align.Right
+            Height: =28.44
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =13.49
+            Text: =Concatenate("Welcome  ",varGlobalUser.Title)
+            Width: =Parent.Width/2
+            X: =(recAfternoonCheckinWrapUpBackground.X+recAfternoonCheckinWrapUpBackground.Width)-lblAfternoonCheckinWrapUpWelcome.Width
+            Y: =56.89
+            ZIndex: =79
+
+    del_galWrapUpAttachedMTA As gallery.variableTemplateHeightGallery:
+        BorderThickness: =1
+        Height: =71
+        Items: =colWrapUpMTA
+        Layout: =Layout.Vertical
+        OnSelect: =Remove(colWrapUpEoDPictures, ThisItem)
+        TemplateSize: =25
+        Visible: =false//If(chkWrapUpAttachedMTA.Value=true,true,false)
+        Width: =412
+        X: =283
+        Y: =782
+        ZIndex: =11
+
+        lblWrapUpAttachedPicturesFileName_4 As label:
+            AutoHeight: =true
+            Height: =20
+            OnSelect: =Select(Parent)
+            PaddingTop: =0
+            Size: =12
+            Text: =ThisItem.FileName
+            Width: =Parent.TemplateWidth-40
+            X: =35
+            ZIndex: =1
+
+        icoWrapUpAttachedPicturesRemove_4 As icon.Add:
+            Height: =25
+            Icon: =Icon.CancelBadge
+            OnSelect: =Select(Parent)
+            Width: =25
+            X: =5
+            ZIndex: =2
+
+    del_imgWrapUpAttachedMTAMedia As image:
+        Height: =80
+        Image: =If(IsBlank(del_btnWrapUpAttachedMTAAdd.Media), SampleImage, del_btnWrapUpAttachedMTAAdd.Media)
+        ImagePosition: =ImagePosition.Fill
+        Visible: =false//If(chkWrapUpAttachedMTA.Value=true,false,IsBlank(del_btnWrapUpAttachedMTAAdd.Media),false, galWrapUpAttachedMTA.Visible = false, false, true)
+        Width: =233
+        X: =44
+        Y: =775
+        ZIndex: =12
+
+    del_btnWrapUpAttachedMTAAdd As addMedia:
+        ChangePictureText: ="Tap or click to add a picture"
+        Color: =RGBA(255, 255, 255, 1)
+        Fill: =RGBA(116, 116, 116, 1)
+        Height: =75
+        OnChange: |-
+            =Set(varWrapUpMTAImgRawJSON, JSON(del_imgWrapUpAttachedMTAMedia.Image, JSONFormat.IncludeBinaryData));
+            Set(varWrapUpMTAImgBase64Only, Mid(varWrapUpMTAImgRawJSON, Find(",",varWrapUpMTAImgRawJSON)+1,Len(varWrapUpMTAImgRawJSON)-Find(",",varWrapUpMTAImgRawJSON)-1));
+            Collect(
+                colWrapUpMTA,
+                {
+                    FileName: del_btnWrapUpAttachedMTAAdd.FileName,
+                    Media: del_btnWrapUpAttachedMTAAdd.Media,
+                    BinaryImageData: varWrapUpMTAImgRawJSON,
+                    TrimmedBinaryImageData: varWrapUpMTAImgBase64Only
+                }
+            );
+        Reset: =false//varWrapUpEoDPictureReset
+        Size: =15
+        Visible: =false//If(chkWrapUpAttachedMTA.Value=true,true,false)
+        Width: =233
+        X: =44
+        Y: =778
+        ZIndex: =13
+
+    imgWrapUpMTAAttachmentLastValue As image:
+        Image: =Last(attWrapUpMTAAttachments.Attachments).Value
+        Visible: =false
+        X: =197
+        Y: =785
+        ZIndex: =14
+
+    galWrapUpMTAAttachments As gallery.galleryVertical:
+        BorderThickness: =2
+        Fill: =RGBA(255, 255, 255, 1)
+        Height: =80
+        Items: =colWrapUpMTAAttachments
+        Layout: =Layout.Vertical
+        OnSelect: =
+        TemplateSize: =30
+        Visible: =If(chkWrapUpAttachedMTA.Value=true,true,false)
+        Width: =440
+        X: =300
+        Y: =628
+        ZIndex: =15
+
+        lblWrapUpMTAAttachmentFileName As label:
+            Height: =Parent.TemplateHeight
+            OnSelect: =Select(Parent)
+            Text: =ThisItem.Name
+            Width: =Parent.TemplateWidth-icoWrapUpMTAAttachmentRemove.Width
+            X: =icoWrapUpMTAAttachmentRemove.Width
+            ZIndex: =1
+
+        icoWrapUpMTAAttachmentRemove As icon.Cancel:
+            Height: =Parent.TemplateHeight
+            Icon: =Icon.Cancel
+            OnSelect: =Remove(colWrapUpMTAAttachments,ThisItem)
+            Width: =Self.Height
+            ZIndex: =2
+
+    attWrapUpMTAAttachments As attachments:
+        BorderColor: =Transparent
+        Color: =RGBA(255, 255, 255, 1)
+        Fill: =RGBA(56, 96, 178, 1)
+        Height: =115
+        IsInDataCard: =true
+        Items: =
+        NoAttachmentsText: =""
+        OnAddFile: |-
+            =Set(varRawJSON, JSON(imgWrapUpMTAAttachmentLastValue.Image, JSONFormat.IncludeBinaryData));
+            Set(varBase64Only, Mid(varRawJSON, Find(",",varRawJSON)+1,Len(varRawJSON)-Find(",",varRawJSON)-1));
+            Collect(
+                colWrapUpMTAAttachments,
+                {
+                    Category: "Wrap-Up Monthly Tool Audit",
+                    //DailyActivityAutoID: 9999, //Make this the real ID from the patch
+                    Name: Last(Self.Attachments.Name).Name,
+                    AttachmentBase64: varBase64Only
+                }
+            );
+            Set(varRawJSON, Blank());
+            Set(varBase64Only, Blank());
+            Reset(attWrapUpMTAAttachments)
+        OnRemoveFile: |-
+            =//Resetting everything for now
+            Set(varRawJSON, Blank());
+            Set(varBase64Only, Blank());
+            Clear(colWrapUpMTAAttachments);
+            Reset(attWrapUpMTAAttachments)
+        PaddingBottom: =5
+        PaddingLeft: =If(Self.DisplayMode = DisplayMode.Edit, 5, 0)
+        PaddingRight: =5
+        PaddingTop: =5
+        Size: =16
+        Visible: =If(chkWrapUpAttachedMTA.Value=true,true,false)
+        Width: =236
+        X: =35
+        Y: =582
+        ZIndex: =16
+
+    recWrapUpMTAAttachmentControlHide As rectangle:
+        Fill: =RGBA(255, 255, 255, 1)
+        Height: =(attWrapUpMTAAttachments.Height/2)-3
+        Visible: =If(chkWrapUpAttachedMTA.Value=true,true,false)
+        Width: =attWrapUpMTAAttachments.Width
+        X: =attWrapUpMTAAttachments.X
+        Y: =582
+        ZIndex: =17
+
+    chkWrapUpAttachedMTA As checkbox:
+        FocusedBorderThickness: =0
+        OnCheck: |-
+            =Set(varWrapUpAttachedMTAEmpty,false);
+            Reset(txtWrapUpNoMTA);
+        OnUncheck: |-
+            =Set(varRawJSON, Blank());
+            Set(varBase64Only, Blank());
+            Clear(colWrapUpMTAAttachments);
+            Reset(attWrapUpMTAAttachments)
+            //Set(varWrapUpMTAImgRawJSON,Blank());
+            //Set(varWrapUpMTAImgBase64Only,Blank());
+            //Reset(del_btnWrapUpAttachedMTAAdd);
+            //Reset(del_galWrapUpAttachedMTA);
+            //Clear(colWrapUpMTA);
+        Reset: =varRadioReset
+        Text: =""
+        Width: =50
+        X: =645
+        Y: =583
+        ZIndex: =18
+
+    lblWrapUpAttachedMTA As label:
+        Height: =45
+        Size: =15
+        Text: ="- Monthly Tool Audit (Required once per month)"
+        Width: =625
+        X: =20
+        Y: =588
+        ZIndex: =19
+
+    lblWrapUpNoMSASubText As label:
+        Color: =RGBA(255, 0, 0, 1)
+        Height: =35
+        Text: ="Please explain why nothing is attached."
+        VerticalAlign: =VerticalAlign.Top
+        Visible: =false 
+        Width: =625
+        X: =60
+        Y: =702
+        ZIndex: =20
+
+    txtWrapUpNoMSA As text:
+        Default: =""
+        Height: =45
+        HintText: =""
+        Visible: =varWrapUpAttachedMSAEmpty
+        Width: =635
+        X: =60
+        Y: =655
+        ZIndex: =21
+
+    del_radWrapUpAttachedMSA As radio:
+        FocusedBorderThickness: =0
+        Height: =45
+        Items: =["Yes", "No"]
+        Layout: =Layout.Horizontal
+        PaddingBottom: =0
+        PaddingTop: =0
+        Reset: =varRadioReset
+        Size: =15
+        Visible: =false
+        Width: =220
+        X: =499
+        Y: =618
+        ZIndex: =22
+
+    del_galWrapUpAttachedMSA As gallery.variableTemplateHeightGallery:
+        BorderThickness: =1
+        Height: =71
+        Items: =colWrapUpMSA
+        Layout: =Layout.Vertical
+        OnSelect: =Remove(colWrapUpEoDPictures, ThisItem)
+        TemplateSize: =25
+        Visible: =false//If(chkWrapUpAttachedMSA.Value=true,true,false)
+        Width: =412
+        X: =283
+        Y: =655
+        ZIndex: =23
+
+        lblWrapUpAttachedPicturesFileName_3 As label:
+            AutoHeight: =true
+            Height: =20
+            OnSelect: =Select(Parent)
+            PaddingTop: =0
+            Size: =12
+            Text: =ThisItem.FileName
+            Width: =Parent.TemplateWidth-40
+            X: =35
+            ZIndex: =1
+
+        icoWrapUpAttachedPicturesRemove_3 As icon.Add:
+            Height: =25
+            Icon: =Icon.CancelBadge
+            OnSelect: =Select(Parent)
+            Width: =25
+            X: =5
+            ZIndex: =2
+
+    del_imgWrapUpAttachedMSAMedia As image:
+        Height: =80
+        Image: =If(IsBlank(del_btnWrapUpAttachedMSAAdd.Media), SampleImage, del_btnWrapUpAttachedMSAAdd.Media)
+        ImagePosition: =ImagePosition.Fill
+        Visible: =false/*If(chkWrapUpAttachedMSA.Value=true,false,IsBlank(del_btnWrapUpAttachedMSAAdd.Media),false, del_galWrapUpAttachedMSA.Visible = false, false, true)*/
+        Width: =233
+        X: =44
+        Y: =648
+        ZIndex: =24
+
+    del_btnWrapUpAttachedMSAAdd As addMedia:
+        ChangePictureText: ="Tap or click to add a picture"
+        Color: =RGBA(255, 255, 255, 1)
+        Fill: =RGBA(116, 116, 116, 1)
+        Height: =75
+        OnChange: |-
+            =Set(varWrapUpMSAImgRawJSON, JSON(del_imgWrapUpAttachedMSAMedia.Image, JSONFormat.IncludeBinaryData));
+            Set(varWrapUpMSAImgBase64Only, Mid(varWrapUpMSAImgRawJSON, Find(",",varWrapUpMSAImgRawJSON)+1,Len(varWrapUpMSAImgRawJSON)-Find(",",varWrapUpMSAImgRawJSON)-1));
+            Collect(
+                colWrapUpMSA,
+                {
+                    FileName: del_btnWrapUpAttachedMSAAdd.FileName,
+                    Media: del_btnWrapUpAttachedMSAAdd.Media,
+                    BinaryImageData: varWrapUpMSAImgRawJSON,
+                    TrimmedBinaryImageData: varWrapUpMSAImgBase64Only
+                }
+            );
+        Reset: =false//varWrapUpEoDPictureReset
+        Size: =15
+        Visible: =false//If(chkWrapUpAttachedMSA.Value=true,true,false)
+        Width: =233
+        X: =44
+        Y: =651
+        ZIndex: =25
+
+    imgWrapUpMSAAttachmentLastValue As image:
+        Image: =Last(attWrapUpMSAAttachments.Attachments).Value
+        Visible: =false
+        X: =194
+        Y: =657
+        ZIndex: =26
+
+    galWrapUpMSAAttachments As gallery.galleryVertical:
+        BorderThickness: =2
+        Fill: =RGBA(255, 255, 255, 1)
+        Height: =80
+        Items: =colWrapUpMSAAttachments
+        Layout: =Layout.Vertical
+        OnSelect: =
+        TemplateSize: =30
+        Visible: =If(chkWrapUpAttachedMSA.Value=true,true,false)
+        Width: =440
+        X: =300
+        Y: =508
+        ZIndex: =27
+
+        lblWrapUpMSAAttachmentFileName As label:
+            Height: =Parent.TemplateHeight
+            OnSelect: =Select(Parent)
+            Text: =ThisItem.Name
+            Width: =Parent.TemplateWidth-icoWrapUpMSAAttachmentRemove.Width
+            X: =icoWrapUpMSAAttachmentRemove.Width
+            ZIndex: =1
+
+        icoWrapUpMSAAttachmentRemove As icon.Cancel:
+            Height: =Parent.TemplateHeight
+            Icon: =Icon.Cancel
+            OnSelect: =Remove(colWrapUpMSAAttachments,ThisItem)
+            Width: =Self.Height
+            ZIndex: =2
+
+    attWrapUpMSAAttachments As attachments:
+        BorderColor: =Transparent
+        Color: =RGBA(255, 255, 255, 1)
+        Fill: =RGBA(56, 96, 178, 1)
+        Height: =115
+        IsInDataCard: =true
+        Items: =
+        NoAttachmentsText: =""
+        OnAddFile: |-
+            =Set(varRawJSON, JSON(imgWrapUpMSAAttachmentLastValue.Image, JSONFormat.IncludeBinaryData));
+            Set(varBase64Only, Mid(varRawJSON, Find(",",varRawJSON)+1,Len(varRawJSON)-Find(",",varRawJSON)-1));
+            Collect(
+                colWrapUpMSAAttachments,
+                {
+                    Category: "Wrap-Up Monthly Safety Audit",
+                    //DailyActivityAutoID: 9999, //Make this the real ID from the patch
+                    Name: Last(Self.Attachments.Name).Name,
+                    AttachmentBase64: varBase64Only
+                }
+            );
+            Set(varRawJSON, Blank());
+            Set(varBase64Only, Blank());
+            Reset(attWrapUpMSAAttachments)
+        OnRemoveFile: |-
+            =//Resetting everything for now
+            Set(varRawJSON, Blank());
+            Set(varBase64Only, Blank());
+            Clear(colWrapUpMSAAttachments);
+            Reset(attWrapUpMSAAttachments)
+        PaddingBottom: =5
+        PaddingLeft: =If(Self.DisplayMode = DisplayMode.Edit, 5, 0)
+        PaddingRight: =5
+        PaddingTop: =5
+        Size: =16
+        Visible: =If(chkWrapUpAttachedMSA.Value=true,true,false)
+        Width: =236
+        X: =35
+        Y: =463
+        ZIndex: =28
+
+    recWrapUpMSAAttachmentControlHide As rectangle:
+        Fill: =RGBA(255, 255, 255, 1)
+        Height: =(attWrapUpMSAAttachments.Height/2)-3
+        Visible: =If(chkWrapUpAttachedMSA.Value=true,true,false)
+        Width: =attWrapUpMSAAttachments.Width
+        X: =attWrapUpMSAAttachments.X
+        Y: =463
+        ZIndex: =29
+
+    chkWrapUpAttachedMSA As checkbox:
+        FocusedBorderThickness: =0
+        OnCheck: |-
+            =Set(varWrapUpAttachedMSAEmpty,false);
+            Reset(txtWrapUpNoMSA);
+        OnUncheck: |-
+            =Set(varRawJSON, Blank());
+            Set(varBase64Only, Blank());
+            Clear(colWrapUpMSAAttachments);
+            Reset(attWrapUpMSAAttachments)
+            
+            //Set(varWrapUpMSAImgRawJSON,Blank());
+            //Set(varWrapUpMSAImgBase64Only,Blank());
+            //Reset(del_btnWrapUpAttachedMSAAdd);
+            //Reset(del_galWrapUpAttachedMSA);
+            //Clear(colWrapUpMSA);
+        Reset: =varRadioReset
+        Text: =""
+        Width: =50
+        X: =645
+        Y: =465
+        ZIndex: =30
+
+    lblWrapUpAttachedMSA As label:
+        Height: =45
+        Size: =15
+        Text: ="- Monthly Safety Audit (Required once per month)"
+        Width: =625
+        X: =20
+        Y: =465
+        ZIndex: =31
+
+    grpWrapUpDonePopup As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =31
+
+        recWrapUpDonePopupFade As rectangle:
+            Fill: =RGBA(166, 166, 166, 0.4)
+            Height: =942
+            Visible: =varWrapUpDoneVis
+            Width: =768
+            Y: =82
+            ZIndex: =71
+
+        recWrapUpDonePopupBackground As rectangle:
+            BorderColor: =RGBA(128, 128, 128, 1)
+            BorderThickness: =2
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =424
+            Visible: =varWrapUpDoneVis
+            Width: =674
+            X: =45
+            Y: =150
+            ZIndex: =72
+
+        btnWrapUpDonePopup As button:
+            Fill: =RGBA(168, 0, 0, 1)
+            Height: =49.48
+            OnSelect: |-
+                =UpdateContext({varWrapUpDoneVis:false});
+                Set(varSelectedAfternoonCheckinProjectID,Blank());
+                //Clear(colWrapUpEoDPictures);
+                //Clear(colWrapUpTimeSheets);
+                //Clear(colWrapUpDSAandEElist);
+                //Clear(colWrapUpMSA);
+                //Clear(colWrapUpMTA);
+                //Clear(colWrapUpEoJPictures);
+                Set(varRawJSON, Blank());
+                Set(varBase64Only, Blank());
+                Clear(colWrapUpPictureAttachments);
+                Reset(attWrapUpPictureAttachments);
+                Set(varWrapUpAttachedPicturesEmpty,false);
+                Clear(colWrapUpDSAandEElistAttachments);
+                Reset(attWrapUpDSAandEElistAttachments);
+                Set(varWrapUpAttachedDSAandEElistEmpty,false);
+                Clear(colWrapUpTimeSheetsAttachments);
+                Reset(del_attWrapUpTimeSheetsAttachments);
+                Set(varWrapUpAttachedTimeSheetsEmpty,false);
+                Clear(colWrapUpMSAAttachments);
+                Reset(attWrapUpMSAAttachments);
+                Set(varWrapUpAttachedMSAEmpty,false);
+                Clear(colWrapUpMTAAttachments);
+                Reset(attWrapUpMTAAttachments);
+                Set(varWrapUpAttachedMTAEmpty,false);
+                Reset(txtWrapUpUrgentMessageInput);
+                Navigate(scrHome)
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =14.99
+            Text: ="Ok"
+            Visible: =varWrapUpDoneVis
+            Width: =264
+            X: =250
+            Y: =482
+            ZIndex: =73
+
+        lblWrapUpDonePopupMessage As label:
+            Align: =Align.Center
+            Height: =181
+            Size: =24
+            Text: ="Excellent Job!" & Char(13) & Char(13) & "Thank you for making us a better company!"
+            Visible: =varWrapUpDoneVis
+            Width: =565
+            X: =101
+            Y: =257
+            ZIndex: =74
+
+        lblWrapUpDonePopupComplete As label:
+            Align: =Align.Center
+            FontWeight: =FontWeight.Semibold
+            Height: =71
+            Size: =28
+            Text: ="Complete!"
+            Visible: =varWrapUpDoneVis
+            Width: =565
+            X: =99
+            Y: =163
+            ZIndex: =75
+
+    lblWrapUpNoTimeSheetsSubText As label:
+        Color: =RGBA(255, 0, 0, 1)
+        Height: =35
+        Text: ="Please explain why nothing is attached."
+        VerticalAlign: =VerticalAlign.Top
+        Visible: =false
+        Width: =625
+        X: =60
+        Y: =573
+        ZIndex: =32
+
+    txtWrapUpNoTimeSheets As text:
+        Default: =""
+        Height: =45
+        HintText: =""
+        Visible: =varWrapUpAttachedTimeSheetsEmpty
+        Width: =635
+        X: =60
+        Y: =527
+        ZIndex: =33
+
+    del_galWrapUpAttachedTimeSheets As gallery.variableTemplateHeightGallery:
+        BorderThickness: =1
+        Height: =71
+        Items: =colWrapUpTimeSheets
+        Layout: =Layout.Vertical
+        OnSelect: =Remove(colWrapUpEoDPictures, ThisItem)
+        TemplateSize: =25
+        Visible: =false//If(chkWrapUpAttachedTimeSheets.Value=true,true,false)
+        Width: =412
+        X: =284
+        Y: =527
+        ZIndex: =34
+
+        lblWrapUpAttachedPicturesFileName_2 As label:
+            AutoHeight: =true
+            Height: =20
+            OnSelect: =Select(Parent)
+            PaddingTop: =0
+            Size: =12
+            Text: =ThisItem.FileName
+            Width: =Parent.TemplateWidth-40
+            X: =35
+            ZIndex: =1
+
+        icoWrapUpAttachedPicturesRemove_2 As icon.Add:
+            Height: =25
+            Icon: =Icon.CancelBadge
+            OnSelect: =Select(Parent)
+            Width: =25
+            X: =5
+            ZIndex: =2
+
+    del_imgWrapUpAttachedTimeSheetsMedia As image:
+        Height: =80
+        Image: =If(IsBlank(del_btnWrapUpAttachedTimeSheetsAdd.Media), SampleImage, del_btnWrapUpAttachedTimeSheetsAdd.Media)
+        ImagePosition: =ImagePosition.Fill
+        Visible: =false//If(chkWrapUpAttachedPictures.Value=true,false,IsBlank(del_btnWrapUpAttachedTimeSheetsAdd.Media),false, del_galWrapUpAttachedTimeSheets.Visible = false, false, true)
+        Width: =233
+        X: =45
+        Y: =520
+        ZIndex: =35
+
+    del_btnWrapUpAttachedTimeSheetsAdd As addMedia:
+        ChangePictureText: ="Tap or click to add a picture"
+        Color: =RGBA(255, 255, 255, 1)
+        Fill: =RGBA(116, 116, 116, 1)
+        Height: =75
+        OnChange: |-
+            =Set(varWrapUpTimeSheetsImgRawJSON, JSON(del_imgWrapUpAttachedTimeSheetsMedia.Image, JSONFormat.IncludeBinaryData));
+            Set(varWrapUpTimeSheetsImgBase64Only, Mid(varWrapUpTimeSheetsImgRawJSON, Find(",",varWrapUpTimeSheetsImgRawJSON)+1,Len(varWrapUpTimeSheetsImgRawJSON)-Find(",",varWrapUpTimeSheetsImgRawJSON)-1));
+            Collect(
+                colWrapUpTimeSheets,
+                {
+                    FileName: del_btnWrapUpAttachedTimeSheetsAdd.FileName,
+                    Media: del_btnWrapUpAttachedTimeSheetsAdd.Media,
+                    BinaryImageData: varWrapUpTimeSheetsImgRawJSON,
+                    TrimmedBinaryImageData: varWrapUpTimeSheetsImgBase64Only
+                }
+            );
+        Reset: =false//varWrapUpEoDPictureReset
+        Size: =15
+        Visible: =false//If(chkWrapUpAttachedTimeSheets.Value=true,true,false)
+        Width: =233
+        X: =45
+        Y: =523
+        ZIndex: =36
+
+    del_imgWrapUpTimeSheetsAttachmentLastValue As image:
+        Image: =Last(del_attWrapUpTimeSheetsAttachments.Attachments).Value
+        Visible: =false
+        X: =197
+        Y: =529
+        ZIndex: =37
+
+    del_galWrapUpTimeSheetsAttachments As gallery.galleryVertical:
+        BorderThickness: =2
+        Fill: =RGBA(255, 255, 255, 1)
+        Height: =80
+        Items: =colWrapUpTimeSheetsAttachments
+        Layout: =Layout.Vertical
+        OnSelect: =
+        TemplateSize: =30
+        Visible: =If(del_chkWrapUpAttachedTimeSheets.Value=true,true,false)
+        Width: =440
+        X: =300
+        Y: =524
+        ZIndex: =38
+
+        lblWrapUpTimeSheetsAttachmentFileName As label:
+            Height: =Parent.TemplateHeight
+            OnSelect: =Select(Parent)
+            Text: =ThisItem.Name
+            Width: =Parent.TemplateWidth-icoWrapUpTimeSheetsAttachmentRemove.Width
+            X: =icoWrapUpTimeSheetsAttachmentRemove.Width
+            ZIndex: =1
+
+        icoWrapUpTimeSheetsAttachmentRemove As icon.Cancel:
+            Height: =Parent.TemplateHeight
+            Icon: =Icon.Cancel
+            OnSelect: =Remove(colWrapUpTimeSheetsAttachments,ThisItem)
+            Width: =Self.Height
+            ZIndex: =2
+
+    del_attWrapUpTimeSheetsAttachments As attachments:
+        BorderColor: =Transparent
+        Color: =RGBA(255, 255, 255, 1)
+        Fill: =RGBA(56, 96, 178, 1)
+        Height: =115
+        IsInDataCard: =true
+        Items: =
+        NoAttachmentsText: =""
+        OnAddFile: |-
+            =Set(varRawJSON, JSON(del_imgWrapUpTimeSheetsAttachmentLastValue.Image, JSONFormat.IncludeBinaryData));
+            Set(varBase64Only, Mid(varRawJSON, Find(",",varRawJSON)+1,Len(varRawJSON)-Find(",",varRawJSON)-1));
+            Collect(
+                colWrapUpTimeSheetsAttachments,
+                {
+                    Category: "Wrap-Up Time Sheets",
+                    //DailyActivityAutoID: 9999, //Make this the real ID from the patch
+                    Name: Last(Self.Attachments.Name).Name,
+                    AttachmentBase64: varBase64Only
+                }
+            );
+            Set(varRawJSON, Blank());
+            Set(varBase64Only, Blank());
+            Reset(del_attWrapUpTimeSheetsAttachments)
+        OnRemoveFile: |-
+            =//Resetting everything for now
+            Set(varRawJSON, Blank());
+            Set(varBase64Only, Blank());
+            Clear(colWrapUpTimeSheetsAttachments);
+            Reset(del_attWrapUpTimeSheetsAttachments)
+        PaddingBottom: =5
+        PaddingLeft: =If(Self.DisplayMode = DisplayMode.Edit, 5, 0)
+        PaddingRight: =5
+        PaddingTop: =5
+        Size: =16
+        Visible: =If(del_chkWrapUpAttachedTimeSheets.Value=true,true,false)
+        Width: =236
+        X: =35
+        Y: =480
+        ZIndex: =39
+
+    del_recWrapUpTimeSheetsAttachmentControlHide As rectangle:
+        Fill: =RGBA(255, 255, 255, 1)
+        Height: =(del_attWrapUpTimeSheetsAttachments.Height/2)-3
+        Visible: =If(del_chkWrapUpAttachedTimeSheets.Value=true,true,false)
+        Width: =del_attWrapUpTimeSheetsAttachments.Width
+        X: =del_attWrapUpTimeSheetsAttachments.X
+        Y: =480
+        ZIndex: =40
+
+    del_chkWrapUpAttachedTimeSheets As checkbox:
+        FocusedBorderThickness: =0
+        OnCheck: |-
+            =Set(varWrapUpAttachedTimeSheetsEmpty,false);
+            Reset(txtWrapUpNoTimeSheets);
+        OnUncheck: |-
+            =Set(varRawJSON, Blank());
+            Set(varBase64Only, Blank());
+            Clear(colWrapUpTimeSheetsAttachments);
+            Reset(del_attWrapUpTimeSheetsAttachments)
+            //Set(varWrapUpTimeSheetsImgRawJSON,Blank());
+            //Set(varWrapUpTimeSheetsImgBase64Only,Blank());
+            //Reset(del_btnWrapUpAttachedTimeSheetsAdd);
+            //Reset(del_galWrapUpAttachedTimeSheets);
+            //Clear(colWrapUpTimeSheets);
+        Reset: =varRadioReset
+        Text: =""
+        Visible: =false
+        Width: =50
+        X: =646
+        Y: =480
+        ZIndex: =41
+
+    del_lblWrapUpAttachedTimeSheets As label:
+        Height: =45
+        Size: =15
+        Text: ="- Attach your Time Sheets (Mon or Fri)"
+        Visible: =false
+        Width: =625
+        X: =20
+        Y: =484
+        ZIndex: =42
+
+    lblWrapUpNoDSAandEElistSubText As label:
+        Color: =RGBA(255, 0, 0, 1)
+        Height: =35
+        Text: ="Please explain why nothing is attached."
+        VerticalAlign: =VerticalAlign.Top
+        Visible: =varWrapUpAttachedDSAandEElistEmpty
+        Width: =625
+        X: =60
+        Y: =434
+        ZIndex: =43
+
+    txtWrapUpNoDSAandEElist As text:
+        Default: =""
+        Height: =45
+        HintText: =""
+        Visible: =varWrapUpAttachedDSAandEElistEmpty
+        Width: =635
+        X: =60
+        Y: =387
+        ZIndex: =44
+
+    del_radWrapUpAttachedDSAandEElist As radio:
+        FocusedBorderThickness: =0
+        Height: =45
+        Items: =["Yes", "No"]
+        Layout: =Layout.Horizontal
+        PaddingBottom: =0
+        PaddingTop: =0
+        Reset: =varRadioReset
+        Size: =15
+        Visible: =false
+        Width: =220
+        X: =499
+        Y: =328
+        ZIndex: =45
+
+    del_galWrapUpAttachedDSAandEElist As gallery.variableTemplateHeightGallery:
+        BorderThickness: =1
+        Height: =71
+        Items: =colWrapUpDSAandEElist
+        Layout: =Layout.Vertical
+        OnSelect: =Remove(colWrapUpEoDPictures, ThisItem)
+        TemplateSize: =25
+        Visible: =false//If(chkWrapUpAttachedDSAandEElist.Value=true,true,false)
+        Width: =412
+        X: =284
+        Y: =375
+        ZIndex: =46
+
+        lblWrapUpAttachedPicturesFileName_1 As label:
+            AutoHeight: =true
+            Height: =20
+            OnSelect: =Select(Parent)
+            PaddingTop: =0
+            Size: =12
+            Text: =ThisItem.FileName
+            Width: =Parent.TemplateWidth-40
+            X: =35
+            ZIndex: =1
+
+        icoWrapUpAttachedPicturesRemove_1 As icon.Add:
+            Height: =25
+            Icon: =Icon.CancelBadge
+            OnSelect: =Select(Parent)
+            Width: =25
+            X: =5
+            ZIndex: =2
+
+    del_imgWrapUpAttachedDSAandEElistMedia As image:
+        Height: =80
+        Image: =If(IsBlank(del_btnWrapUpAttachedDSAandEElistAdd.Media), SampleImage, del_btnWrapUpAttachedDSAandEElistAdd.Media)
+        ImagePosition: =ImagePosition.Fill
+        Visible: =false//If(chkWrapUpAttachedDSAandEElist.Value=true,false,IsBlank(del_btnWrapUpAttachedDSAandEElistAdd.Media),false, del_galWrapUpAttachedDSAandEElist.Visible = false, false, true)
+        Width: =233
+        X: =45
+        Y: =368
+        ZIndex: =47
+
+    del_btnWrapUpAttachedDSAandEElistAdd As addMedia:
+        ChangePictureText: ="Tap or click to add a picture"
+        Color: =RGBA(255, 255, 255, 1)
+        Fill: =RGBA(116, 116, 116, 1)
+        Height: =75
+        OnChange: |-
+            =Set(varWrapUpDSAandEElistImgRawJSON, JSON(del_imgWrapUpAttachedDSAandEElistMedia.Image, JSONFormat.IncludeBinaryData));
+            Set(varWrapUpDSAandEElistImgBase64Only, Mid(varWrapUpDSAandEElistImgRawJSON, Find(",",varWrapUpDSAandEElistImgRawJSON)+1,Len(varWrapUpDSAandEElistImgRawJSON)-Find(",",varWrapUpDSAandEElistImgRawJSON)-1));
+            Collect(
+                colWrapUpDSAandEElist,
+                {
+                    FileName: del_btnWrapUpAttachedDSAandEElistAdd.FileName,
+                    Media: del_btnWrapUpAttachedDSAandEElistAdd.Media,
+                    BinaryImageData: varWrapUpDSAandEElistImgRawJSON,
+                    TrimmedBinaryImageData: varWrapUpDSAandEElistImgBase64Only
+                }
+            );
+        Reset: =false//varWrapUpEoDPictureReset
+        Size: =15
+        Visible: =false//If(chkWrapUpAttachedDSAandEElist.Value=true,true,false)
+        Width: =233
+        X: =45
+        Y: =371
+        ZIndex: =48
+
+    imgWrapUpDSAandEElistAttachmentLastValue As image:
+        Image: =Last(attWrapUpDSAandEElistAttachments.Attachments).Value
+        Visible: =false
+        X: =197
+        Y: =390
+        ZIndex: =49
+
+    galWrapUpDSAandEElistAttachments As gallery.galleryVertical:
+        BorderThickness: =2
+        Fill: =RGBA(255, 255, 255, 1)
+        Height: =80
+        Items: =colWrapUpDSAandEElistAttachments
+        Layout: =Layout.Vertical
+        OnSelect: =
+        TemplateSize: =30
+        Visible: =If(chkWrapUpAttachedDSAandEElist.Value=true,true,false)
+        Width: =440
+        X: =300
+        Y: =385
+        ZIndex: =50
+
+        lblWrapUpDSAandEElistAttachmentFileName As label:
+            Height: =Parent.TemplateHeight
+            OnSelect: =Select(Parent)
+            Text: =ThisItem.Name
+            Width: =Parent.TemplateWidth-icoWrapUpDSAandEElistAttachmentRemove.Width
+            X: =icoWrapUpDSAandEElistAttachmentRemove.Width
+            ZIndex: =1
+
+        icoWrapUpDSAandEElistAttachmentRemove As icon.Cancel:
+            Height: =Parent.TemplateHeight
+            Icon: =Icon.Cancel
+            OnSelect: =Remove(colWrapUpDSAandEElistAttachments,ThisItem)
+            Width: =Self.Height
+            ZIndex: =2
+
+    attWrapUpDSAandEElistAttachments As attachments:
+        BorderColor: =Transparent
+        Color: =RGBA(255, 255, 255, 1)
+        Fill: =RGBA(56, 96, 178, 1)
+        Height: =115
+        IsInDataCard: =true
+        Items: =
+        NoAttachmentsText: =""
+        OnAddFile: |-
+            =Set(varRawJSON, JSON(imgWrapUpDSAandEElistAttachmentLastValue.Image, JSONFormat.IncludeBinaryData));
+            Set(varBase64Only, Mid(varRawJSON, Find(",",varRawJSON)+1,Len(varRawJSON)-Find(",",varRawJSON)-1));
+            Collect(
+                colWrapUpDSAandEElistAttachments,
+                {
+                    Category: "Wrap-Up DSA and EE list",
+                    //DailyActivityAutoID: 9999, //Make this the real ID from the patch
+                    Name: Last(Self.Attachments.Name).Name,
+                    AttachmentBase64: varBase64Only
+                }
+            );
+            Set(varRawJSON, Blank());
+            Set(varBase64Only, Blank());
+            Reset(attWrapUpDSAandEElistAttachments)
+        OnRemoveFile: |-
+            =//Resetting everything for now
+            Set(varRawJSON, Blank());
+            Set(varBase64Only, Blank());
+            Clear(colWrapUpDSAandEElistAttachments);
+            Reset(attWrapUpDSAandEElistAttachments)
+        PaddingBottom: =5
+        PaddingLeft: =If(Self.DisplayMode = DisplayMode.Edit, 5, 0)
+        PaddingRight: =5
+        PaddingTop: =5
+        Size: =16
+        Visible: =If(chkWrapUpAttachedDSAandEElist.Value=true,true,false)
+        Width: =236
+        X: =35
+        Y: =337
+        ZIndex: =51
+
+    recWrapUpDSAandEElistAttachmentControlHide As rectangle:
+        Fill: =RGBA(255, 255, 255, 1)
+        Height: =(attWrapUpDSAandEElistAttachments.Height/2)-3
+        Visible: =If(chkWrapUpAttachedDSAandEElist.Value=true,true,false)
+        Width: =attWrapUpDSAandEElistAttachments.Width
+        X: =attWrapUpDSAandEElistAttachments.X
+        Y: =attWrapUpDSAandEElistAttachments.Y
+        ZIndex: =52
+
+    chkWrapUpAttachedDSAandEElist As checkbox:
+        FocusedBorderThickness: =0
+        OnCheck: |-
+            =Set(varWrapUpAttachedDSAandEElistEmpty,false);
+            Reset(txtWrapUpNoDSAandEElist);
+        OnUncheck: |-
+            =Set(varRawJSON, Blank());
+            Set(varBase64Only, Blank());
+            Clear(colWrapUpDSAandEElistAttachments);
+            Reset(attWrapUpDSAandEElistAttachments)
+            //Set(varWrapUpDSAandEElistImgRawJSON,Blank());
+            //Set(varWrapUpDSAandEElistImgBase64Only,Blank());
+            //Reset(del_btnWrapUpAttachedDSAandEElistAdd);
+            //Reset(del_galWrapUpAttachedDSAandEElist);
+            //Clear(colWrapUpDSAandEElist);
+        Reset: =varRadioReset
+        Text: =""
+        Width: =50
+        X: =645
+        Y: =339
+        ZIndex: =53
+
+    lblWrapUpAttachedDSAandEElist As label:
+        Height: =45
+        Size: =15
+        Text: ="- Daily Safety Meeting Report and the EE sign-in list."
+        Width: =625
+        X: =20
+        Y: =337
+        ZIndex: =54
+
+    lblWrapUpNoPictureSubText As label:
+        Color: =RGBA(255, 0, 0, 1)
+        Height: =35
+        Text: ="Please explain why nothing is attached."
+        VerticalAlign: =VerticalAlign.Top
+        Visible: =varWrapUpAttachedPicturesEmpty
+        Width: =625
+        X: =60
+        Y: =310
+        ZIndex: =55
+
+    txtWrapUpNoPicture As text:
+        Default: =""
+        Height: =45
+        HintText: =""
+        Visible: =varWrapUpAttachedPicturesEmpty
+        Width: =635
+        X: =60
+        Y: =266
+        ZIndex: =56
+
+    del_galWrapUpAttachedPictures As gallery.variableTemplateHeightGallery:
+        BorderThickness: =1
+        Height: =71
+        Items: =colWrapUpEoDPictures
+        Layout: =Layout.Vertical
+        OnSelect: =Remove(colWrapUpEoDPictures, ThisItem)
+        TemplateSize: =25
+        Visible: =false //If(chkWrapUpAttachedPictures.Value=true,true,false)
+        Width: =412
+        X: =284
+        Y: =275
+        ZIndex: =57
+
+        lblWrapUpAttachedPicturesFileName As label:
+            AutoHeight: =true
+            Height: =20
+            OnSelect: =Select(Parent)
+            PaddingTop: =0
+            Size: =12
+            Text: =ThisItem.FileName
+            Width: =Parent.TemplateWidth-40
+            X: =35
+            ZIndex: =1
+
+        icoWrapUpAttachedPicturesRemove As icon.Add:
+            Height: =25
+            Icon: =Icon.CancelBadge
+            OnSelect: =Select(Parent)
+            Width: =25
+            X: =5
+            ZIndex: =2
+
+    del_btnWrapUpAttachedPicturesAdd As addMedia:
+        ChangePictureText: ="Tap or click to add a picture"
+        Color: =RGBA(255, 255, 255, 1)
+        Fill: =RGBA(116, 116, 116, 1)
+        Height: =75
+        OnChange: |-
+            =Set(varWrapUpImgRawJSON, JSON(del_imgWrapUpAttachedPicturesMedia.Image, JSONFormat.IncludeBinaryData));
+            Set(varWrapUpImgBase64Only, Mid(varWrapUpImgRawJSON, Find(",",varWrapUpImgRawJSON)+1,Len(varWrapUpImgRawJSON)-Find(",",varWrapUpImgRawJSON)-1));
+            Collect(
+                colWrapUpEoDPictures,
+                {
+                    FileName: del_btnWrapUpAttachedPicturesAdd.FileName,
+                    Media: del_btnWrapUpAttachedPicturesAdd.Media,
+                    BinaryImageData: varWrapUpImgRawJSON,
+                    TrimmedBinaryImageData: varWrapUpImgBase64Only
+                }
+            );
+        Reset: =false//varWrapUpEoDPictureReset
+        Size: =15
+        Visible: =false /*If(chkWrapUpAttachedPictures.Value=true,true,false)*/
+        Width: =233
+        X: =45
+        Y: =271
+        ZIndex: =58
+
+    del_radWrapUpAttachedPictures As radio:
+        FocusedBorderThickness: =0
+        Height: =45
+        Items: =["Yes", "No"]
+        Layout: =Layout.Horizontal
+        PaddingBottom: =0
+        PaddingTop: =0
+        Reset: =varRadioReset
+        Size: =15
+        Visible: =false
+        Width: =220
+        X: =499
+        Y: =230
+        ZIndex: =59
+
+    del_imgWrapUpAttachedPicturesMedia As image:
+        Height: =80
+        Image: =If(IsBlank(del_btnWrapUpAttachedPicturesAdd.Media), SampleImage, del_btnWrapUpAttachedPicturesAdd.Media)
+        ImagePosition: =ImagePosition.Fill
+        Visible: =false//If(chkWrapUpAttachedPictures.Value=true,false,IsBlank(del_btnWrapUpAttachedPicturesAdd.Media),false, del_galWrapUpAttachedPictures.Visible = false, false, true)
+        Width: =233
+        X: =45
+        Y: =268
+        ZIndex: =60
+
+    imgWrapUpPictureAttachmentLastValue As image:
+        Image: =Last(attWrapUpPictureAttachments.Attachments).Value
+        Visible: =false
+        X: =197
+        Y: =260
+        ZIndex: =61
+
+    galWrapUpPictureAttachments As gallery.galleryVertical:
+        BorderThickness: =2
+        Fill: =RGBA(255, 255, 255, 1)
+        Height: =80
+        Items: =colWrapUpPictureAttachments
+        Layout: =Layout.Vertical
+        OnSelect: =
+        TemplateSize: =30
+        Visible: =If(chkWrapUpAttachedPictures.Value=true,true,false)
+        Width: =440
+        X: =300
+        Y: =260
+        ZIndex: =62
+
+        lblWrapUpPictureAttachmentFileName As label:
+            Height: =Parent.TemplateHeight
+            OnSelect: =Select(Parent)
+            Text: =ThisItem.Name
+            Width: =Parent.TemplateWidth-icoWrapUpPictureAttachmentRemove.Width
+            X: =icoWrapUpPictureAttachmentRemove.Width
+            ZIndex: =1
+
+        icoWrapUpPictureAttachmentRemove As icon.Cancel:
+            Height: =Parent.TemplateHeight
+            Icon: =Icon.Cancel
+            OnSelect: =Remove(colWrapUpPictureAttachments,ThisItem)
+            Width: =Self.Height
+            ZIndex: =2
+
+    attWrapUpPictureAttachments As attachments:
+        BorderColor: =Transparent
+        Color: =RGBA(255, 255, 255, 1)
+        Fill: =RGBA(56, 96, 178, 1)
+        Height: =115
+        IsInDataCard: =true
+        Items: =
+        NoAttachmentsText: =""
+        OnAddFile: |-
+            =Set(varRawJSON, JSON(imgWrapUpPictureAttachmentLastValue.Image, JSONFormat.IncludeBinaryData));
+            Set(varBase64Only, Mid(varRawJSON, Find(",",varRawJSON)+1,Len(varRawJSON)-Find(",",varRawJSON)-1));
+            Collect(
+                colWrapUpPictureAttachments,
+                {
+                    Category: "Wrap-Up Sample Picture",
+                    //DailyActivityAutoID: 9999, //Make this the real ID from the patch
+                    Name: Last(Self.Attachments.Name).Name,
+                    AttachmentBase64: varBase64Only
+                }
+            );
+            Set(varRawJSON, Blank());
+            Set(varBase64Only, Blank());
+            Reset(attWrapUpPictureAttachments)
+        OnRemoveFile: |-
+            =//Resetting everything for now
+            Set(varRawJSON, Blank());
+            Set(varBase64Only, Blank());
+            Clear(colWrapUpPictureAttachments);
+            Reset(attWrapUpPictureAttachments)
+        PaddingBottom: =5
+        PaddingLeft: =If(Self.DisplayMode = DisplayMode.Edit, 5, 0)
+        PaddingRight: =5
+        PaddingTop: =5
+        Size: =16
+        Visible: =If(chkWrapUpAttachedPictures.Value=true,true,false)
+        Width: =236
+        X: =35
+        Y: =210
+        ZIndex: =63
+
+    recWrapUpPictureAttachmentControlHide As rectangle:
+        Fill: =RGBA(255, 255, 255, 1)
+        Height: =(attWrapUpPictureAttachments.Height/2)-3
+        Visible: =If(chkWrapUpAttachedPictures.Value=true,true,false)
+        Width: =attWrapUpPictureAttachments.Width
+        X: =attWrapUpPictureAttachments.X
+        Y: =attWrapUpPictureAttachments.Y
+        ZIndex: =64
+
+    chkWrapUpAttachedPictures As checkbox:
+        FocusedBorderThickness: =0
+        OnCheck: |-
+            =Set(varWrapUpAttachedPicturesEmpty,false);
+            Reset(txtWrapUpNoPicture);
+        OnUncheck: |-
+            =//Set(varWrapUpImgRawJSON,Blank());
+            //Set(varWrapUpImgBase64Only,Blank());
+            Set(varRawJSON, Blank());
+            Set(varBase64Only, Blank());
+            Clear(colWrapUpPictureAttachments);
+            Reset(attWrapUpPictureAttachments)
+            //Reset(del_btnWrapUpAttachedPicturesAdd);
+            //Reset(del_galWrapUpAttachedPictures);
+            //Clear(colWrapUpEoDPictures);
+        Reset: =varRadioReset
+        Text: =""
+        Width: =50
+        X: =645
+        Y: =216
+        ZIndex: =65
+
+    lblWrapUpAttachedPictures As label:
+        Height: =45
+        Size: =15
+        Text: ="- Attach a sample of pictures in the area you worked today."
+        Width: =625
+        X: =20
+        Y: =221
+        ZIndex: =66
+
+    lblAfternoonCheckinWrapUpSubtitle As label:
+        Align: =Align.Center
+        Height: =50
+        Size: =14
+        Text: |-
+            ="Almost done!" &
+            Char(13) &
+            "Be sure you have completed the following:"
+        Width: =460
+        X: =154
+        Y: =161
+        ZIndex: =67
+
+    lblAfternoonCheckinWrapUpProjectInfo As label:
+        Align: =Align.Center
+        FontWeight: =FontWeight.Semibold
+        Height: =53
+        PaddingBottom: =3.75
+        PaddingLeft: =3.75
+        Size: =22
+        Text: =/*LookUp('[dbo].[tblProjects]',ProjectID=varSelectedAfternoonCheckinProjectID,ProjectNum) & " " & LookUp('[dbo].[tblProjects]',ProjectID=varSelectedAfternoonCheckinProjectID,ProjectName)*/
+        Width: =625
+        X: =71
+        Y: =158
+        ZIndex: =68
+
+    lblAfternoonCheckinWrapUpTitle As label:
+        Align: =Align.Center
+        FontWeight: =FontWeight.Semibold
+        Height: =51
+        Size: =32
+        Text: ="Today's Activities"
+        Width: =381
+        X: =193
+        Y: =98
+        ZIndex: =69
+
+    icoAfternoonCheckinWrapUpBack As icon.BackArrow:
+        Height: =47.98
+        Icon: =Icon.BackArrow
+        OnSelect: |-
+            =Set(varSelectedAfternoonCheckinProjectID,Blank());
+            Clear(colWrapUpEoDPictures);
+            //Clear(colWrapUpTimeSheetPictures);
+            Clear(colWrapUpEoJPictures);
+            Back()//Navigate(scrAfternoonCheckin,ScreenTransition.UnCoverRight)
+        PaddingBottom: =0.00
+        PaddingLeft: =0.00
+        Tooltip: ="Back to Projects"
+        X: =20
+        Y: =100.33
+        ZIndex: =70
+
+    lbAfternoonCheckinWrapUpTemp As label:
+        Align: =Align.Right
+        Height: =28.44
+        PaddingBottom: =3.75
+        PaddingLeft: =3.75
+        Size: =13.49
+        Text: =Weather.responses.weather.current.temp & Weather.units.temperature
+        Width: =Parent.Width/2
+        X: =(recAfternoonCheckinWrapUpBackground.X+recAfternoonCheckinWrapUpBackground.Width)-lbAfternoonCheckinWrapUpTemp.Width-imgAfternoonCheckinWrapUpWeather.Width
+        Y: =28
+        ZIndex: =80
+
+    imgAfternoonCheckinWrapUpWeather As image:
+        Height: =28
+        Image: |-
+            =varWeatherIcon 
+            /*If(
+                "Sun" in Weather.responses.weather.current.cap,
+                "data:image/svg+xml;utf8, %3Csvg%20%20viewBox%3D%270%200%202048%202048%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%3E%3Cpath%20d%3D%27M960%20512q93%200%20174%2035t143%2096%2096%20142%2035%20175q0%2093-35%20174t-96%20143-142%2096-175%2035q-93%200-174-35t-143-96-96-142-35-175q0-93%2035-174t96-143%20142-96%20175-35zm0%20768q66%200%20124-25t101-68%2069-102%2026-125q0-66-25-124t-69-101-102-69-124-26q-66%200-124%2025t-102%2069-69%20102-25%20124q0%2066%2025%20124t68%20102%20102%2069%20125%2025zm64-896H896V0h128v384zM896%201536h128v384H896v-384zm1024-640v128h-384V896h384zM384%201024H0V896h384v128zm123-426L236%20326l90-90%20272%20271-91%2091zm906%20724l271%20272-90%2090-272-271%2091-91zm0-724l-91-91%20272-271%2090%2090-271%20272zm-906%20724l91%2091-272%20271-90-90%20271-272z%27%20fill%3D%27%23FFFFFF%27%3E%3C%2Fpath%3E%3C%2Fsvg%3E",
+                "Clear" in Weather.responses.weather.current.cap,
+                "data:image/svg+xml;utf8, %3Csvg%20%20viewBox%3D%270%200%202048%202048%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%3E%3Cpath%20d%3D%27M1761%201036q64%2018%20116%2053t91%2084%2059%20109%2021%20126q0%2080-30%20149t-82%20122-123%2083-149%2030H576q-93%200-174-35t-143-96-96-142-35-175q0-66%2019-128t54-117%2084-96%20111-69q-12-49-12-102%200-93%2035-174t96-143%20142-96%20175-35q64%200%20125%2018t113%2051%2095%2081%2070%20106q90%203%20173%2033t152%2082%20122%20124%2079%20157zM832%20512q-66%200-124%2025t-102%2069-69%20102-25%20124q0%2017%201%2033t7%2034q28-3%2056-3%2038%200%2075%206t72%2019q29-51%2069-94t89-78%20102-59%20112-37q-44-66-114-103t-149-38zm832%201152q53%200%2099-20t82-55%2055-81%2020-100q0-55-20-102t-57-81-84-53-102-20q-12-82-51-152t-97-122-134-81-159-29q-77%200-146%2025t-127%2069-98%20106-61%20135q-44-38-97-58t-111-21q-66%200-124%2025t-102%2068-69%20102-25%20125q0%2066%2025%20124t68%20102%20102%2069%20125%2025h1088zM256%20896H0V768h256v128zm123-426L198%20289l91-91%20181%20181-91%2091zm517-214H768V0h128v256zm389%20214l-91-91%20181-181%2091%2091-181%20181z%27%20fill%3D%27%23FFFFFF%27%3E%3C%2Fpath%3E%3C%2Fsvg%3E",
+                "Cloud" in Weather.responses.weather.current.cap,
+                "data:image/svg+xml;utf8, %3Csvg%20%20viewBox%3D%270%200%202048%202048%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%3E%3Cpath%20d%3D%27M1761%201036q64%2018%20116%2053t91%2084%2059%20109%2021%20126q0%2080-30%20149t-82%20122-123%2083-149%2030H576q-93%200-174-35t-143-96-96-142-35-175q0-75%2024-144-71-54-111-134T0%20896q0-79%2030-149t82-122%20122-83%20150-30h21q10%200%2022%202%2027-60%2069-107t95-81%20114-52%20127-18q84%200%20159%2029t135%2081%2099%20123%2051%20154q84%208%20160%2040t140%2085%20111%20120%2074%20148zM384%20640q-53%200-99%2020t-82%2055-55%2081-20%20100q0%2054%2021%20102t62%2086q63-89%20159-138t206-50q38%200%2075%206t72%2019q32-57%2078-104t101-83%20117-59%20127-31q-11-56-39-104t-71-82-94-54-110-20q-62%200-117%2022t-98%2062-70%2093-32%20116q-30-17-63-27t-68-10zm1280%201024q53%200%2099-20t82-55%2055-81%2020-100q0-55-20-102t-57-81-84-54-102-19q-12-82-51-152t-97-122-134-81-159-29q-77%200-146%2025t-127%2069-98%20106-61%20135q-44-38-97-58t-111-21q-66%200-124%2025t-102%2068-69%20102-25%20125q0%2066%2025%20124t68%20102%20102%2069%20125%2025h1088z%27%20fill%3D%27%23FFFFFF%27%3E%3C%2Fpath%3E%3C%2Fsvg%3E",
+                "Rain" in Weather.responses.weather.current.cap,
+                "data:image/svg+xml;utf8, %3Csvg%20%20viewBox%3D%270%200%202048%202048%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%3E%3Cpath%20d%3D%27M850%201827q14%2030%2014%2061%200%2033-12%2062t-35%2051-51%2034-62%2013q-33%200-62-12t-51-35-34-51-13-62q0-31%2014-61l146-291%20146%20291zm768%200q14%2030%2014%2061%200%2033-12%2062t-35%2051-51%2034-62%2013q-33%200-62-12t-51-35-34-51-13-62q0-31%2014-61l146-291%20146%20291zm-384-256q14%2030%2014%2061%200%2033-12%2062t-35%2051-51%2034-62%2013q-33%200-62-12t-51-35-34-51-13-62q0-31%2014-61l146-291%20146%20291zm527-535q63%2017%20115%2052t91%2085%2060%20109%2021%20126q0%2066-22%20126t-61%20110-93%2085-118%2051l-60-120q48-6%2089-27t72-56%2047-77%2018-92q0-55-20-102t-57-81-84-53-102-20q-12-82-51-152t-97-122-134-81-159-29q-77%200-146%2025t-127%2069-98%20106-61%20135q-44-38-97-58t-111-21q-66%200-124%2025t-102%2068-69%20102-25%20125q0%2053%2017%20102t47%2089%2073%2070%2094%2045l-57%20114q-67-23-122-65t-96-97-62-120-22-138q0-93%2035-174t96-142%20142-96%20175-36q74%200%20147%2025%2039-65%2092-117t117-88%20136-56%20148-20q93%200%20178%2029t158%2081%20126%20125%2083%20161z%27%20fill%3D%27%23FFFFFF%27%3E%3C%2Fpath%3E%3C%2Fsvg%3E",
+                "Thunder" in Weather.responses.weather.current.cap,
+                "data:image/svg+xml;utf8, %3Csvg%20%20viewBox%3D%270%200%202048%202048%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%3E%3Cpath%20d%3D%27M1761%201036q63%2017%20115%2052t91%2085%2060%20109%2021%20126q0%2080-30%20149t-82%20122-123%2083-149%2030h-384l128-128h256q53%200%2099-20t82-55%2055-81%2020-100q0-55-20-101t-57-81-83-54-102-20q-12-82-51-152t-98-122-134-81-159-29q-77%200-146%2025t-127%2069-98%20106-61%20135q-44-38-97-58t-111-21q-66%200-124%2025t-102%2068-69%20102-25%20125q0%2066%2025%20124t68%20102%20102%2069%20125%2025h256l-64%20128H576q-93%200-174-35t-142-96-96-142-36-175q0-75%2024-144-71-54-111-134T0%20896q0-79%2030-149t82-122%20122-83%20150-30h21q10%200%2022%202%2027-60%2069-107t95-81%20114-52%20127-18q84%200%20159%2029t135%2081%2099%20123%2051%20154q84%209%20160%2041t139%2084%20112%20120%2074%20148zM723%20921q34-57%2079-104t100-83%20116-59%20128-31q-11-56-40-104t-70-82-94-54-110-20q-62%200-117%2022t-98%2062-70%2093-32%20116q-30-17-63-27t-68-10q-53%200-99%2020t-82%2055-55%2081-20%20100q0%2054%2021%20103t63%2085q63-89%20159-138t205-50q74%200%20147%2025zm109%201127l256-512H864l192-384h224l-128%20256h320l-640%20640z%27%20fill%3D%27%23FFFFFF%27%3E%3C%2Fpath%3E%3C%2Fsvg%3E",
+                "Snow" in Weather.responses.weather.current.cap,
+                "data:image/svg+xml;utf8, %3Csvg%20%20viewBox%3D%270%200%202048%202048%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%3E%3Cpath%20d%3D%27M1511%201504q26%200%2044%2019t19%2045q0%2036-32%2055l-70%2041%2070%2041q32%2019%2032%2055%200%2027-19%2045t-45%2019q-13%200-26-5t-27-13-26-16-23-15q0%2019%201%2044t-3%2047-18%2038-44%2016q-30%200-44-15t-18-38-4-48%202-44q-11%206-23%2014t-25%2016-27%2013-27%206q-26%200-45-18t-19-46q0-36%2032-55l70-41-70-41q-32-19-32-55%200-26%2018-45t45-19q13%200%2027%205t27%2014%2026%2016%2023%2014q0-19-1-44t2-47%2019-38%2044-16q30%200%2043%2015t18%2038%204%2048-1%2044q10-6%2022-14t26-16%2028-13%2027-6zm-533%20323q14%2030%2014%2061%200%2033-12%2062t-35%2051-51%2034-62%2013q-33%200-62-12t-51-35-34-51-13-62q0-31%2014-61l146-291%20146%20291zm783-791q63%2017%20115%2052t91%2085%2060%20109%2021%20126q0%2061-18%20117t-52%20104-81%2083-105%2056v-139q59-35%2093-93t35-128q0-55-20-101t-57-81-83-54-102-20q-12-82-51-152t-98-122-134-81-159-29q-77%200-146%2025t-127%2069-98%20106-61%20135q-44-38-97-58t-111-21q-66%200-124%2025t-102%2068-69%20102-25%20125q0%2066%2025%20124t68%20102%20102%2069%20125%2025l-61%20122q-83-11-154-50t-122-98-81-135-30-159q0-93%2035-174t96-142%20142-96%20175-36q74%200%20147%2025%2039-65%2092-117t117-88%20136-56%20148-20q93%200%20178%2029t158%2081%20126%20125%2083%20161z%27%20fill%3D%27%23FFFFFF%27%3E%3C%2Fpath%3E%3C%2Fsvg%3E"
+            )*/
+        PaddingRight: =5
+        Width: =28
+        X: =recAfternoonCheckinWrapUpBackground.Width-Self.Width
+        Y: =28
+        ZIndex: =81
+
+    Image2_9 As image:
+        Height: =86
+        Image: ='SMART HEader'
+        OnSelect: |-
+            =Set(varSelectedAfternoonCheckinProjectID,Blank());
+            Set(varSelectedAfternoonCheckinProjectName,Blank());
+            Set(varSelectedAfternoonCheckinProjectInternalID,Blank());
+            Navigate(scrHome,ScreenTransition.UnCoverRight)
+        Width: =574
+        ZIndex: =82
+
+    btnAppExit_WrapUp As button:
+        Fill: =RGBA(168, 0, 0, 1)
+        Height: =25
+        HoverFill: =ColorFade(Self.Fill, -20%)
+        OnSelect: =Exit()
+        Size: =11
+        Text: ="Exit"
+        Width: =75
+        X: =585
+        Y: =31
+        ZIndex: =83
+

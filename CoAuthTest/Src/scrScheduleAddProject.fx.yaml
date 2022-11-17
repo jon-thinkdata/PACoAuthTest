@@ -1,0 +1,413 @@
+scrScheduleAddProject As screen:
+    OnVisible: =false
+
+    lblNewProject As label:
+        Align: =Align.Center
+        Height: =56.22
+        PaddingBottom: =3.75
+        PaddingLeft: =3.75
+        Size: =26.99
+        Text: ="New Project"
+        Width: =Parent.Width
+        Y: =153.60
+        ZIndex: =5
+
+    btnSubmit As button:
+        Fill: =RGBA(168, 0, 0, 1)
+        Height: =49.48
+        OnSelect: |-
+            =UpdateContext({ProjectCheckPopup:true})
+        PaddingBottom: =3.75
+        PaddingLeft: =3.75
+        Size: =14.99
+        Text: ="Submit"
+        Width: =264
+        X: =(Parent.Width-btnSubmit.Width)/2
+        Y: =899.56
+        ZIndex: =6
+
+    icoBack_1 As icon.BackArrow:
+        Height: =47.98
+        Icon: =Icon.BackArrow
+        OnSelect: |-
+            =UpdateContext({ResetNewProject:true});UpdateContext({ResetNewProject:false});Navigate(scrScheduleProjects,ScreenTransition.UnCoverRight)
+        PaddingBottom: =0.00
+        PaddingLeft: =0.00
+        X: =20
+        Y: =100.33
+        ZIndex: =8
+
+    lblProjectNum As label:
+        Height: =37.48
+        PaddingBottom: =3.75
+        PaddingLeft: =3.75
+        Size: =17.99
+        Text: |-
+            ="Project #"
+        Width: =Parent.Width/2
+        X: =(Parent.Width-lblProjectNum.Width)/10
+        Y: =247.30
+        ZIndex: =9
+
+    txtProjectNum As text:
+        Default: =
+        Height: =56.22
+        HintText: |-
+            ="Enter a Project #"
+        PaddingBottom: =3.75
+        PaddingLeft: =9.00
+        Reset: =ResetNewProject
+        Size: =17.99
+        Width: =Parent.Width*.9
+        X: =lblProjectNum.X
+        Y: =284.79
+        ZIndex: =10
+
+    grpBanner_2 As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =10
+
+        recBanner_2 As rectangle:
+            Height: =85.33
+            Width: =768
+            Y: =0.00
+            ZIndex: =1
+
+        imgClientLogo_2 As image:
+            Height: =77.84
+            Image: =ComfortSystemsLogo
+            ImagePosition: =ImagePosition.Fill
+            PaddingBottom: =0.00
+            PaddingLeft: =0.00
+            Width: =imgClientLogo_2.Height*2
+            X: =recBanner_2.X+5
+            Y: =3.75
+            ZIndex: =2
+
+        "'lblToday''sDate_2' As label":
+            Align: =Align.Right
+            Color: =RGBA(255, 255, 255, 1)
+            Height: =28.44
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =13.49
+            Text: =Today()
+            Width: =Parent.Width/2
+            X: =(recBanner_2.X+recBanner_2.Width)-'lblToday''sDate_2'.Width
+            Y: =0.00
+            ZIndex: =3
+
+        lblWelcome_2 As label:
+            Align: =Align.Right
+            Color: =RGBA(255, 255, 255, 1)
+            Height: =28.44
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =13.49
+            Text: =Concatenate("Welcome  ",User().FullName)
+            Width: =Parent.Width/2
+            X: =(recBanner_2.X+recBanner_2.Width)-lblWelcome_2.Width
+            Y: =56.89
+            ZIndex: =4
+
+    lblProjectName As label:
+        Height: =37.48
+        PaddingBottom: =3.75
+        PaddingLeft: =3.75
+        Size: =17.99
+        Text: ="Project Name"
+        Width: =Parent.Width/2
+        X: =(Parent.Width-lblProjectName.Width)/10
+        Y: =359.75
+        ZIndex: =11
+
+    txtProjectName As text:
+        Default: =
+        Height: =56.22
+        HintText: ="Enter a Project Name"
+        PaddingBottom: =3.75
+        PaddingLeft: =9.00
+        Reset: =ResetNewProject
+        Size: =17.99
+        Width: =Parent.Width*.9
+        X: =lblProjectName.X
+        Y: =397.23
+        ZIndex: =12
+
+    lblConCompletionDate As label:
+        Height: =37
+        PaddingBottom: =3.75
+        PaddingLeft: =3.75
+        Size: =17.99
+        Text: ="Contractual Completion Date"
+        Width: =346
+        X: =38
+        Y: =478
+        ZIndex: =13
+
+    DatePickerContractual As datepicker:
+        DefaultDate: =
+        Height: =56.22
+        InputTextPlaceholder: =
+        Reset: =ResetNewProject
+        Width: =325
+        X: =38
+        Y: =537
+        ZIndex: =14
+
+    lblRevCompletionDate As label:
+        Height: =37
+        PaddingBottom: =3.75
+        PaddingLeft: =3.75
+        Size: =17.99
+        Text: ="Revised Completion Date"
+        Width: =326
+        X: =403
+        Y: =500
+        ZIndex: =15
+
+    DatePickerRevised As datepicker:
+        DefaultDate: =
+        Height: =56.22
+        InputTextPlaceholder: =
+        Reset: =ResetNewProject
+        Width: =325
+        X: =404
+        Y: =537
+        ZIndex: =16
+
+    lblPerExecutedContract As label:
+        Height: =20
+        Text: ="(Per Executed Contract)"
+        Width: =214
+        X: =38
+        Y: =515
+        ZIndex: =17
+
+    lblAttachIcon As label:
+        Height: =37.48
+        PaddingBottom: =3.75
+        PaddingLeft: =3.75
+        Size: =17.99
+        Text: |-
+            ="Attach an icon:"
+        Width: =Parent.Width/2
+        X: =38
+        Y: =629
+        ZIndex: =18
+
+    medAttachIcon As addMedia:
+        BorderThickness: =2
+        ChangePictureText: =Concatenate(medAttachIcon.FileName," - Tap to change picture")
+        Height: =54
+        Reset: =ResetNewProject
+        Size: =18
+        Text: ="Tap to add a picture"
+        Width: =691
+        X: =38
+        Y: =666
+        ZIndex: =21
+
+    grpProjectCheckPopup As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =36
+
+        recPopupProject As rectangle:
+            Fill: =RGBA(255, 255, 255, 1)
+            FocusedBorderThickness: =1
+            Height: =939
+            Visible: =ProjectCheckPopup
+            Width: =768
+            Y: =85
+            ZIndex: =22
+
+        lblProjectNum_1 As label:
+            Height: =37
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =18
+            Text: |-
+                ="Project #"
+            Visible: =ProjectCheckPopup
+            Width: =346
+            X: =20
+            Y: =228
+            ZIndex: =23
+
+        lblProjectName_1 As label:
+            Height: =37
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =18
+            Text: ="Project Name"
+            Visible: =ProjectCheckPopup
+            Width: =346
+            X: =19
+            Y: =292
+            ZIndex: =24
+
+        lblConCompletionDate_1 As label:
+            Height: =37
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =18
+            Text: ="Contractual Completion Date"
+            Visible: =ProjectCheckPopup
+            Width: =346
+            X: =20
+            Y: =353
+            ZIndex: =25
+
+        lblRevCompletionDate_1 As label:
+            Height: =37
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =18
+            Text: ="Revised Completion Date"
+            Visible: =ProjectCheckPopup
+            Width: =346
+            X: =20
+            Y: =403
+            ZIndex: =26
+
+        lblAttachIcon_1 As label:
+            Height: =37
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =18
+            Text: |-
+                ="Attach an icon:"
+            Visible: =ProjectCheckPopup
+            Width: =200
+            X: =20
+            Y: =479
+            ZIndex: =27
+
+        lblNewProject_1 As label:
+            Align: =Align.Center
+            Height: =100
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =26.99
+            Text: ="Please ensure the following information is correct."
+            Visible: =ProjectCheckPopup
+            Width: =Parent.Width
+            Y: =109
+            ZIndex: =28
+
+        imgAttachedIcon As image:
+            BorderThickness: =2
+            Height: =350
+            Image: =medAttachIcon
+            RadiusBottomLeft: =5
+            RadiusBottomRight: =5
+            RadiusTopLeft: =5
+            RadiusTopRight: =5
+            Visible: =ProjectCheckPopup
+            Width: =350
+            X: =209
+            Y: =479
+            ZIndex: =29
+
+        lblProjectNumCheck As label:
+            Height: =37
+            Size: =18
+            Text: =txtProjectNum.Text
+            Visible: =ProjectCheckPopup
+            Width: =346
+            X: =366
+            Y: =228
+            ZIndex: =30
+
+        lblProjectNameCheck As label:
+            Height: =37
+            Size: =18
+            Text: =txtProjectName.Text
+            Visible: =ProjectCheckPopup
+            Width: =346
+            X: =366
+            Y: =292
+            ZIndex: =31
+
+        lblConCompetionDateCheck As label:
+            Height: =37
+            Size: =18
+            Text: =DatePickerContractual.SelectedDate
+            Visible: =ProjectCheckPopup
+            Width: =346
+            X: =366
+            Y: =353
+            ZIndex: =32
+
+        lblRevCompletionDateCheck As label:
+            Height: =37
+            Size: =18
+            Text: =DatePickerRevised.SelectedDate
+            Visible: =ProjectCheckPopup
+            Width: =346
+            X: =366
+            Y: =403
+            ZIndex: =33
+
+        btnConfirm As button:
+            Fill: =RGBA(168, 0, 0, 1)
+            Height: =49.48
+            OnSelect: |-
+                =If(
+                    IsEmpty(Filter('[dbo].[tblImages]',FileName=medAttachIcon.FileName)),
+                    Patch(
+                    '[dbo].[tblImages]',
+                    Defaults('[dbo].[tblImages]'),
+                    {
+                        Image: medAttachIcon.Media,
+                        FileName:medAttachIcon.FileName
+                    }
+                ));
+                Patch(
+                    ,
+                    Defaults('[dbo].[tblProjects]'),
+                    {
+                        ProjectNum: txtProjectNum.Text,
+                        ProjectName: txtProjectName.Text,
+                        ContractCompletionDate: DatePickerContractual.SelectedDate,
+                        RevisedCompletionDate: DatePickerRevised.SelectedDate,
+                        ImageID: LookUp('[dbo].[tblImages]',FileName=medAttachIcon.FileName,ImageID),
+                        Created: Today(),
+                        CreatedBy: User().Email
+                    }
+                );
+                UpdateContext({ProjectCheckPopup:false});
+                UpdateContext({ResetNewProject:true});
+                UpdateContext({ResetNewProject:false});
+                Navigate(scrScheduleProjects)
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =14.99
+            Text: ="Confirm"
+            Visible: =ProjectCheckPopup
+            Width: =264
+            X: =444
+            Y: =900
+            ZIndex: =34
+
+        btnCancel As button:
+            Fill: =RGBA(168, 0, 0, 1)
+            Height: =49.48
+            OnSelect: |-
+                =UpdateContext({ProjectCheckPopup:false})
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =14.99
+            Text: ="Cancel"
+            Visible: =ProjectCheckPopup
+            Width: =264
+            X: =68
+            Y: =899
+            ZIndex: =35
+

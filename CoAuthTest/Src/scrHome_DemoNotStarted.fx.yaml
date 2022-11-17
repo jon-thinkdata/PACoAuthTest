@@ -1,0 +1,133 @@
+scrHome_DemoNotStarted As screen:
+
+    lblTitle_2 As label:
+        Align: =Align.Center
+        Height: =154.42
+        PaddingBottom: =3.75
+        PaddingLeft: =3.75
+        Size: =38.98
+        Text: ="Project ManPower / Daily Planning"
+        Width: =Parent.Width
+        Y: =187.73
+        ZIndex: =5
+
+    btnCreateSchedule_2 As button:
+        DisplayMode: =DisplayMode.Disabled
+        Fill: =RGBA(168, 0, 0, 1)
+        Height: =49.48
+        OnSelect: |-
+            =UpdateContext({EditProjects:false});Navigate(scrScheduleProjects,ScreenTransition.Cover)
+        PaddingBottom: =3.75
+        PaddingLeft: =3.75
+        Size: =14.99
+        Text: ="Create Schedule"
+        Width: =264
+        X: =(Parent.Width-btnCreateSchedule_2.Width)/4/2
+        Y: =899.56
+        ZIndex: =6
+
+    btnDailyPlan_2 As button:
+        Height: =49.48
+        OnSelect: |-
+            =ClearCollect(
+                colSelectedDailyPlanProject,
+                {
+                    ProjectID: 6,
+                    ProjectName: "Hotel 1",
+                    ProjectNum: "9997-Z"
+                }
+            );
+            Set(SelectedDailyPlanProjectID,6);
+            Navigate(scrDailyPlanActivitiesSQL,ScreenTransition.Cover)
+        PaddingBottom: =3.75
+        PaddingLeft: =3.75
+        Size: =14.99
+        Text: ="Daily Plan"
+        Width: =264
+        X: =447
+        Y: =899.56
+        ZIndex: =7
+
+    btnAfternoonCheckin_2 As button:
+        Height: =49.48
+        OnSelect: |-
+            =ClearCollect(
+                colSelectedAfternoonCheckinProject,
+                {
+                    ProjectID: 6,
+                    ProjectName: "Hotel 1",
+                    ProjectNum: "9997-Z"
+                }
+            );
+            Set(varSelectedAfternoonCheckinProjectID,6);
+            Navigate(scrAfternoonCheckinActivities,ScreenTransition.Cover)
+        PaddingBottom: =3.75
+        PaddingLeft: =3.75
+        Size: =14.99
+        Text: ="Afternoon Check-In"
+        Width: =264
+        X: =447
+        Y: =960
+        ZIndex: =8
+
+    grpBanner_9 As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =8
+
+        recBanner_9 As rectangle:
+            Height: =85.33
+            Width: =768
+            Y: =0.00
+            ZIndex: =1
+
+        imgClientLogo_9 As image:
+            Height: =77.84
+            Image: =ComfortSystemsLogo
+            ImagePosition: =ImagePosition.Fill
+            PaddingBottom: =0.00
+            PaddingLeft: =0.00
+            Width: =imgClientLogo_9.Height*2
+            X: =recBanner_9.X+5
+            Y: =3.75
+            ZIndex: =2
+
+        "'lblToday''sDate_9' As label":
+            Align: =Align.Right
+            Color: =RGBA(255, 255, 255, 1)
+            Height: =28.44
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =13.49
+            Text: =Today()
+            Width: =Parent.Width/2
+            X: =(recBanner_9.X+recBanner_9.Width)-'lblToday''sDate_9'.Width
+            Y: =0.00
+            ZIndex: =3
+
+        lblWelcome_9 As label:
+            Align: =Align.Right
+            Color: =RGBA(255, 255, 255, 1)
+            Height: =28.44
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =13.49
+            Text: =Concatenate("Welcome  ",User().FullName)
+            Width: =Parent.Width/2
+            X: =(recBanner_9.X+recBanner_9.Width)-lblWelcome_9.Width
+            Y: =56.89
+            ZIndex: =4
+
+    lblTitle_4 As label:
+        Align: =Align.Center
+        Height: =154.42
+        PaddingBottom: =3.75
+        PaddingLeft: =3.75
+        Size: =24
+        Text: ="Project with no more scheduled activities demo"
+        Width: =Parent.Width
+        Y: =614
+        ZIndex: =9
+

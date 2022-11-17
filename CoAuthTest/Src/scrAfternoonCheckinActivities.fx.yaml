@@ -1,0 +1,1225 @@
+scrAfternoonCheckinActivities As screen:
+    OnVisible: |-
+        =Set(varAfternoonCheckinLoaderTime,false);
+        Reset(timACILoaderTime);
+        Set(varACILoaderVis,true);
+        Set(varAfternoonCheckinLoaderTime,true);
+        Collect(colCountDailyActivities, 'dbug-btnGlobalUser'.Selected)
+
+    recACIActivitiesActivityNumWorkersSeparator As rectangle:
+        Fill: =RGBA(166, 166, 166, 1)
+        Height: =lblAfternoonCheckinActivitiesDailyWorkers.Height + galAfternoonCheckinActivitiesFlex.Height
+        OnSelect: =
+        Width: =1
+        X: =lblAfternoonCheckinActivitiesDailyWorkers.X+lblAfternoonCheckinActivitiesDailyWorkers.Width
+        Y: =lblAfternoonCheckinActivitiesDailyWorkers.Y
+        ZIndex: =1
+
+    recACIActivitiesActivityDescSeparator As rectangle:
+        Fill: =RGBA(166, 166, 166, 1)
+        Height: =lblACIActivitiesActivityDesc.Height + galAfternoonCheckinActivitiesFlex.Height
+        OnSelect: =
+        Width: =1
+        X: =lblACIActivitiesActivityDesc.X+lblACIActivitiesActivityDesc.Width
+        Y: =lblACIActivitiesActivityDesc.Y
+        ZIndex: =2
+
+    recACIActivitiesActivityNumSeparator As rectangle:
+        Fill: =RGBA(166, 166, 166, 1)
+        Height: =lblACIActivitiesActivityNum.Height + galAfternoonCheckinActivitiesFlex.Height
+        OnSelect: =
+        Width: =1
+        X: =lblACIActivitiesActivityNum.X+lblACIActivitiesActivityNum.Width
+        Y: =lblACIActivitiesActivityNum.Y
+        ZIndex: =3
+
+    galAfternoonCheckinActivitiesFlex As gallery.variableTemplateHeightGallery:
+        BorderColor: =RGBA(166, 166, 166, 1)
+        BorderThickness: =2
+        Fill: =RGBA(255, 255, 255, 0)
+        Height: =596
+        Items: |-
+            =Filter(
+                tblDailyActivities,
+                ProjectInternalID = varSelectedAfternoonCheckinProjectInternalID, // filter to the current project 
+                EndDay_HoursWork = 0 || IsBlank(EndDay_HoursWork), // filter to records where the amt complete isn't 0 (this is how we're determining if the afternoon check-in was completed)
+                Today() = DateValue(Text(ActivityDate)), // filter to today's records
+                WorkingToday = true, // filter to records that answered 'Yes' during the Daily Plan
+                ActivityNotWorked <> true // Filter out records that had a Daily Plan but didn't get worked on
+            )
+        Layout: =Layout.Vertical
+        OnSelect: |-
+            =UpdateContext({varActivityLoadingVis:true});
+            Set(varAfternoonCheckinActivitySearch,false);
+            Set(varAfternoonCheckinActivityDetails,ThisItem);
+            Set(varActivityNum, ThisItem.ActivityNum);
+            Set(varActivityDesc, ThisItem.ActivityDescription);
+            Set(varActivityArea, ThisItem.Area);
+            Set(varActivityDailyGoal, ThisItem.NewDailyGoal);
+            Set(varActivityMeasure, ThisItem.Measure);
+            Set(varActivityDailyWorkers, ThisItem.HowManyWorkers);
+            Set(varActivityTrade, ThisItem.Trade);
+            Set(varActivityTotalManHours, ThisItem.TotalManHours);
+            Set(varActivityDuration, ThisItem.ActivityDuration);
+            Set(varActivityBaseNumMen, ThisItem.BaseNumMen);
+            Set(varActivityCostCode, LookUp(tblActivities,ActivityAutoID = ThisItem.ActivityAutoID,ActivityCostCode));
+            Set(varActivityRework, ThisItem.Rework);
+            Set(
+                varActivityRemainingQTY,
+            	RoundUp(ThisItem.TotalMetricsQTY - Sum(
+                    Filter(
+                            tblDailyActivities,
+                            ProjectInternalID = ThisItem.ProjectInternalID && ActivityAutoID = ThisItem.ActivityAutoID
+                        ),
+                        EndDay_AmtComplete
+                    ),
+                    2
+                )
+            );
+            UpdateContext({varActivityLoadingVis:false});
+            UpdateContext({varAfternoonCheckinNoPopup:false});
+            UpdateContext({varACISelectedActivity:Blank()});
+            Clear(colAfternoonCheckinWorkersHours);
+            Navigate(scrAfternoonCheckinQuestions,ScreenTransition.Cover)
+        TemplatePadding: =0
+        TemplateSize: =75
+        Width: =729
+        X: =20
+        Y: =397
+        ZIndex: =4
+
+        recAfternoonCheckinActivitiesSelectedBackground As rectangle:
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: |-
+                =If(
+                    ThisItem.ActivityAutoID = varACISelectedActivity,
+                    recAfternoonCheckinActivitiesSeparator.Y,
+                    Parent.TemplateHeight
+                )//radAfternoonCheckinActivitiesYesNo_1.Height
+            OnSelect: =Select(Parent)
+            Visible: |-
+                =If(
+                    ThisItem.ActivityAutoID = varACISelectedActivity,
+                    true,
+                    false
+                )
+            Width: =Parent.TemplateWidth
+            Y: =0//radAfternoonCheckinActivitiesYesNo_1.Y
+            ZIndex: =1
+
+        lblAfternoonCheckinActivitiesActivityNumValue As label:
+            Height: =50
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Text: =ThisItem.ActivityNum
+            Width: =134
+            Y: =10
+            ZIndex: =2
+
+        lblAfternoonCheckinActivitiesActivityDescValue As label:
+            Align: =Align.Center
+            Height: =50
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =15
+            Text: =ThisItem.ActivityDescription & " - " & ThisItem.Area & If(ThisItem.Rework, Char(13) & "Rework" ,"")
+            Width: =212
+            X: =134
+            Y: =10
+            ZIndex: =3
+
+        recAfternoonCheckinActivitiesSeparator As rectangle:
+            Fill: =RGBA(166, 166, 166, 1)
+            Height: =1
+            OnSelect: =Select(Parent)
+            Width: =Parent.TemplateWidth
+            Y: |-
+                =If(
+                    radAfternoonCheckinActivitiesYesNo.Visible = true,
+                    radAfternoonCheckinActivitiesYesNo.Y+radAfternoonCheckinActivitiesYesNo.Height,
+                    btnAfternoonCheckinActivitiesClick.Y+btnAfternoonCheckinActivitiesClick.Height
+                )
+            ZIndex: =4
+
+        lblAfternoonCheckinActivitiesDailyWorkersValue As label:
+            Align: =Align.Center
+            FontWeight: =FontWeight.Normal
+            Height: =36
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =15
+            Text: =ThisItem.BaseNumMen
+            Visible: =If(ThisItem.Rework,false,true)
+            Width: =101
+            X: =390
+            Y: =10
+            ZIndex: =5
+
+        lblAfternoonCheckinActivitiesLoading As label:
+            Height: =28
+            OnSelect: =Select(Parent)
+            Text: ="Loading..."
+            Visible: |-
+                =false/*If(
+                    varActivityLoadingVis,
+                    If(
+                        ThisItem.DailyActivityAutoID = varAfternoonCheckinActivityDetails.DailyActivityAutoID,
+                        true,
+                        false
+                    ),
+                    false
+                )*/
+            Width: =95
+            X: =624
+            Y: =recAfternoonCheckinActivitiesSeparator.Y-Self.Height
+            ZIndex: =6
+
+        lblAfternoonCheckinActivitiesDailyGoalValue As label:
+            Align: =Align.Center
+            FontWeight: =FontWeight.Normal
+            Height: =31
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =15
+            Text: =RoundUp(ThisItem.NewDailyGoal,0) & " " & ThisItem.Measure
+            Visible: =If(ThisItem.Rework,false,true)
+            Width: =143
+            X: =545
+            Y: =10
+            ZIndex: =7
+
+        btnAfternoonCheckinActivitiesClick As button:
+            Color: =RGBA(0, 0, 0, 0)
+            Fill: |-
+                =//If(
+                //    radAfternoonCheckinActivitiesYesNo_1.Visible = true,
+                //    RGBA(255, 255, 255, 1),
+                    RGBA(0, 0, 0, 0)
+                //)
+            Height: |-
+                =If(
+                    radAfternoonCheckinActivitiesYesNo.Visible = true,
+                    radAfternoonCheckinActivitiesYesNo.Y+radAfternoonCheckinActivitiesYesNo.Height,
+                    Parent.TemplateHeight
+                )
+            HoverFill: =RGBA(116, 116, 116, 0.1)
+            OnSelect: |-
+                =//Select(Parent);
+                If(
+                    ThisItem.ActivityAutoID = varACISelectedActivity,
+                    UpdateContext({varACISelectedActivity: Blank()}),
+                    UpdateContext({varACISelectedActivity: ThisItem.ActivityAutoID})
+                );
+            Text: =""
+            Width: =Parent.TemplateWidth
+            ZIndex: =8
+
+        lblAfternoonCheckinActivitiesActivityQuestion As label:
+            Align: =Align.Center
+            Height: =60
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =15
+            Text: ="Did you work on this activity today?"
+            Visible: |-
+                =If(
+                    ThisItem.ActivityAutoID = varACISelectedActivity,
+                    true,
+                    false
+                )
+            Width: =485
+            Y: =60
+            ZIndex: =9
+
+        icoAfternoonCheckinActivitiesNext As icon.ChevronRight:
+            AccessibleLabel: =Self.Tooltip
+            Height: =55
+            Icon: |-
+                =If(
+                    ThisItem.ActivityAutoID = varACISelectedActivity,
+                    Icon.ChevronLeft,
+                    Icon.ChevronRight
+                )
+            OnSelect: |-
+                =//Select(Parent);
+                If(
+                    ThisItem.ActivityAutoID = varACISelectedActivity,
+                    UpdateContext({varACISelectedActivity: Blank()}),
+                    UpdateContext({varACISelectedActivity: ThisItem.ActivityAutoID})
+                );
+            PaddingBottom: =10
+            PaddingLeft: =5
+            PaddingRight: =5
+            PaddingTop: =10
+            TabIndex: =0
+            Tooltip: ="View item details"
+            Width: =53
+            X: =666
+            Y: =(Parent.TemplateHeight-Self.Height)/2
+            ZIndex: =10
+
+        radAfternoonCheckinActivitiesYesNo As radio:
+            Align: =Align.Right
+            FocusedBorderThickness: =0
+            Height: =60
+            Items: =["Yes","No"]
+            Layout: =Layout.Horizontal
+            OnSelect: |-
+                =If(
+                    Self.Selected.Value = "Yes",
+                    Select(Parent),
+                    UpdateContext({varAfternoonCheckinNoPopup: true})
+                );
+                Reset(Self)
+            Reset: =
+            Visible: |-
+                =If(
+                    ThisItem.ActivityAutoID = varACISelectedActivity,
+                    true,
+                    false
+                )
+            Width: =220
+            X: =485
+            Y: =60
+            ZIndex: =11
+
+    timACILoaderTime As timer:
+        AutoPause: =false
+        Duration: =2500
+        OnTimerEnd: =Set(varACILoaderVis,false)
+        Start: =varAfternoonCheckinLoaderTime
+        Visible: =false
+        Y: =317
+        ZIndex: =9
+
+    recACILoaderBackground As rectangle:
+        Fill: =RGBA(255, 255, 255, 1)
+        Height: =596
+        Visible: =varACILoaderVis
+        Width: =728
+        X: =21
+        Y: =397
+        ZIndex: =10
+
+    imgACILoader As image:
+        Height: =267
+        Image: =SmartAppLoader
+        PaddingBottom: =25
+        PaddingTop: =25
+        Visible: =varACILoaderVis
+        Width: =730
+        X: =20
+        Y: =561
+        ZIndex: =11
+
+    icoAfternoonCheckinActivitiesRefresh As icon.Reload:
+        Height: =50
+        Icon: =Icon.Reload
+        OnSelect: |-
+            =Set(varAfternoonCheckinLoaderTime,false);
+            Reset(timACILoaderTime);
+            Set(varACILoaderVis,true);
+            Set(varAfternoonCheckinLoaderTime,true);
+            
+            Refresh(tblActivities);
+            Refresh(tblDailyActivities); 
+            ClearCollect(
+                colFilteredDailyActivities,
+                Filter(
+                    tblDailyActivities,
+                    ProjectInternalID = varSelectedAfternoonCheckinProjectInternalID
+                )
+            );
+        PaddingBottom: =5
+        PaddingLeft: =5
+        PaddingRight: =5
+        PaddingTop: =5
+        Tooltip: ="Refresh the list of activities"
+        Width: =50
+        X: =700
+        Y: =317
+        ZIndex: =12
+
+    lblAfternoonCheckinActivitiesDailyGoal As label:
+        Align: =Align.Center
+        FontWeight: =FontWeight.Bold
+        Size: =18
+        Text: ="Today's Goal"
+        Width: =175
+        X: =574
+        Y: =357
+        ZIndex: =13
+
+    lblAfternoonCheckinActivitiesDailyWorkers As label:
+        Align: =Align.Center
+        FontWeight: =FontWeight.Bold
+        Size: =18
+        Text: |-
+            ="# of SM workers"
+        Width: =208
+        X: =366
+        Y: =357
+        ZIndex: =14
+
+    grpAfternoonCheckinActivitiesEmptySchedulePopup As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =14
+
+        recAfternoonCheckinActivitiesEmptyScheduleBackground As rectangle:
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =596
+            Visible: =If(IsEmpty(galAfternoonCheckinActivitiesFlex.AllItems), true, false)
+            Width: =729
+            X: =20
+            Y: =397
+            ZIndex: =5
+
+        lblAfternoonCheckinActivitiesEmptyScheduleMessage As label:
+            Align: =Align.Center
+            Height: =136
+            Size: =18
+            Text: ="That's all the activities originally scheduled and/or that you added for today." & Char(13) & "Did you work on any other activities during the day?"
+            Visible: =If(IsEmpty(galAfternoonCheckinActivitiesFlex.AllItems), true, false)
+            Width: =530
+            X: =119
+            Y: =397
+            ZIndex: =6
+
+        btnAfternoonCheckinActivitiesEmptyScheduleYes As button:
+            DisplayMode: =Edit
+            Fill: =RGBA(168, 0, 0, 1)
+            Height: =47
+            HoverFill: =ColorFade(RGBA(168, 0, 0, 1), -20%)
+            OnSelect: =Navigate(scrAfternoonCheckinSearch)
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =14.99
+            Text: ="Yes"
+            Visible: =If(IsEmpty(galAfternoonCheckinActivitiesFlex.AllItems), true, false)
+            Width: =200
+            X: =165
+            Y: =577
+            ZIndex: =7
+
+        btnAfternoonCheckinActivitiesEmptyScheduleNo As button:
+            DisplayMode: =Edit
+            Fill: =RGBA(168, 0, 0, 1)
+            Height: =47
+            HoverFill: =ColorFade(RGBA(168, 0, 0, 1), -20%)
+            OnSelect: =Navigate(scrAfternoonCheckinWrapUp);
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =14.99
+            Text: ="No"
+            Visible: =If(IsEmpty(galAfternoonCheckinActivitiesFlex.AllItems), true, false)
+            Width: =200
+            X: =402
+            Y: =577
+            ZIndex: =8
+
+    lblACIActivitiesActivityDesc As label:
+        Align: =Align.Center
+        FontWeight: =FontWeight.Bold
+        Size: =18
+        Text: ="Activity"
+        Width: =212
+        X: =154
+        Y: =357
+        ZIndex: =15
+
+    lblACIActivitiesActivityNum As label:
+        FontWeight: =FontWeight.Bold
+        Size: =18
+        Text: |-
+            ="Activity #"
+        Width: =134
+        X: =20
+        Y: =357
+        ZIndex: =16
+
+    lblAfternoonCheckinActivitiesSubtitle As label:
+        Align: =Align.Center
+        Height: =126
+        Size: =15
+        Text: |-
+            ="Good Afternoon " & 
+            First(Split(varGlobalUser.Title," ")).Result & 
+            "!" & 
+            Char(13) & 
+            "I hope things went well today." &
+            Char(13) &
+            "Let's find out -" &
+            Char(13) &
+            "These are the activities you said you were going to work on today."
+        Width: =460
+        X: =154
+        Y: =211
+        ZIndex: =17
+
+    lblAfternoonCheckinActivitiesProjectInfo As label:
+        Align: =Align.Center
+        FontWeight: =FontWeight.Semibold
+        Height: =53
+        PaddingBottom: =3.75
+        PaddingLeft: =3.75
+        Size: =22
+        Text: |-
+            =varSelectedAfternoonCheckinProjectInternalID & ": " & varSelectedAfternoonCheckinProjectName
+        Width: =625
+        X: =71
+        Y: =158
+        ZIndex: =18
+
+    lblAfternoonCheckinActivitiesTitle As label:
+        Align: =Align.Center
+        FontWeight: =FontWeight.Semibold
+        Height: =51
+        Size: =32
+        Text: ="Today's Activities"
+        Width: =381
+        X: =193
+        Y: =107
+        ZIndex: =19
+
+    icoAfternoonCheckinActivitiesBack As icon.BackArrow:
+        Height: =47.98
+        Icon: =Icon.BackArrow
+        OnSelect: |-
+            =Set(varSelectedAfternoonCheckinProjectID,Blank());
+            Set(varSelectedAfternoonCheckinProjectName,Blank());
+            Set(varSelectedAfternoonCheckinProjectInternalID,Blank());
+            Reset(galAfternoonCheckinActivitiesFlex);
+            Set(varACISelectedActivity,Blank());
+            Navigate(scrAfternoonCheckin,ScreenTransition.UnCoverRight)
+        PaddingBottom: =0.00
+        PaddingLeft: =0.00
+        Tooltip: ="Back to Projects"
+        X: =20
+        Y: =100.33
+        ZIndex: =20
+
+    grpAfternoonCheckinActivitiesBanner As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =46
+
+        recAfternoonCheckinActivitiesBackground As rectangle:
+            Fill: =RGBA(204, 204, 204, 1)
+            Height: =85.33
+            Width: =768
+            Y: =0.00
+            ZIndex: =21
+
+        lblAfternoonCheckinActivitiesWelcome As label:
+            Align: =Align.Right
+            Height: =28.44
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =13.49
+            Text: =Concatenate("Welcome  ",varGlobalUser.Title)
+            Width: =Parent.Width/2
+            X: =(recAfternoonCheckinActivitiesBackground.X+recAfternoonCheckinActivitiesBackground.Width)-lblAfternoonCheckinActivitiesWelcome.Width
+            Y: =56.89
+            ZIndex: =22
+
+        imgAfternoonCheckinActivitiesWeather As image:
+            Height: =28
+            Image: |-
+                =varWeatherIcon 
+                /*If(
+                    "Sun" in Weather.responses.weather.current.cap,
+                    "data:image/svg+xml;utf8, %3Csvg%20%20viewBox%3D%270%200%202048%202048%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%3E%3Cpath%20d%3D%27M960%20512q93%200%20174%2035t143%2096%2096%20142%2035%20175q0%2093-35%20174t-96%20143-142%2096-175%2035q-93%200-174-35t-143-96-96-142-35-175q0-93%2035-174t96-143%20142-96%20175-35zm0%20768q66%200%20124-25t101-68%2069-102%2026-125q0-66-25-124t-69-101-102-69-124-26q-66%200-124%2025t-102%2069-69%20102-25%20124q0%2066%2025%20124t68%20102%20102%2069%20125%2025zm64-896H896V0h128v384zM896%201536h128v384H896v-384zm1024-640v128h-384V896h384zM384%201024H0V896h384v128zm123-426L236%20326l90-90%20272%20271-91%2091zm906%20724l271%20272-90%2090-272-271%2091-91zm0-724l-91-91%20272-271%2090%2090-271%20272zm-906%20724l91%2091-272%20271-90-90%20271-272z%27%20fill%3D%27%23FFFFFF%27%3E%3C%2Fpath%3E%3C%2Fsvg%3E",
+                    "Clear" in Weather.responses.weather.current.cap,
+                    "data:image/svg+xml;utf8, %3Csvg%20%20viewBox%3D%270%200%202048%202048%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%3E%3Cpath%20d%3D%27M1761%201036q64%2018%20116%2053t91%2084%2059%20109%2021%20126q0%2080-30%20149t-82%20122-123%2083-149%2030H576q-93%200-174-35t-143-96-96-142-35-175q0-66%2019-128t54-117%2084-96%20111-69q-12-49-12-102%200-93%2035-174t96-143%20142-96%20175-35q64%200%20125%2018t113%2051%2095%2081%2070%20106q90%203%20173%2033t152%2082%20122%20124%2079%20157zM832%20512q-66%200-124%2025t-102%2069-69%20102-25%20124q0%2017%201%2033t7%2034q28-3%2056-3%2038%200%2075%206t72%2019q29-51%2069-94t89-78%20102-59%20112-37q-44-66-114-103t-149-38zm832%201152q53%200%2099-20t82-55%2055-81%2020-100q0-55-20-102t-57-81-84-53-102-20q-12-82-51-152t-97-122-134-81-159-29q-77%200-146%2025t-127%2069-98%20106-61%20135q-44-38-97-58t-111-21q-66%200-124%2025t-102%2068-69%20102-25%20125q0%2066%2025%20124t68%20102%20102%2069%20125%2025h1088zM256%20896H0V768h256v128zm123-426L198%20289l91-91%20181%20181-91%2091zm517-214H768V0h128v256zm389%20214l-91-91%20181-181%2091%2091-181%20181z%27%20fill%3D%27%23FFFFFF%27%3E%3C%2Fpath%3E%3C%2Fsvg%3E",
+                    "Cloud" in Weather.responses.weather.current.cap,
+                    "data:image/svg+xml;utf8, %3Csvg%20%20viewBox%3D%270%200%202048%202048%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%3E%3Cpath%20d%3D%27M1761%201036q64%2018%20116%2053t91%2084%2059%20109%2021%20126q0%2080-30%20149t-82%20122-123%2083-149%2030H576q-93%200-174-35t-143-96-96-142-35-175q0-75%2024-144-71-54-111-134T0%20896q0-79%2030-149t82-122%20122-83%20150-30h21q10%200%2022%202%2027-60%2069-107t95-81%20114-52%20127-18q84%200%20159%2029t135%2081%2099%20123%2051%20154q84%208%20160%2040t140%2085%20111%20120%2074%20148zM384%20640q-53%200-99%2020t-82%2055-55%2081-20%20100q0%2054%2021%20102t62%2086q63-89%20159-138t206-50q38%200%2075%206t72%2019q32-57%2078-104t101-83%20117-59%20127-31q-11-56-39-104t-71-82-94-54-110-20q-62%200-117%2022t-98%2062-70%2093-32%20116q-30-17-63-27t-68-10zm1280%201024q53%200%2099-20t82-55%2055-81%2020-100q0-55-20-102t-57-81-84-54-102-19q-12-82-51-152t-97-122-134-81-159-29q-77%200-146%2025t-127%2069-98%20106-61%20135q-44-38-97-58t-111-21q-66%200-124%2025t-102%2068-69%20102-25%20125q0%2066%2025%20124t68%20102%20102%2069%20125%2025h1088z%27%20fill%3D%27%23FFFFFF%27%3E%3C%2Fpath%3E%3C%2Fsvg%3E",
+                    "Rain" in Weather.responses.weather.current.cap,
+                    "data:image/svg+xml;utf8, %3Csvg%20%20viewBox%3D%270%200%202048%202048%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%3E%3Cpath%20d%3D%27M850%201827q14%2030%2014%2061%200%2033-12%2062t-35%2051-51%2034-62%2013q-33%200-62-12t-51-35-34-51-13-62q0-31%2014-61l146-291%20146%20291zm768%200q14%2030%2014%2061%200%2033-12%2062t-35%2051-51%2034-62%2013q-33%200-62-12t-51-35-34-51-13-62q0-31%2014-61l146-291%20146%20291zm-384-256q14%2030%2014%2061%200%2033-12%2062t-35%2051-51%2034-62%2013q-33%200-62-12t-51-35-34-51-13-62q0-31%2014-61l146-291%20146%20291zm527-535q63%2017%20115%2052t91%2085%2060%20109%2021%20126q0%2066-22%20126t-61%20110-93%2085-118%2051l-60-120q48-6%2089-27t72-56%2047-77%2018-92q0-55-20-102t-57-81-84-53-102-20q-12-82-51-152t-97-122-134-81-159-29q-77%200-146%2025t-127%2069-98%20106-61%20135q-44-38-97-58t-111-21q-66%200-124%2025t-102%2068-69%20102-25%20125q0%2053%2017%20102t47%2089%2073%2070%2094%2045l-57%20114q-67-23-122-65t-96-97-62-120-22-138q0-93%2035-174t96-142%20142-96%20175-36q74%200%20147%2025%2039-65%2092-117t117-88%20136-56%20148-20q93%200%20178%2029t158%2081%20126%20125%2083%20161z%27%20fill%3D%27%23FFFFFF%27%3E%3C%2Fpath%3E%3C%2Fsvg%3E",
+                    "Thunder" in Weather.responses.weather.current.cap,
+                    "data:image/svg+xml;utf8, %3Csvg%20%20viewBox%3D%270%200%202048%202048%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%3E%3Cpath%20d%3D%27M1761%201036q63%2017%20115%2052t91%2085%2060%20109%2021%20126q0%2080-30%20149t-82%20122-123%2083-149%2030h-384l128-128h256q53%200%2099-20t82-55%2055-81%2020-100q0-55-20-101t-57-81-83-54-102-20q-12-82-51-152t-98-122-134-81-159-29q-77%200-146%2025t-127%2069-98%20106-61%20135q-44-38-97-58t-111-21q-66%200-124%2025t-102%2068-69%20102-25%20125q0%2066%2025%20124t68%20102%20102%2069%20125%2025h256l-64%20128H576q-93%200-174-35t-142-96-96-142-36-175q0-75%2024-144-71-54-111-134T0%20896q0-79%2030-149t82-122%20122-83%20150-30h21q10%200%2022%202%2027-60%2069-107t95-81%20114-52%20127-18q84%200%20159%2029t135%2081%2099%20123%2051%20154q84%209%20160%2041t139%2084%20112%20120%2074%20148zM723%20921q34-57%2079-104t100-83%20116-59%20128-31q-11-56-40-104t-70-82-94-54-110-20q-62%200-117%2022t-98%2062-70%2093-32%20116q-30-17-63-27t-68-10q-53%200-99%2020t-82%2055-55%2081-20%20100q0%2054%2021%20103t63%2085q63-89%20159-138t205-50q74%200%20147%2025zm109%201127l256-512H864l192-384h224l-128%20256h320l-640%20640z%27%20fill%3D%27%23FFFFFF%27%3E%3C%2Fpath%3E%3C%2Fsvg%3E",
+                    "Snow" in Weather.responses.weather.current.cap,
+                    "data:image/svg+xml;utf8, %3Csvg%20%20viewBox%3D%270%200%202048%202048%27%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%3E%3Cpath%20d%3D%27M1511%201504q26%200%2044%2019t19%2045q0%2036-32%2055l-70%2041%2070%2041q32%2019%2032%2055%200%2027-19%2045t-45%2019q-13%200-26-5t-27-13-26-16-23-15q0%2019%201%2044t-3%2047-18%2038-44%2016q-30%200-44-15t-18-38-4-48%202-44q-11%206-23%2014t-25%2016-27%2013-27%206q-26%200-45-18t-19-46q0-36%2032-55l70-41-70-41q-32-19-32-55%200-26%2018-45t45-19q13%200%2027%205t27%2014%2026%2016%2023%2014q0-19-1-44t2-47%2019-38%2044-16q30%200%2043%2015t18%2038%204%2048-1%2044q10-6%2022-14t26-16%2028-13%2027-6zm-533%20323q14%2030%2014%2061%200%2033-12%2062t-35%2051-51%2034-62%2013q-33%200-62-12t-51-35-34-51-13-62q0-31%2014-61l146-291%20146%20291zm783-791q63%2017%20115%2052t91%2085%2060%20109%2021%20126q0%2061-18%20117t-52%20104-81%2083-105%2056v-139q59-35%2093-93t35-128q0-55-20-101t-57-81-83-54-102-20q-12-82-51-152t-98-122-134-81-159-29q-77%200-146%2025t-127%2069-98%20106-61%20135q-44-38-97-58t-111-21q-66%200-124%2025t-102%2068-69%20102-25%20125q0%2066%2025%20124t68%20102%20102%2069%20125%2025l-61%20122q-83-11-154-50t-122-98-81-135-30-159q0-93%2035-174t96-142%20142-96%20175-36q74%200%20147%2025%2039-65%2092-117t117-88%20136-56%20148-20q93%200%20178%2029t158%2081%20126%20125%2083%20161z%27%20fill%3D%27%23FFFFFF%27%3E%3C%2Fpath%3E%3C%2Fsvg%3E"
+                )*/
+            PaddingRight: =5
+            Width: =28
+            X: =recHomeBanner.Width-Self.Width
+            Y: =28
+            ZIndex: =23
+
+        lblACIActivitiesWeather As label:
+            Align: =Align.Right
+            Height: =28.44
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =13.49
+            Text: =Weather.responses.weather.current.temp & Weather.units.temperature
+            Width: =Parent.Width/2
+            X: =(recDailyPlanActivitiesBackground.X+recDailyPlanActivitiesBackground.Width)-lblACIActivitiesWeather.Width-imgAfternoonCheckinActivitiesWeather.Width
+            Y: =27
+            ZIndex: =24
+
+        lblAfternoonCheckinActivitiesTodaysDate As label:
+            Align: =Align.Right
+            Height: =28.44
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =13.49
+            Text: =varGlobalTime //Text(Now(),ShortDateTime)
+            Width: =Parent.Width/2
+            X: =(recAfternoonCheckinActivitiesBackground.X+recAfternoonCheckinActivitiesBackground.Width)-lblAfternoonCheckinActivitiesTodaysDate.Width
+            Y: =0.00
+            ZIndex: =25
+
+        lblACIActivitiesBannerImage As image:
+            Height: =86
+            Image: ='SMART HEader'
+            OnSelect: |-
+                =Set(varAfternoonCheckinActivityDetails,Blank());
+                Set(varActivityNum, Blank());
+                Set(varActivityDesc, Blank());
+                Set(varActivityDailyGoal, Blank());
+                Set(varActivityMeasure, Blank());
+                Set(varActivityDailyWorkers, Blank());
+                Set(varActivityTrade, Blank());
+            Width: =574
+            ZIndex: =26
+
+    grpAfternoonCheckinNoPopup As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =47
+
+        imgACINotWorkedAttachmentLastValue As image:
+            Image: =Last(attACINotWorkedAttachments.Attachments).Value
+            Visible: =false
+            X: =201
+            Y: =783
+            ZIndex: =27
+
+        recAfternoonCheckinNoPopupFade As rectangle:
+            Fill: =RGBA(166, 166, 166, 0.4)
+            Height: =942
+            Visible: =varAfternoonCheckinNoPopup
+            Width: =768
+            Y: =82
+            ZIndex: =28
+
+        recAfternoonCheckinNoPopupBackground As rectangle:
+            BorderColor: =RGBA(128, 128, 128, 1)
+            BorderThickness: =2
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =861
+            Visible: =varAfternoonCheckinNoPopup
+            Width: =674
+            X: =45
+            Y: =107
+            ZIndex: =29
+
+        btnAfternoonCheckinNoPopupCancel As button:
+            Fill: =RGBA(168, 0, 0, 1)
+            Height: =49.48
+            HoverFill: =ColorFade(RGBA(168, 0, 0, 1), -20%)
+            OnSelect: |-
+                =UpdateContext({varAfternoonCheckinNoPopup:false});
+                UpdateContext({varACISelectedActivity:Blank()});
+                Clear(colAfternoonCheckinNoPopupSelectedIssues);
+                Set(varRawJSON, Blank());
+                Set(varBase64Only, Blank());
+                //Clear(colACINotWorkedAttachments);
+                Reset(attACINotWorkedAttachments);
+                Reset(galAfternoonCheckinActivitiesFlex);
+                Reset(cboxAfternoonCheckinNoPopupIssueCategories);
+                Reset(galAfternoonCheckinNoPopupIssues);
+                Reset(txtAfternoonCheckinNoPopupNotes);
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =14.99
+            Text: ="Cancel"
+            Visible: =varAfternoonCheckinNoPopup
+            Width: =264
+            X: =419
+            Y: =902
+            ZIndex: =30
+
+        btnAfternoonCheckinNoPopupOk As button:
+            DisplayMode: |-
+                =If(
+                    IsEmpty(colAfternoonCheckinNoPopupSelectedIssues),
+                    DisplayMode.Disabled,
+                    DisplayMode.Edit
+                )
+            Fill: =RGBA(168, 0, 0, 1)
+            Height: =49.48
+            HoverFill: =ColorFade(RGBA(168, 0, 0 , 1), -20%)
+            OnSelect: |-
+                =Set(
+                    varACINotWorkedSubmissionID,
+                    Patch(
+                        tblDailyActivities,
+                        First(Filter(tblDailyActivities, DailyActivityAutoID = galAfternoonCheckinActivitiesFlex.Selected.DailyActivityAutoID)),
+                        {
+                            EndDay_WorkersUsed: 0,
+                            EndDay_HoursWork: 0,
+                            EndDay_AmtComplete: 0,
+                            ActivityNotWorked: true,
+                            ActivityNotWorkedIssue: Concat(colAfternoonCheckinNoPopupSelectedIssues,IssueCategory & " - " & Issue,";"),
+                            ActivityNotWorkedIssue_Notes: Concat(colAfternoonCheckinNoPopupSelectedIssues,IssueCategory & " - " & IssueNotes,";")
+                        }
+                    ).DailyActivityAutoID
+                );
+                Clear(colACINotWorkedSubmittedIssuesTemp);
+                ForAll(
+                    colAfternoonCheckinNoPopupSelectedIssues,
+                    Collect(
+                        colACINotWorkedSubmittedIssuesTemp,
+                        Patch(
+                            tblDailyActivitiesIssues,
+                            Defaults(tblDailyActivitiesIssues),
+                            {
+                                DailyActivityAutoID: varACINotWorkedSubmissionID,
+                                Category: ThisRecord.IssueCategory,
+                                Title: ThisRecord.Issue,
+                                Notes: ThisRecord.IssueNotes,
+                                IssueType: "Check-Out Not Worked Issue"
+                            }
+                        )
+                    )
+                );
+                Clear(colACINotWorkedSubmittedIssues);
+                Collect(
+                    colACINotWorkedSubmittedIssues,
+                    AddColumns(
+                        colACINotWorkedSubmittedIssuesTemp,
+                        "FileName",
+                        First(Filter(colAfternoonCheckinNoPopupSelectedIssues As A, Category = A.IssueCategory && Title = A.Issue)).FileName,
+                        "AttachmentBase64",
+                        First(Filter(colAfternoonCheckinNoPopupSelectedIssues As A, Category = A.IssueCategory && Title = A.Issue)).TrimmedBinaryImageData
+                    )
+                );
+                'SmartApp-IssueEmail'.Run(
+                    varSelectedAfternoonCheckinProjectInternalID,
+                    galAfternoonCheckinActivitiesFlex.Selected.ActivityNum,
+                    Concat(colAfternoonCheckinNoPopupSelectedIssues,IssueCategory & " - " & Issue & ": " & IssueNotes,";"),
+                    User().Email
+                );
+                'SmartApp-SaveAttachments'.Run(
+                    JSON(colACINotWorkedSubmittedIssues, IncludeBinaryData),
+                    varACINotWorkedSubmissionID,
+                    varSelectedAfternoonCheckinProjectInternalID
+                );
+                UpdateContext({varAfternoonCheckinNoPopupSelectedIssueCategory:Blank()});
+                UpdateContext({varAfternoonCheckinNoPopupSelectedIssue:Blank()});
+                UpdateContext({varResetRadio:true});
+                UpdateContext({varResetRadio:false});
+                Clear(colAfternoonCheckinNoPopupSelectedIssues);
+                Set(varRawJSON, Blank());
+                Set(varBase64Only, Blank());
+                //Clear(colACINotWorkedAttachments);
+                Reset(attACINotWorkedAttachments);
+                ClearCollect(
+                    colFilteredAfternoonCheckOutActivities,
+                    Filter(
+                        tblDailyActivities,
+                        ProjectInternalID = varSelectedAfternoonCheckinProjectInternalID
+                    )
+                );
+                UpdateContext({varAfternoonCheckinNoPopup:false});
+                Navigate(scrAfternoonCheckinActivities);
+                Set(varAfternoonCheckinLoaderTime,false);
+                Reset(timACILoaderTime);
+                Set(varACILoaderVis,true);
+                Set(varAfternoonCheckinLoaderTime,true);
+            PaddingBottom: =3.75
+            PaddingLeft: =3.75
+            Size: =14.99
+            Text: ="Ok"
+            Visible: =varAfternoonCheckinNoPopup
+            Width: =264
+            X: =84
+            Y: =902
+            ZIndex: =31
+
+        galACISelectedIssues As gallery.variableTemplateHeightGallery:
+            BorderThickness: =1
+            Height: =119
+            Items: =colAfternoonCheckinNoPopupSelectedIssues
+            Layout: =Layout.Vertical
+            TemplatePadding: =0
+            TemplateSize: =50
+            Visible: =varAfternoonCheckinNoPopup
+            Width: =673
+            X: =46
+            Y: =729
+            ZIndex: =32
+
+            lblACISelectedIssuesTitle As label:
+                AutoHeight: =true
+                Height: =50
+                OnSelect: =Select(Parent)
+                Size: =11
+                Text: =ThisItem.Issue
+                Width: =Parent.TemplateWidth*.33
+                X: =30
+                ZIndex: =1
+
+            recACISelectedIssuesSeparator As rectangle:
+                Height: =1
+                OnSelect: =Select(Parent)
+                Width: =Parent.TemplateWidth
+                Y: |-
+                    =If(
+                        lblACISelectedIssuesTitle.Height > lblACISelectedIssuesCategory.Height,
+                        lblACISelectedIssuesTitle.Height,
+                        lblACISelectedIssuesCategory.Height > lblACISelectedIssuesNotes.Height,
+                        lblACISelectedIssuesCategory.Height,
+                        lblACISelectedIssuesNotes.Height
+                    )
+                ZIndex: =2
+
+            lblACISelectedIssuesCategory As label:
+                AutoHeight: =true
+                Height: =Parent.TemplateHeight
+                OnSelect: =Select(Parent)
+                Size: =11
+                Text: =ThisItem.IssueCategory
+                Width: =Parent.TemplateWidth*.23
+                X: =lblACISelectedIssuesTitle.Width + lblACISelectedIssuesTitle.X
+                ZIndex: =3
+
+            lblACISelectedIssuesNotes As label:
+                AutoHeight: =true
+                Height: =Parent.TemplateHeight
+                OnSelect: =Select(Parent)
+                Text: =ThisItem.IssueNotes
+                Width: =Parent.TemplateWidth*.23
+                X: =lblACISelectedIssuesCategory.X+lblACISelectedIssuesCategory.Width
+                ZIndex: =4
+
+            btnACISelectedIssuesPhotoView As button:
+                Height: =25
+                OnSelect: =Set(varACISelectedIssuesPhotoPreviewVis,true);Set(varACISelectedIssuesPhotoPreview,ThisItem.Media)
+                PaddingBottom: =0
+                PaddingLeft: =0
+                PaddingRight: =0
+                PaddingTop: =0
+                Size: =12
+                Text: ="View"
+                Visible: =If(!IsBlank(ThisItem.Media),true)
+                Width: =50
+                X: =575
+                Y: =(recDPQSelectedIssuesSeparator.Y-Self.Height)/2
+                ZIndex: =5
+
+            icoACISelectedIssuesRemove As icon.Cancel:
+                Height: =50
+                Icon: =Icon.Cancel
+                OnSelect: =Remove(colAfternoonCheckinNoPopupSelectedIssues,ThisItem)
+                Width: =30
+                ZIndex: =6
+
+        lblACISelectedIssuesHeaderTitle As label:
+            FontWeight: =FontWeight.Semibold
+            Height: =36
+            Size: =14
+            Text: ="Issue"
+            Visible: =varAfternoonCheckinNoPopup
+            Width: =250
+            X: =48
+            Y: =693
+            ZIndex: =33
+
+        lblACISelectedIssuesHeaderCategory As label:
+            FontWeight: =FontWeight.Semibold
+            Height: =36
+            Size: =14
+            Text: ="Category"
+            Visible: =varAfternoonCheckinNoPopup
+            Width: =160
+            X: =298
+            Y: =693
+            ZIndex: =34
+
+        lblACISelectedIssuesHeaderNotes As label:
+            FontWeight: =FontWeight.Semibold
+            Height: =36
+            Size: =14
+            Text: ="Notes"
+            Visible: =varAfternoonCheckinNoPopup
+            X: =458
+            Y: =693
+            ZIndex: =35
+
+        lblACISelectedIssuesHeaderPhoto As label:
+            FontWeight: =FontWeight.Semibold
+            Height: =36
+            Size: =14
+            Text: ="Photo"
+            Visible: =varAfternoonCheckinNoPopup
+            Width: =111
+            X: =608
+            Y: =693
+            ZIndex: =36
+
+        btnAfternoonCheckinNoPopupAddIssue As button:
+            DisplayMode: |-
+                =If(
+                    IsBlank(varAfternoonCheckinNoPopupSelectedIssue),
+                    Disabled,
+                    DisplayMode.Edit
+                )
+            OnSelect: |-
+                =Set(varRawJSON, JSON(imgACINotWorkedAttachmentLastValue.Image, JSONFormat.IncludeBinaryData));
+                Set(varBase64Only, Mid(varRawJSON, Find(",",varRawJSON)+1,Len(varRawJSON)-Find(",",varRawJSON)-1));
+                Collect(
+                    colAfternoonCheckinNoPopupSelectedIssues,
+                    {
+                        IssueID: 1000,
+                        IssueCategory: varAfternoonCheckinNoPopupSelectedIssueCategory,
+                        Issue: varAfternoonCheckinNoPopupSelectedIssue,
+                        IssueNotes: txtAfternoonCheckinNoPopupNotes.Text,
+                        FileName: First(attACINotWorkedAttachments.Attachments).Name,
+                        Media: imgACINotWorkedAttachmentLastValue.Image,
+                        BinaryImageData: varRawJSON,
+                        TrimmedBinaryImageData: varBase64Only
+                    }
+                );
+                UpdateContext({varAfternoonCheckinNoPopupSelectedIssueOtherVis:false});
+                UpdateContext({varAfternoonCheckinNoPopupSelectedIssueInputReset:true});
+                UpdateContext({varAfternoonCheckinNoPopupSelectedIssueInputReset:false});
+                UpdateContext({varAfternoonCheckinNoPopupSelectedIssueCategory:Blank()});
+                UpdateContext({varAfternoonCheckinNoPopupSelectedIssue:Blank()});
+                Set(varRawJSON, Blank());
+                Set(varBase64Only, Blank());
+                Reset(cboxAfternoonCheckinNoPopupIssueCategories);
+                Reset(attACINotWorkedAttachments)
+            Text: ="Add Issue"
+            Visible: =varAfternoonCheckinNoPopup //varAfternoonCheckinNoPopupSelectedIssueOtherVis
+            X: =301
+            Y: =643
+            ZIndex: =37
+
+        attACINotWorkedAttachments As attachments:
+            BorderColor: =Transparent
+            Color: =RGBA(255, 255, 255, 1)
+            Fill: =RGBA(56, 96, 178, 1)
+            Height: =117
+            IsInDataCard: =true
+            Items: =
+            MaxAttachments: =1
+            NoAttachmentsText: =""
+            OnAddFile: |-
+                =Set(varRawJSON, JSON(imgACINotWorkedAttachmentLastValue.Image, JSONFormat.IncludeBinaryData));
+                Set(varBase64Only, Mid(varRawJSON, Find(",",varRawJSON)+1,Len(varRawJSON)-Find(",",varRawJSON)-1));
+                /*Collect(
+                    colACINotWorkedAttachments,
+                    {
+                        Category: "Afternoon Check-Out Not Worked",
+                        //DailyActivityAutoID: 9999, //Make this the real ID from the patch
+                        Name: Last(Self.Attachments.Name).Name,
+                        AttachmentBase64: varBase64Only
+                    }
+                );
+                Set(varRawJSON, Blank());
+                Set(varBase64Only, Blank());
+                Reset(attACINotWorkedAttachments)*/
+            OnRemoveFile: |-
+                =//Resetting everything for now
+                Set(varRawJSON, Blank());
+                Set(varBase64Only, Blank());
+                //Clear(colACINotWorkedAttachments);
+                Reset(attACINotWorkedAttachments)
+            PaddingBottom: =5
+            PaddingLeft: =If(Self.DisplayMode = DisplayMode.Edit, 5, 0)
+            PaddingRight: =5
+            PaddingTop: =5
+            Size: =16
+            Visible: =varAfternoonCheckinNoPopup
+            Width: =168
+            X: =490
+            Y: =498
+            ZIndex: =38
+
+        recACINotWorkedAttachmentControlHide As rectangle:
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =(attACINotWorkedAttachments.Height/2)-3
+            Visible: =varAfternoonCheckinNoPopup
+            Width: =attACINotWorkedAttachments.Width
+            X: =attACINotWorkedAttachments.X
+            Y: =attACINotWorkedAttachments.Y
+            ZIndex: =39
+
+        txtAfternoonCheckinNoPopupNotes As text:
+            Default: =""
+            Height: =63
+            HintText: ="Enter Notes Here"
+            Mode: =TextMode.MultiLine
+            Reset: =varAfternoonCheckinNoPopupSelectedIssueInputReset
+            Visible: =varAfternoonCheckinNoPopup
+            Width: =408
+            X: =63
+            Y: =554
+            ZIndex: =40
+
+        galAfternoonCheckinNoPopupIssues As gallery.galleryVertical:
+            BorderThickness: =2
+            Height: =219
+            Items: |-
+                =Filter(
+                    [
+                        {
+                            Value: "GC directed us not to work or to stop work.",
+                            Category: "GC ISSUE"
+                        },
+                        {
+                            Value: "Area not ready for our work to start.",
+                            Category: "GC ISSUE"
+                        },
+                        {
+                            Value: "Area is not accessible / obstacles in our way in the work area.",
+                            Category: "GC ISSUE"
+                        },
+                        {
+                            Value: "The project is not ready for us to start our work.",
+                            Category: "GC ISSUE"
+                        },
+                        {
+                            Value: "Safety issues are prevention us from working.",
+                            Category: "GC ISSUE"
+                        },
+                        {
+                            Value: "Waiting on information (ie. RFI, ASI, CO)",
+                            Category: "GC ISSUE"
+                        },
+                        {
+                            Value: "Coordination issue- Other trades",
+                            Category: "GC ISSUE"
+                        },
+                        {
+                            Value: "OTHER",
+                            Category: "GC ISSUE"
+                        },
+                        {
+                            Value: "Manpower Issue (lack of, not adequate, not productive)",
+                            Category: "INTERNAL ISSUE"
+                        },
+                        {
+                            Value: "Materials (Ductwork, Pipe, Vendor)",
+                            Category: "INTERNAL ISSUE"
+                        },
+                        {
+                            Value: "Shop Drawings (BIM Conflicts, shop drawings not adequate)",
+                            Category: "INTERNAL ISSUE"
+                        },
+                        {
+                            Value: "Subcontractor Issue",
+                            Category: "INTERNAL ISSUE"
+                        },
+                        {
+                            Value: "CSUSA Internal Trade Issue / Conflict.",
+                            Category: "INTERNAL ISSUE"
+                        },
+                        {
+                            Value: "OTHER",
+                            Category: "INTERNAL ISSUE"
+                        },
+                        {
+                            Value: "General Weather",
+                            Category: "WEATHER ISSUE"
+                        },
+                        {
+                            Value: "OTHER",
+                            Category: "WEATHER ISSUE"
+                        },
+                        {
+                            Value: "NON-SCHEDULED ACTIVITY",
+                            Category: "NON-SCHEDULED ACTIVITY"
+                        },
+                        {
+                            Value: "OTHER",
+                            Category: "OTHER"
+                        },
+                    ], 
+                    Value.Category = varAfternoonCheckinNoPopupSelectedIssueCategory,
+                    Not(Value.Value in colAfternoonCheckinNoPopupSelectedIssues.Issue)
+                )
+            Layout: =Layout.Vertical
+            OnSelect: |
+                =UpdateContext({varAfternoonCheckinNoPopupSelectedIssue:ThisItem.Value.Value});
+            TemplateFill: =If(ThisItem.Issue=DailyPlanSelectedIssue, RGBA(0, 0, 0, .15), RGBA(0, 0, 0, 0))
+            TemplateSize: =30
+            Visible: =varAfternoonCheckinNoPopup
+            Width: =648
+            X: =60
+            Y: =325
+            ZIndex: =41
+
+            lblAfternoonCheckinNoPopupIssue As label:
+                Height: =28
+                OnSelect: =Select(Parent)
+                Text: =ThisItem.Value.Value
+                Width: =466
+                ZIndex: =1
+
+            btnAfternoonCheckinNoPopupIssueSelect As button:
+                Fill: =If(ThisItem.Value.Value = varAfternoonCheckinNoPopupSelectedIssue, ColorFade(RGBA(56, 96, 178, 1),-60%), RGBA(56, 96, 178, 1))
+                Height: =30
+                OnSelect: =Select(Parent)
+                Size: =11
+                Text: =ThisItem.Value.Value
+                Width: =638
+                ZIndex: =2
+
+        cboxAfternoonCheckinNoPopupIssueCategories As combobox:
+            DisplayFields: =["Value"]
+            IsSearchable: =false
+            Items: |-
+                =Table(
+                    {
+                        Value: "GC ISSUE"
+                    },
+                    {
+                        Value: "INTERNAL ISSUE"
+                    },
+                    {
+                        Value: "WEATHER ISSUE"
+                    }, 
+                    {
+                        Value: "NON-SCHEDULED ACTIVITY"
+                    },
+                    { 
+                        Value: "OTHER"
+                    }
+                )
+            NoSelectionText: ="CLICK DOWN ARROW FOR MENU"
+            OnChange: |-
+                =If(
+                    IsBlank(Self.Selected),
+                    UpdateContext({varAfternoonCheckinNoPopupSelectedIssueOtherVis:false});
+                    UpdateContext({varAfternoonCheckinNoPopupSelectedIssueCategory:Blank()});
+                    UpdateContext({varAfternoonCheckinNoPopupSelectedIssue:Blank()}),
+                    UpdateContext({varAfternoonCheckinNoPopupSelectedIssueOtherVis:false});
+                    UpdateContext({varAfternoonCheckinNoPopupSelectedIssueCategory:Self.Selected.Value});
+                    UpdateContext({varAfternoonCheckinNoPopupSelectedIssue:Blank()})
+                )
+                //varAfternoonCheckinNoPopupSelectedIssueCategory
+            OnSelect: |-
+                =UpdateContext({varAfternoonCheckinNoPopupSelectedIssueOtherVis:false});
+                UpdateContext({varAfternoonCheckinNoPopupSelectedIssueCategory:Self.Selected.Value});
+                UpdateContext({varAfternoonCheckinNoPopupSelectedIssue:Blank()})
+            SearchFields: =["Value"]
+            SearchItems: =[]
+            SelectMultiple: =false
+            Size: =12
+            Visible: =varAfternoonCheckinNoPopup
+            Width: =648
+            X: =60
+            Y: =277
+            ZIndex: =42
+
+        lblAfternoonCheckinNoPopupSubtitle As label:
+            Align: =Align.Center
+            Color: =RGBA(255, 0, 0, 1)
+            FontWeight: =FontWeight.Semibold
+            Height: =45
+            Size: =11
+            Text: ="Really? You indidcated at your check-in that you would be working on this activity today." & Char(10) & "Please choose why you did not work on this activity today from the list below."
+            Visible: =varAfternoonCheckinNoPopup
+            Width: =674
+            X: =45
+            Y: =219
+            ZIndex: =43
+
+        lblAfternoonCheckinNoPopupTitle As label:
+            Align: =Align.Center
+            Height: =103
+            Size: =22
+            Text: |-
+                ="User selected 'No' for:" &
+                Char(13) &
+                galAfternoonCheckinActivitiesFlex.Selected.ActivityNum & 
+                ": " &
+                galAfternoonCheckinActivitiesFlex.Selected.ActivityDescription &
+                " - " &
+                galAfternoonCheckinActivitiesFlex.Selected.Area
+            Visible: =varAfternoonCheckinNoPopup
+            Width: =674
+            X: =45
+            Y: =116
+            ZIndex: =44
+
+    btnAppExit_AfternoonCheckinActivities As button:
+        Fill: =RGBA(168, 0, 0, 1)
+        Height: =25
+        HoverFill: =ColorFade(Self.Fill, -20%)
+        OnSelect: =Exit()
+        Size: =11
+        Text: ="Exit"
+        Width: =75
+        X: =585
+        Y: =31
+        ZIndex: =48
+
+    grpACISelectedIssuesPhotoView As group:
+        Height: =5
+        Width: =5
+        X: =60
+        Y: =60
+        ZIndex: =51
+
+        recACINoAttachmentPhotoFade As rectangle:
+            Fill: =RGBA(0, 0, 0, 0.2)
+            Height: =1024
+            OnSelect: =Set(varACISelectedIssuesPhotoPreviewVis,false)
+            Visible: =varACISelectedIssuesPhotoPreviewVis
+            Width: =768
+            ZIndex: =45
+
+        btnACINoAttachmentPhotoBackground As button:
+            DisabledFill: =RGBA(255, 255, 255, 1)
+            DisplayMode: =DisplayMode.Disabled
+            Height: =imgACINoAttachmentPhotoView.Height
+            RadiusBottomLeft: =5
+            RadiusBottomRight: =5
+            RadiusTopLeft: =5
+            RadiusTopRight: =5
+            Text: =""
+            Visible: =varACISelectedIssuesPhotoPreviewVis
+            Width: =imgACINoAttachmentPhotoView.Width
+            X: =imgACINoAttachmentPhotoView.X
+            Y: =imgACINoAttachmentPhotoView.Y
+            ZIndex: =46
+
+        imgACINoAttachmentPhotoView As image:
+            Height: =Parent.Height*.3
+            Image: =varACISelectedIssuesPhotoPreview
+            PaddingBottom: =4
+            PaddingLeft: =4
+            PaddingRight: =4
+            PaddingTop: =4
+            Visible: =varACISelectedIssuesPhotoPreviewVis
+            Width: =Parent.Width*.55
+            X: =(Parent.Width-Self.Width)/2
+            Y: =(Parent.Height-Self.Height)/2
+            ZIndex: =47
+

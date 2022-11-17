@@ -1,0 +1,9 @@
+[
+  {
+    "AddinConnectorId": "25fa5b05-322f-496d-b2bd-2cc1a41f4307",
+    "AddinId": "6d1f157d-95bf-406d-b65d-cfd3240f724e",
+    "Name": "SmartApp-UrgentMessage",
+    "ServiceKind": "AddinWadl",
+    "Type": "ServiceInfo"
+  }
+]
