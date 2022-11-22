@@ -354,5 +354,6 @@ scrHome As screen:
             Height: =86
             Image: ='SMART HEader'
             Width: =574
+            X: =1
             ZIndex: =28
 
