@@ -249,7 +249,7 @@ scrDailyPlan As screen:
     Button2 As button:
         DisplayMode: =If(IsBlank(varReportFilterProjectInternalID),DisplayMode.Disabled,DisplayMode.Edit)
         OnSelect: |
-            =Set(varProjectFilterURL,"https://app.powerbi.com/reportEmbed?reportId=33e16d8b-d718-4d07-a748-a2a458f3c90c&autoAuth=true&ctid=40f59bdb-db20-494a-9b20-7fea60116f52&config=eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly93YWJpLXVzLW5vcnRoLWNlbnRyYWwtcmVkaXJlY3QuYW5hbHlzaXMud2luZG93cy5uZXQvIn0%3D?filterPaneEnabled=false&navContentPaneEnabled=false&$filter=tblProjects/ProjectInternalID%20eq%20%27"&varReportFilterProjectInternalID&"%27");Navigate(scrReports,ScreenTransition.Fade)
+            =Set(varProjectFilterURL,"https://app.powerbi.com/reportEmbed?reportId=33e16d8b-d718-4d07-a748-a2a458f3c90c&autoAuth=true&ctid=40f59bdb-db20-494a-9b20-7fea60116f52&config=eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly93YWJpLXVzLW5vcnRoLWNlbnRyYWwtcmVkaXJlY3QuYW5hbHlzaXMud2luZG93cy5uZXQvIn0%3D?filterPaneEnabled=false&navContentPaneEnabled=false&$filter=tblProjects/ProjectInternalID%20eq%20%27"&v++arReportFilterProjectInternalID&"%27");Navigate(scrReports,ScreenTransition.Fade)
         Text: ="Reports"
         X: =92
         Y: =835

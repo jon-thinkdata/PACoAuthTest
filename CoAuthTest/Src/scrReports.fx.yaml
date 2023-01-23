@@ -139,3 +139,11 @@ scrReports As screen:
         Y: =31
         ZIndex: =27
 
+    Label2 As label:
+        Height: =140
+        Text: =varProjectFilterURL
+        Width: =758
+        X: =40
+        Y: =40
+        ZIndex: =28
+

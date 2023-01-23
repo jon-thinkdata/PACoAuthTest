@@ -631,7 +631,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "btnAppExit_DailyPlanQuestions",
-      "ParentIndex": 6,
+      "ParentIndex": 8,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -2159,7 +2159,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "btnDPQNoAttachmentPhotoBackground",
-      "ParentIndex": 34,
+      "ParentIndex": 2,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -5342,7 +5342,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "dbug_btnDPQResetRadio",
-      "ParentIndex": 11,
+      "ParentIndex": 13,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -5650,7 +5650,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "dbug_lblDailyPlanQuestionActivityDates",
-      "ParentIndex": 14,
+      "ParentIndex": 16,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -6597,7 +6597,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "del_lblDPQRemainingWorkersValue",
-      "ParentIndex": 68,
+      "ParentIndex": 66,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -8150,7 +8150,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "htmlDPQ4PointMetrics",
-      "ParentIndex": 13,
+      "ParentIndex": 15,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -8329,7 +8329,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "icoDailyPlanQuestionsBack",
-      "ParentIndex": 12,
+      "ParentIndex": 14,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -8949,7 +8949,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "icoDPQSimulatorClose",
-      "ParentIndex": 23,
+      "ParentIndex": 25,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -9193,7 +9193,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "imgDailyPlanQuestionsWeather",
-      "ParentIndex": 5,
+      "ParentIndex": 7,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -9403,7 +9403,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "imgDPQBannerImage",
-      "ParentIndex": 2,
+      "ParentIndex": 4,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -9889,7 +9889,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "imgDPQNoAttachmentPhotoView",
-      "ParentIndex": 35,
+      "ParentIndex": 3,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -10391,7 +10391,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblDailyPlanQuestion",
-      "ParentIndex": 25,
+      "ParentIndex": 28,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -10701,7 +10701,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblDailyPlanQuestionsTemp",
-      "ParentIndex": 4,
+      "ParentIndex": 6,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -11011,7 +11011,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblDailyPlanQuestionsTodaysDate",
-      "ParentIndex": 3,
+      "ParentIndex": 5,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -11328,7 +11328,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblDailyPlanQuestionsWelcome",
-      "ParentIndex": 7,
+      "ParentIndex": 9,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -11638,7 +11638,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblDPQActivityDesc",
-      "ParentIndex": 17,
+      "ParentIndex": 19,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -11948,7 +11948,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblDPQActivityNum",
-      "ParentIndex": 10,
+      "ParentIndex": 12,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -12265,7 +12265,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblDPQActivityStartEndDates",
-      "ParentIndex": 24,
+      "ParentIndex": 26,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -14349,7 +14349,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblDPQDaysRowHeader",
-      "ParentIndex": 77,
+      "ParentIndex": 79,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -15638,7 +15638,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblDPQManHoursRowHeader",
-      "ParentIndex": 86,
+      "ParentIndex": 88,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -16258,7 +16258,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblDPQMetricMetPopupMessage",
-      "ParentIndex": 16,
+      "ParentIndex": 18,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -16608,7 +16608,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblDPQMetricRowHeader",
-      "ParentIndex": 54,
+      "ParentIndex": 56,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -17214,7 +17214,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblDPQNoMessage",
-      "ParentIndex": 27,
+      "ParentIndex": 29,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -18277,7 +18277,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblDPQOriginalDataHeader",
-      "ParentIndex": 37,
+      "ParentIndex": 38,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -19657,7 +19657,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblDPQRemainingDaysValue",
-      "ParentIndex": 79,
+      "ParentIndex": 77,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -20002,7 +20002,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblDPQRemainingHeader",
-      "ParentIndex": 38,
+      "ParentIndex": 37,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -20347,7 +20347,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblDPQRemainingManHoursValue",
-      "ParentIndex": 88,
+      "ParentIndex": 86,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -20692,7 +20692,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblDPQRemainingMetricValue",
-      "ParentIndex": 56,
+      "ParentIndex": 54,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -24253,7 +24253,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblDPQVisualizerDailyGoalHeader",
-      "ParentIndex": 21,
+      "ParentIndex": 23,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -24943,7 +24943,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblDPQVisualizerDailyGoalMetricValue",
-      "ParentIndex": 31,
+      "ParentIndex": 33,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -26654,7 +26654,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblDPQVisualizerMetricRowHeader",
-      "ParentIndex": 28,
+      "ParentIndex": 30,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -27344,7 +27344,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblDPQVisualizerOriginalDataHeader",
-      "ParentIndex": 19,
+      "ParentIndex": 21,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -28034,7 +28034,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblDPQVisualizerOriginalDataMetricValue",
-      "ParentIndex": 29,
+      "ParentIndex": 31,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -29076,7 +29076,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblDPQVisualizerRemainingHeader",
-      "ParentIndex": 20,
+      "ParentIndex": 22,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -29773,7 +29773,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblDPQVisualizerRemainingMetricValue",
-      "ParentIndex": 30,
+      "ParentIndex": 32,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -31139,7 +31139,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblDPQVisualizerTestPlanHeader",
-      "ParentIndex": 22,
+      "ParentIndex": 24,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -32181,7 +32181,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblDPQVisualizerTestPlanMetricValue",
-      "ParentIndex": 32,
+      "ParentIndex": 34,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -33202,7 +33202,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblDPQWorkersRowHeader",
-      "ParentIndex": 66,
+      "ParentIndex": 68,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -33526,7 +33526,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "radDailyPlanQuestionsYesNo",
-      "ParentIndex": 26,
+      "ParentIndex": 27,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -33866,7 +33866,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "radDPQMetricMetPopupYesNo",
-      "ParentIndex": 33,
+      "ParentIndex": 35,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -34290,7 +34290,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "recDPQMetricMetPopupBackground",
-      "ParentIndex": 15,
+      "ParentIndex": 17,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -34441,7 +34441,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "recDPQMetricMetPopupFade",
-      "ParentIndex": 9,
+      "ParentIndex": 11,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -35046,7 +35046,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "recDPQVisualizerBackground",
-      "ParentIndex": 18,
+      "ParentIndex": 20,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -35197,7 +35197,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "recDPQVisualizerFade",
-      "ParentIndex": 8,
+      "ParentIndex": 10,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {

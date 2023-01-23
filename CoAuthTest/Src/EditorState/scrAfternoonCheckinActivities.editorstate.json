@@ -593,7 +593,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "btnACINoAttachmentPhotoBackground",
-      "ParentIndex": 27,
+      "ParentIndex": 3,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -3407,7 +3407,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "btnAppExit_AfternoonCheckinActivities",
-      "ParentIndex": 6,
+      "ParentIndex": 8,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -3746,7 +3746,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "cboxAfternoonCheckinNoPopupIssueCategories",
-      "ParentIndex": 16,
+      "ParentIndex": 18,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -4510,7 +4510,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "galAfternoonCheckinNoPopupIssues",
-      "ParentIndex": 19,
+      "ParentIndex": 21,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -5228,7 +5228,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "icoAfternoonCheckinActivitiesBack",
-      "ParentIndex": 9,
+      "ParentIndex": 11,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -5736,7 +5736,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "icoAfternoonCheckinActivitiesRefresh",
-      "ParentIndex": 18,
+      "ParentIndex": 20,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -6224,7 +6224,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "imgACINoAttachmentPhotoView",
-      "ParentIndex": 28,
+      "ParentIndex": 4,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -6681,7 +6681,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "imgAfternoonCheckinActivitiesWeather",
-      "ParentIndex": 5,
+      "ParentIndex": 7,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -6914,7 +6914,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblACIActivitiesActivityDesc",
-      "ParentIndex": 22,
+      "ParentIndex": 24,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -7190,7 +7190,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblACIActivitiesActivityNum",
-      "ParentIndex": 20,
+      "ParentIndex": 22,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -7710,7 +7710,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblACIActivitiesWeather",
-      "ParentIndex": 4,
+      "ParentIndex": 6,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -11018,7 +11018,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblAfternoonCheckinActivitiesDailyGoal",
-      "ParentIndex": 26,
+      "ParentIndex": 28,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -11615,7 +11615,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblAfternoonCheckinActivitiesDailyWorkers",
-      "ParentIndex": 24,
+      "ParentIndex": 26,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -12810,7 +12810,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblAfternoonCheckinActivitiesProjectInfo",
-      "ParentIndex": 13,
+      "ParentIndex": 15,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -13092,7 +13092,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblAfternoonCheckinActivitiesSubtitle",
-      "ParentIndex": 14,
+      "ParentIndex": 16,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -13381,7 +13381,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblAfternoonCheckinActivitiesTitle",
-      "ParentIndex": 11,
+      "ParentIndex": 13,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -13691,7 +13691,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblAfternoonCheckinActivitiesTodaysDate",
-      "ParentIndex": 3,
+      "ParentIndex": 5,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -14008,7 +14008,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblAfternoonCheckinActivitiesWelcome",
-      "ParentIndex": 7,
+      "ParentIndex": 9,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -14601,7 +14601,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblAfternoonCheckinNoPopupSubtitle",
-      "ParentIndex": 15,
+      "ParentIndex": 17,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -14903,7 +14903,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "lblAfternoonCheckinNoPopupTitle",
-      "ParentIndex": 12,
+      "ParentIndex": 14,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -15531,7 +15531,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "recACIActivitiesActivityDescSeparator",
-      "ParentIndex": 23,
+      "ParentIndex": 25,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -15690,7 +15690,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "recACIActivitiesActivityNumSeparator",
-      "ParentIndex": 21,
+      "ParentIndex": 23,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -15849,7 +15849,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "recACIActivitiesActivityNumWorkersSeparator",
-      "ParentIndex": 25,
+      "ParentIndex": 27,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -17125,7 +17125,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "recAfternoonCheckinNoPopupBackground",
-      "ParentIndex": 10,
+      "ParentIndex": 12,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -17261,7 +17261,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "recAfternoonCheckinNoPopupFade",
-      "ParentIndex": 8,
+      "ParentIndex": 10,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
@@ -17519,7 +17519,7 @@
       "LayoutName": "",
       "MetaDataIDKey": "",
       "Name": "timACILoaderTime",
-      "ParentIndex": 17,
+      "ParentIndex": 19,
       "PersistMetaDataIDKey": false,
       "Properties": [
         {
